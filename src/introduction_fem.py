@@ -6,7 +6,16 @@
 #
 # Certain problems can be **solved analytically**, but only for specific boundary conditions,
 # material properties, and geometries.
-
+# ## Selection of approximation functions
+#
+# There are many different choices we could choose for approximating $g$:
+# 1. Global polynomial approximation (e.g. piecewise linear, quadratic, cubic, etc.)
+# 2. Finite Fourier series
+# 3. Piecewise polynomial approximation (e.g. Taylor series)
+#
+# When solving {term}`PDE`s, we will encounter **singularities** and **non-smooth solutions** (e.g. kinks).
+# Both these features make global polynomial approximation and Fourier series less attractive.
+#
 #
 # We will start by trying to approximate $g(x) = x \sin(\pi x) \cos (3\pi x)$ on the interval $[0, 1]$.
 
@@ -82,16 +91,6 @@ approximate_function(10, 1)
 approximate_function(5, 2)
 # -
 
-# ## Selection of approximation functions
-#
-# There are many different choices we could choose for approximating $g$:
-# 1. Global polynomial approximation (e.g. piecewise linear, quadratic, cubic, etc.)
-# 2. Finite Fourier series
-# 3. Piecewise polynomial approximation (e.g. Taylor series)
-#
-# When solving {term}`PDE`s, we will encounter **singularities** and **non-smooth solutions** (e.g. kinks).
-# Both these features make global polynomial approximation and Fourier series less attractive.
-#
 # ## Motivating example: Heat equation with different materials
 # This can for instance be seen in heat transfer equation between different materials.
 # We define a domain $\Omega\in \mathbb{R}^d$ as the union of two disjoint domains $\Omega_0$ and $\Omega_1$
