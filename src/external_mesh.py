@@ -7,8 +7,10 @@
 # The Eshelby has an ellipsoid inclusion in the circular domain.
 
 from mpi4py import MPI
-import dolfinx
+
 import gmsh
+
+import dolfinx
 
 # The first thing we do when using GMSH is to initialize it explicitly
 
@@ -26,7 +28,7 @@ gmsh.model.add("eshelby")
 # The disks will have a center at the origin and we can select an aspect ratio to make the inner disk elliptical
 
 # +
-center = (0,0,0)
+center = (0, 0, 0)
 aspect_ratio = 0.5
 R_i = 0.3
 R_e = 0.8
@@ -59,9 +61,7 @@ print(f"{outer_disk=}")
 # Now that we have created two parametric representations of a disk, we would like to create a combined surface,
 # where each of the circular boundaries are included.
 
-whole_domain, map_to_input = gmsh.model.occ.fragment(
-            [(2, outer_disk)], [(2, inner_disk)]
-        )
+whole_domain, map_to_input = gmsh.model.occ.fragment([(2, outer_disk)], [(2, inner_disk)])
 
 # We can inspect the first output of the fragment function
 
@@ -185,8 +185,7 @@ gmsh.model.mesh.setOrder(3)
 #
 # With these inputs we can generate the mesh and the cell and facet markers.
 
-circular_mesh, cell_marker, facet_marker = dolfinx.io.gmshio.model_to_mesh(
-    gmsh.model, MPI.COMM_WORLD, 0, gdim=2)
+circular_mesh, cell_marker, facet_marker = dolfinx.io.gmshio.model_to_mesh(gmsh.model, MPI.COMM_WORLD, 0, gdim=2)
 
 # We can now finalize GMSH (as we will not use it further in this section), and inspect the `cell_marker` and `facet_marker`.
 
@@ -220,8 +219,11 @@ print(f"{cell_marker.find(3)=}")
 
 # + tags=["hide-input"]
 import pyvista
+
 pyvista.start_xvfb(1)
-def plot_mesh(mesh: dolfinx.mesh.Mesh, values = None):
+
+
+def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
     """
     Given a DOLFINx mesh, create a `pyvista.UnstructuredGrid`,
     and plot it and the mesh nodes
@@ -236,16 +238,17 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, values = None):
         plotter.add_mesh(ugrid, style="points", color="b", point_size=10)
         ugrid = ugrid.tessellate()
         plotter.add_mesh(ugrid, show_edges=False)
-        plotter.add_mesh(linear_grid,style="wireframe", color="black")
+        plotter.add_mesh(linear_grid, style="wireframe", color="black")
 
     else:
         if values is not None:
             linear_grid.cell_data["Marker"] = values
-        plotter.add_mesh(linear_grid,show_edges=True)
+        plotter.add_mesh(linear_grid, show_edges=True)
     plotter.show_axes()
     plotter.view_xy()
     if not pyvista.OFF_SCREEN:
         plotter.show()
+
 
 # -
 

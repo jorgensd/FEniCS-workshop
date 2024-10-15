@@ -83,6 +83,7 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 # We pass in a Python function that takes in a `(3, num_points)` array, and returns an 1D array of booleans
 # indicating if the point satisfies the condition or not.
 
+
 # +
 def left_facets(x):
     return np.isclose(x[0], 0.0)
@@ -94,8 +95,7 @@ clamped_facets = dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, left_face
 # An equivalent way to find the facets is to use Python `lambda` functions, which are [anonymous functions](https://docs.python.org/3/glossary.html#term-lambda)
 # (they are not bound to a variable name). Here we find the facets on the right boundary, where $x = L$
 
-prescribed_facets = dolfinx.mesh.locate_entities_boundary(
-    mesh, tdim - 1, lambda x: np.isclose(x[0], L))
+prescribed_facets = dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, lambda x: np.isclose(x[0], L))
 
 # As all mesh entities are represented as integers, we can find the boundary facets by
 # remaining facets using numpy set operations
@@ -129,12 +129,14 @@ mu = E / (2.0 * (1.0 + nu))
 lmbda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu))
 f = dolfinx.fem.Constant(mesh, (0.0, 0.0, 0.0))
 
+
 def epsilon(u):
     return ufl.sym(ufl.grad(u))
 
 
 def sigma(u):
     return 2.0 * mu * epsilon(u) + lmbda * ufl.tr(epsilon(u)) * ufl.Identity(len(u))
+
 
 ds = ufl.Measure("ds", domain=mesh, subdomain_data=facet_marker)
 u = ufl.TrialFunction(V)
@@ -185,6 +187,7 @@ u.x.scatter_forward()
 
 # + tags=["hide-input"]
 import pyvista
+
 pyvista.start_xvfb(1.2)
 grid = dolfinx.plot.vtk_mesh(u.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)

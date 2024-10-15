@@ -61,12 +61,12 @@ L = f / g * v * ufl.dx
 # which can operate on the entire array at once.
 # ```
 
-g.interpolate(lambda x: 0.8 + np.sin(np.pi*x[1]))
+g.interpolate(lambda x: 0.8 + np.sin(np.pi * x[1]))
 
 # As `f` is in a discontinuous function space, we will create a piecewise constant function over parts of the domain.
 # We do this by first locating what cells satisfies `x<=0.5` (i.e. all vertices of the cell satisfies this condition).
 
-left_cells = dolfinx.mesh.locate_entities(mesh, mesh.topology.dim, lambda x: x[0] <=0.5+1e-14)
+left_cells = dolfinx.mesh.locate_entities(mesh, mesh.topology.dim, lambda x: x[0] <= 0.5 + 1e-14)
 
 # Next we populate all degrees of freedom by the function we want in the rest of the domain, $f(x,y) = x$.
 
@@ -87,9 +87,7 @@ f.x.scatter_forward()
 # If we want to give PETSc some options, such as what direct solver to use, we can do this with a dictionary.
 # In the following example, we will use a direct solver, and specifically the {term}`MUMPS` solver.
 
-petsc_options = petsc_options={"ksp_type": "preonly",
-                                "pc_type": "lu",
-                                "pc_factor_mat_solver_type": "mumps"}
+petsc_options = petsc_options = {"ksp_type": "preonly", "pc_type": "lu", "pc_factor_mat_solver_type": "mumps"}
 problem = dolfinx.fem.petsc.LinearProblem(a, L, petsc_options=petsc_options)
 
 # Now we can solve the problem and plot the solution.

@@ -6,7 +6,7 @@
 # compiling and linking the code can take time.
 # We start by setting up a simple unit square and a first order Lagrange space.
 
-# + 
+# +
 from mpi4py import MPI
 
 import numpy as np
@@ -52,6 +52,7 @@ dt.value = 0.005
 
 
 # Similarly, we can define the diffusive coefficient `k` such as
+
 
 # +
 def k_func(t):
@@ -117,6 +118,7 @@ L_compiled = dolfinx.fem.form(L)
 
 # ## Initial conditions
 # We generate the initial condition by using lambda expressions
+
 
 # +
 def u_init(x, sigma=0.1, mu=0.3):

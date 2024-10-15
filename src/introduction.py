@@ -99,7 +99,8 @@
 # for more information.
 #
 # An algorithmic approach for determining the basis functions based of the dual space is for instance given at
-# [Finite elements - analysis and implementation (Imperial College London)](https://finite-element.github.io/L2_fespaces.html#vandermonde-matrix-and-unisolvence).
+# [Finite elements - analysis and implementation
+# (Imperial College London)](https://finite-element.github.io/L2_fespaces.html#vandermonde-matrix-and-unisolvence).
 #
 # # Creating a finite element in FEniCSx
 #
@@ -124,7 +125,7 @@
 # that creates a representation of a finite element using {term}`Basix`,
 # which in turn can be used in the {term}`UFL`.
 
-# + 
+# +
 import numpy as np
 
 import basix.ufl
@@ -145,18 +146,26 @@ element = basix.ufl.element("Lagrange", "triangle", 1)
 #
 # In this case, we want to compute the basis functions themselves, so we set the first argument to 0.
 
-points = np.array([[0.,0.1], [0.3, 0.2]])
+# +
+points = np.array([[0.0, 0.1], [0.3, 0.2]])
 values = element.tabulate(0, points)
+# -
 
-print(values)
+# + tags = ["remove-input"]
+print(f"{values=}")
+# -
 
 # We can get the first order derivatives of the basis functions by setting the first argument to 1.
 # Observe that the output we get from this command also includes the 0th order derivatives.
 # Thus we note that the output has the shape `(num_spatial_derivatives+1, num_points, num_basis_functions)`
 
+# +
 values = element.tabulate(1, points)
+# -
 
+# + tags = ["remove-input"]
 print(values)
+# -
 
 # ## Visualizing the basis functions
 
@@ -175,7 +184,7 @@ def plot_basis_functions(element, M: int):
     :return: The matplotlib instances for a plot of the basis functions
     """
     # We use basix to sample points (uniformly) in the reference cell
-    points = basix.create_lattice(element.cell_type, M-1, basix.LatticeType.equispaced, exterior=True)
+    points = basix.create_lattice(element.cell_type, M - 1, basix.LatticeType.equispaced, exterior=True)
 
     # We evaluate the basis function and derivatives at the points
     values = element.tabulate(1, points)
@@ -185,20 +194,23 @@ def plot_basis_functions(element, M: int):
     num_columns = values.shape[0]
 
     derivative_dir = ["x", "y"]
-    figs = [plt.subplots(1, num_columns, layout='tight', subplot_kw={'projection': "3d"})
-            for i in range(num_basis_functions)]
+    figs = [
+        plt.subplots(1, num_columns, layout="tight", subplot_kw={"projection": "3d"})
+        for i in range(num_basis_functions)
+    ]
     colors = plt.rcParams["axes.prop_cycle"]()
     for i in range(num_basis_functions):
         _, axs = figs[i]
-        [(ax.set_xlabel("x"),ax.set_ylabel("y")) for ax in axs.flat]
+        [(ax.set_xlabel("x"), ax.set_ylabel("y")) for ax in axs.flat]
         for j in range(num_columns):
             ax = axs[j]
             ax.scatter(points[:, 0], points[:, 1], values[j, :, i], color=next(colors)["color"])
             if j > 0:
-                ax.set_title(r"$\partial\phi_{i}/\partial {x_j}$".format(i="{"+f"{i}"+"}",
-                                                                         x_j=derivative_dir[j-1]))
+                ax.set_title(
+                    r"$\partial\phi_{i}/\partial {x_j}$".format(i="{" + f"{i}" + "}", x_j=derivative_dir[j - 1])
+                )
             else:
-                ax.set_title(r"$\phi_{i}$".format(i="{"+f"{i}"+"}"))
+                ax.set_title(r"$\phi_{i}$".format(i="{" + f"{i}" + "}"))
     return figs
 
 

@@ -9,6 +9,7 @@
 
 # + tags=["remove-output"]
 from benefits_of_curved_meshes import generate_mesh
+
 resolution = 0.01
 linear_mesh, _, _ = generate_mesh(resolution, 1)
 curved_mesh, _, _ = generate_mesh(resolution, 3)
@@ -16,11 +17,12 @@ curved_mesh, _, _ = generate_mesh(resolution, 3)
 
 # For this section, we will use the following finite element definition
 
-element = ("Lagrange", 3, (2, ))
+element = ("Lagrange", 3, (2,))
 
 # and the function spaces
 
 import dolfinx
+
 V = dolfinx.fem.functionspace(curved_mesh, element)
 V_lin = dolfinx.fem.functionspace(linear_mesh, element)
 
@@ -39,6 +41,8 @@ import ufl
 
 def linear_form(f, v, dx):
     return ufl.inner(f, v) * dx
+
+
 # -
 
 # ### Assembly on the curved mesh
@@ -60,9 +64,10 @@ L_compiled = dolfinx.fem.form(L)
 # test function, so that we can re-use it for repeated assemblies. Additionally, this takes care of some of
 # the memory management when interfacing with PETSc.
 
-# + 
-import dolfinx.fem.petsc
+# +
 from time import perf_counter
+
+import dolfinx.fem.petsc
 
 b = dolfinx.fem.Function(V)
 # -
@@ -106,7 +111,8 @@ print(f"Linear time (b): {end_lin-start_lin:.2e} Curved/Linear={(end-start)/(end
 # -
 # We additionally check the estimated quadrature degree for each integral
 
-from ufl.algorithms import expand_derivatives, estimate_total_polynomial_degree
+from ufl.algorithms import estimate_total_polynomial_degree, expand_derivatives
+
 print(f"Curved (b) estimate: {estimate_total_polynomial_degree(expand_derivatives(L))}")
 print(f"Linear (b) estimate: {estimate_total_polynomial_degree(expand_derivatives(L_lin))}")
 
@@ -134,6 +140,7 @@ print(f"Linear (b) estimate: {estimate_total_polynomial_degree(expand_derivative
 # $$
 # a(u,v) = \int_\Omega u \cdot v + \nabla u \cdot \nabla v ~\mathrm{d}x.
 # $$
+
 
 def bilinear_form(u, v, dx):
     return ufl.inner(u, v) * dx + ufl.inner(ufl.grad(u), ufl.grad(v)) * dx

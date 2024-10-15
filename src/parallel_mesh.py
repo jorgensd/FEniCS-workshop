@@ -5,8 +5,10 @@
 # For the remainder of this section we will consider a 3x3 unit square mesh:
 
 from mpi4py import MPI
-import dolfinx
+
 import ipyparallel as ipp
+
+import dolfinx
 
 domain = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 3, 3)
 
