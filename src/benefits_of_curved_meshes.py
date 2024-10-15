@@ -343,10 +343,10 @@ print(f"Curved mesh {estimate_total_polynomial_degree(expand_derivatives(L2))}")
 
 import basix
 
-points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 7, basix.QuadratureType.Default)
+points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 7, basix.QuadratureType.default)
 print(f"Number of quadrature points: {points.shape[0]}")
 
-points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 15, basix.QuadratureType.Default)
+points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 15, basix.QuadratureType.default)
 print(f"Number of quadrature points: {points.shape[0]}")
 
 # This means that we will do three times the amount of computations on the curved mesh compared to the linear mesh.
