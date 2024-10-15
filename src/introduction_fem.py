@@ -196,9 +196,6 @@ T_end = 0.1
 Th = dolfinx.fem.Function(V)
 Th.x.array[:] = T_n.x.array
 
-bp_file = dolfinx.io.VTXWriter(mesh.comm, "heat_transfer.bp", [Th])
-bp_file.write(0.0)
-
 # Assemble LHS matrix and invert once with scipy
 A.data[:] = 0
 dolfinx.fem.assemble_matrix(A, a, bcs=bcs)
@@ -217,8 +214,6 @@ while t < T_end:
     # Solve linear system
     Th.x.array[:] = Ainv.solve(b.array)
     T_n.x.array[:] = Th.x.array
-    bp_file.write(t)
-bp_file.close()
 
 
 plotter = pyvista.Plotter()

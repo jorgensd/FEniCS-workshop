@@ -320,7 +320,7 @@ compile_dudx = dolfinx.fem.Expression(dudx, Q.element.interpolation_points())
 # We populate `u` with some data on some part of the domain
 
 left_cells = dolfinx.mesh.locate_entities(mesh, mesh.topology.dim, lambda x: x[0] >= 0.3 + 1e-14)
-u.interpolate(lambda x: x[0] ** 2, cells=left_cells)
+u.interpolate(lambda x: x[0] ** 2, cells0=left_cells)
 
 # We can then interpolate `dudx` into `Q` with
 

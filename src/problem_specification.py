@@ -74,7 +74,7 @@ f.interpolate(lambda x: x[0])
 
 # And then we overwrite the values in the left cells with the function $f(x,y) = 1$.
 
-f.interpolate(lambda x: np.full(x.shape[1], 1, dtype=dolfinx.default_scalar_type), cells=left_cells)
+f.interpolate(lambda x: np.full(x.shape[1], 1, dtype=dolfinx.default_scalar_type), cells0=left_cells)
 
 # As we are only working on a sub-set of cells, we call `scatter_forward` to ensure that all processes on a distributed
 # system gets the correct values.
