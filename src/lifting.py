@@ -274,6 +274,7 @@ for bc in bcs:
 
 # Next, we assemble the RHS vector as normal and set the BC values
 
+L_compiled = dolfinx.fem.form(L)
 b = dolfinx.fem.petsc.assemble_vector(L_compiled)
 b.ghostUpdate(addv=PETSc.InsertMode.ADD_VALUES, mode=PETSc.ScatterMode.REVERSE)
 dolfinx.fem.petsc.set_bc(b, bcs)
@@ -300,7 +301,8 @@ assert np.allclose(u.x.array, uh.x.array)
 
 # ### Symmetry of the matrix
 # We note that matrix `A` is no longer symmetric, meaning that we exclude a whole class of iterative solvers
-# ([Conjugate Gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method)).
+# ([Conjugate Gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method) or
+# [Minimal Residual Method](https://en.wikipedia.org/wiki/Minimal_residual_method)).
 
 print(f"Matrix A is symmetric after bc application: {A.isSymmetric(1e-5)}")
 
