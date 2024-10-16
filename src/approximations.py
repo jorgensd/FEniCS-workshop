@@ -245,8 +245,11 @@ def create_side_by_side_plot(
     pyvista.set_jupyter_backend("html")
 
 
-if sys.platform == "linux":
+import os
+
+if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
     pyvista.start_xvfb(0.05)
+
 create_side_by_side_plot(uh, wh)
 # -
 
@@ -344,7 +347,6 @@ plotter.view_xz()
 plotter.show()
 pyvista.set_jupyter_backend("html")
 # -
-
 # ## Exercises
 #
 # ### Von Mises stresses

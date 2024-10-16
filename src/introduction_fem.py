@@ -20,7 +20,7 @@
 # We will start by trying to approximate $g(x) = x \sin(\pi x) \cos (3\pi x)$ on the interval $[0, 1]$.
 
 # +tags=["hide-input"]
-import sys
+import sys, os
 
 from mpi4py import MPI
 
@@ -31,7 +31,7 @@ import scipy.sparse
 import dolfinx
 import ufl
 
-if sys.platform == "linux":
+if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
     pyvista.start_xvfb(0.05)
 
 
