@@ -16,7 +16,9 @@ dependencies:
   - trame-vtk
   - trame-server
   - trame-vuetify
+  - trame
   - ipywidgets
+  - sphinx>=6.0.0
 variables:
   PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
   PYVISTA_TRAME_SERVER_PROXY_ENABLED: "True"

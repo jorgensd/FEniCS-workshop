@@ -104,8 +104,10 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
 
 
 # The mesh we created above is visualized as
+import sys
 
-pyvista.start_xvfb(1.0)
+if sys.platform == "linux":
+    pyvista.start_xvfb(0.05)
 plot_mesh(domain)
 
 

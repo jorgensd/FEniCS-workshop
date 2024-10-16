@@ -187,8 +187,10 @@ u.x.scatter_forward()
 
 # + tags=["hide-input"]
 import pyvista
+import sys
 
-pyvista.start_xvfb(1.2)
+if sys.platform == "linux":
+    pyvista.start_xvfb(0.05)
 grid = dolfinx.plot.vtk_mesh(u.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)
 values = u.x.array.reshape(-1, 3)

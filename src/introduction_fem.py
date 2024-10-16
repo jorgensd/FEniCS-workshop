@@ -21,7 +21,7 @@
 
 # +tags=["hide-input"]
 from mpi4py import MPI
-
+import sys
 import numpy as np
 import pyvista
 import scipy.sparse
@@ -57,8 +57,8 @@ def approximate_function(N: int, degree: int):
     lin_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(lin_V))
     lin_grid.point_data["u"] = lin_u.x.array
     lin_warped = lin_grid.warp_by_scalar("u", normal=[0, 1, 0])
-
-    pyvista.start_xvfb(0.05)
+    if sys.platform == "linux":
+        pyvista.start_xvfb(0.05)
     pyvista.set_jupyter_backend("static")
     plotter = pyvista.Plotter()
     plotter.add_lines(
@@ -122,8 +122,8 @@ c.x.array[:] = 0.1
 cells_left = dolfinx.mesh.locate_entities(mesh, mesh.topology.dim, lambda x: x[0] <= 0.7 + 1e-12)
 c.x.array[cells_left] = 0.01
 c.x.scatter_forward()
-
-pyvista.start_xvfb(0.05)
+if sys.platform == "linux":
+    pyvista.start_xvfb(0.05)
 c_plotter = pyvista.Plotter()
 c_mesh = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
 c_mesh.cell_data["c"] = c.x.array

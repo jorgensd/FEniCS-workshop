@@ -19,6 +19,7 @@ from petsc4py import PETSc
 
 import dolfinx.fem.petsc
 import ufl
+import sys
 
 
 def h(alpha, mesh: dolfinx.mesh.Mesh):
@@ -244,7 +245,8 @@ def create_side_by_side_plot(
     pyvista.set_jupyter_backend("html")
 
 
-pyvista.start_xvfb(1.0)
+if sys.platform == "linux":
+    pyvista.start_xvfb(0.05)
 create_side_by_side_plot(uh, wh)
 # -
 

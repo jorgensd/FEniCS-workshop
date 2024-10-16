@@ -21,6 +21,7 @@ import pyvista
 
 import dolfinx.fem.petsc
 import ufl
+import sys
 
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 10, 10)
 
@@ -96,7 +97,8 @@ uh = problem.solve()
 
 
 def plot_scalar_function(u: dolfinx.fem.Function):
-    pyvista.start_xvfb(1.0)
+    if sys.platform == "linux":
+        pyvista.start_xvfb(0.05)
     u_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(u.function_space))
     u_grid.point_data["u"] = u.x.array
     linear_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(u.function_space.mesh))

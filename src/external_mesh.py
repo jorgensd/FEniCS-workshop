@@ -219,8 +219,10 @@ print(f"{cell_marker.find(3)=}")
 
 # + tags=["hide-input"]
 import pyvista
+import sys
 
-pyvista.start_xvfb(1)
+if sys.platform == "linux":
+    pyvista.start_xvfb(0.05)
 
 
 def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
