@@ -1,0 +1,17 @@
+name: workshop-env
+channels:
+  - conda-forge
+dependencies:
+  - fenics-dolfinx
+  - scifem
+  - pyvista
+  - pip
+  - git
+  - ipyparallel
+  - tqdm
+  - scipy
+  - pygraphviz
+  - jupyter-book
+  - jupytext
+  - trame-vtk
+  - ipywidgets
