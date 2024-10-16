@@ -5,13 +5,13 @@
 // This code was generated with the following options:
 //
 //  {'epsilon': 1e-14,
-//   'output_directory': '/root/shared/src',
+//   'output_directory': '/home/dokken/Documents/FEniCS-workshop/src',
 //   'profile': False,
 //   'scalar_type': 'float64',
 //   'sum_factorization': False,
 //   'table_atol': 1e-09,
 //   'table_rtol': 1e-06,
-//   'ufl_file': ['/root/shared/src/ufl_formulation.py'],
+//   'ufl_file': ['/home/dokken/Documents/FEniCS-workshop/src/ufl_formulation.py'],
 //   'verbosity': 30,
 //   'visualise': True}
 
