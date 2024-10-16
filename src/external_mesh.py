@@ -218,10 +218,11 @@ print(f"{cell_marker.find(3)=}")
 # We can now plot the mesh with the `plot_mesh` function from the previous section.
 
 # + tags=["hide-input"]
-import pyvista
 import sys
 
-if sys.platform == "linux":
+import pyvista
+
+if sys.platform == "linux" and pyvista.OFF_SCREEN:
     pyvista.start_xvfb(0.05)
 
 

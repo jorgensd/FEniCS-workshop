@@ -14,12 +14,13 @@
 # We will use `ufl.conditional` as explained in the [the previous section](./form_compilation).
 
 # +
+import sys
+
 from mpi4py import MPI
 from petsc4py import PETSc
 
 import dolfinx.fem.petsc
 import ufl
-import sys
 
 
 def h(alpha, mesh: dolfinx.mesh.Mesh):
@@ -245,7 +246,7 @@ def create_side_by_side_plot(
     pyvista.set_jupyter_backend("html")
 
 
-if sys.platform == "linux":
+if sys.platform == "linux" and pyvista.OFF_SCREEN:
     pyvista.start_xvfb(0.05)
 create_side_by_side_plot(uh, wh)
 # -

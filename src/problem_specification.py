@@ -14,6 +14,8 @@
 # To create a mesh, we need to decide on what {term}`MPI` communicator we want to use.
 # For all the examples in this tutorial, we will use the communicator `MPI.COMM_WORLD`.
 
+import sys
+
 from mpi4py import MPI
 
 import numpy as np
@@ -21,7 +23,6 @@ import pyvista
 
 import dolfinx.fem.petsc
 import ufl
-import sys
 
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 10, 10)
 
@@ -97,7 +98,7 @@ uh = problem.solve()
 
 
 def plot_scalar_function(u: dolfinx.fem.Function):
-    if sys.platform == "linux":
+    if sys.platform == "linux" and pyvista.OFF_SCREEN:
         pyvista.start_xvfb(0.05)
     u_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(u.function_space))
     u_grid.point_data["u"] = u.x.array
