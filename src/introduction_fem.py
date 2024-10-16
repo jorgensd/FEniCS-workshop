@@ -31,7 +31,7 @@ import scipy.sparse
 import dolfinx
 import ufl
 
-if sys.platform == "linux" and pyvista.OFF_SCREEN:
+if sys.platform == "linux":
     pyvista.start_xvfb(0.05)
 
 

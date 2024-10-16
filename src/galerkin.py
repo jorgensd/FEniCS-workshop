@@ -61,7 +61,7 @@ def plot_interval_basis_functions(N: int, degree: int, g):
     perm = np.hstack([np.array([0]), np.arange(2, nbpc), np.array([1])])
     ordered_basis_functions = basis_functions[perm]
 
-    if sys.platform == "linux" and pyvista.OFF_SCREEN:
+    if sys.platform == "linux":
         pyvista.start_xvfb(0.05)
     pyvista.set_jupyter_backend("static")
     basis_plotter = pyvista.Plotter()

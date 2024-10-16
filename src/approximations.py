@@ -245,7 +245,7 @@ def create_side_by_side_plot(
     pyvista.set_jupyter_backend("html")
 
 
-if sys.platform == "linux" and pyvista.OFF_SCREEN:
+if sys.platform == "linux":
     pyvista.start_xvfb(0.05)
 create_side_by_side_plot(uh, wh)
 # -

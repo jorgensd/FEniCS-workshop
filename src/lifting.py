@@ -190,7 +190,7 @@ import sys
 
 import pyvista
 
-if sys.platform == "linux" and pyvista.OFF_SCREEN:
+if sys.platform == "linux":
     pyvista.start_xvfb(0.05)
 grid = dolfinx.plot.vtk_mesh(u.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)

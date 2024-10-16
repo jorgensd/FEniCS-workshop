@@ -222,7 +222,7 @@ import sys
 
 import pyvista
 
-if sys.platform == "linux" and pyvista.OFF_SCREEN:
+if sys.platform == "linux":
     pyvista.start_xvfb(0.05)
 
 
