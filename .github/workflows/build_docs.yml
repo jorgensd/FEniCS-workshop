@@ -17,8 +17,7 @@ env:
   PYVISTA_OFF_SCREEN: false
   PYVISTA_JUPYTER_BACKEND: "html"
   LIBGL_ALWAYS_SOFTWARE: 1
-  DISPLAY: ":0"
-
+  DISPLAY: ":99.0"
 jobs:
   build-docs:
     env:
