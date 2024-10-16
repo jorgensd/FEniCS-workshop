@@ -15,3 +15,9 @@ dependencies:
   - jupytext
   - trame-vtk
   - ipywidgets
+variables:
+  PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
+  PYVISTA_TRAME_SERVER_PROXY_ENABLED: "True"
+  PYVISTA_OFF_SCREEN: false
+  PYVISTA_JUPYTER_BACKEND: "html"
+  LIBGL_ALWAYS_SOFTWARE: 1

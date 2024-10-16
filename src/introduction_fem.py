@@ -85,11 +85,6 @@ approximate_function(5, 1)
 approximate_function(10, 1)
 # -
 
-# Or we could increase the polynomial degree for the function we use to approimate $g$ on each element
-
-# + tags=["hide-input"]
-approximate_function(5, 2)
-# -
 
 # ## Motivating example: Heat equation with different materials
 # This can for instance be seen in heat transfer equation between different materials.
