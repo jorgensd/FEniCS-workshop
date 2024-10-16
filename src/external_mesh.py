@@ -249,8 +249,7 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
         plotter.add_mesh(linear_grid, show_edges=True)
     plotter.show_axes()
     plotter.view_xy()
-    if not pyvista.OFF_SCREEN:
-        plotter.show()
+    plotter.show()
 
 
 # -

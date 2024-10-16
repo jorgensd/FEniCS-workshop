@@ -96,8 +96,7 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
     # We plot the coordinate axis and align it with the xy-plane
     plotter.show_axes()
     plotter.view_xy()
-    if not pyvista.OFF_SCREEN:
-        plotter.show()
+    plotter.show()
 
 
 # -

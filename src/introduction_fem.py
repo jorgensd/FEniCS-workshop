@@ -71,11 +71,7 @@ def approximate_function(N: int, degree: int):
     plotter.add_mesh(lin_warped, color="b", style="points", point_size=10)
     plotter.view_xy()
     plotter.add_legend(face="triangle")
-
-    if pyvista.OFF_SCREEN:
-        plotter.screenshot("approximation.png")
-    else:
-        plotter.show()
+    plotter.show()
     pyvista.set_jupyter_backend("html")
 
 
@@ -130,10 +126,7 @@ c_plotter = pyvista.Plotter()
 c_mesh = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
 c_mesh.cell_data["c"] = c.x.array
 c_plotter.add_mesh(c_mesh)
-if pyvista.OFF_SCREEN:
-    c_plotter.screenshot("heat_coefficient.png")
-else:
-    c_plotter.show()
+c_plotter.show()
 # -
 
 # $$

@@ -241,8 +241,7 @@ def create_side_by_side_plot(
     plotter.add_mesh(pyvista_dg, style="wireframe", line_width=3)
     plotter.show_axes()
     plotter.view_xz()
-    if not pyvista.OFF_SCREEN:
-        plotter.show()
+    plotter.show()
     pyvista.set_jupyter_backend("html")
 
 
@@ -337,14 +336,12 @@ pyvista.set_jupyter_backend("static")
 plotter = pyvista.Plotter()
 plotter.add_mesh(warp_1D(u, 1), style="wireframe", line_width=5)
 plotter.view_xz()
-if not pyvista.OFF_SCREEN:
-    plotter.show()
+plotter.show()
 plotter = pyvista.Plotter()
 plotter.add_mesh(warp_1D(q, 0.1), style="wireframe", line_width=5)
 plotter.show_axes()
 plotter.view_xz()
-if not pyvista.OFF_SCREEN:
-    plotter.show()
+plotter.show()
 pyvista.set_jupyter_backend("html")
 # -
 

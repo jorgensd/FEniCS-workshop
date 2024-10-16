@@ -98,9 +98,8 @@ def plot_interval_basis_functions(N: int, degree: int, g):
     func_plotter.add_legend(legends, loc="center right")
     func_plotter.view_xy()
     func_plotter.show_grid()
-    if not pyvista.OFF_SCREEN:
-        basis_plotter.show()
-        func_plotter.show()
+    basis_plotter.show()
+    func_plotter.show()
     pyvista.set_jupyter_backend("html")
 
 

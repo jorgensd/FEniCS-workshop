@@ -201,8 +201,7 @@ plotter = pyvista.Plotter()
 plotter.show_axes()
 plotter.add_mesh(pyvista_grid, style="points")
 plotter.add_mesh(warped, scalars="u", lighting=True)
-if not pyvista.OFF_SCREEN:
-    plotter.show()
+plotter.show()
 # -
 
 # However, what goes on under the hood?
