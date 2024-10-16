@@ -346,7 +346,7 @@ import basix
 points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 7, basix.QuadratureType.default)
 print(f"Number of quadrature points: {points.shape[0]}")
 
-points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 15, basix.QuadratureType.default)
+points, weights = basix.make_quadrature(linear_mesh.basix_cell(), 14, basix.QuadratureType.default)
 print(f"Number of quadrature points: {points.shape[0]}")
 
 # This means that we will do three times the amount of computations on the curved mesh compared to the linear mesh.

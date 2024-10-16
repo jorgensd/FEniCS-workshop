@@ -1,13 +1,10 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Build documentation
+name: Build workshop notes
 
 on:
   pull_request:
-    # The CI is executed on every pull request to the main branch
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   workflow_call:
 
@@ -29,7 +26,6 @@ jobs:
     runs-on: ubuntu-24.04
     container: ghcr.io/fenics/dolfinx/dolfinx:stable
     steps:
-      # This action sets the current path to the root of your github repo
       - uses: actions/checkout@v4
       - name: Install graphviz and pyvista deps
         run: |

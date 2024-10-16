@@ -213,6 +213,7 @@ if not pyvista.OFF_SCREEN:
 #
 # If the problem had been unconstrained, we would assemble the stiffness matrix as
 
+a_compiled = dolfinx.fem.form(a)
 A = dolfinx.fem.petsc.assemble_matrix(a_compiled)
 A.assemble()
 

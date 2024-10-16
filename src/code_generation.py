@@ -47,11 +47,11 @@ ffcx.main.main(["-o", str(cwd), "--visualise", str(infile)])
 
 # The generated code can be found in the file `name_of_file.h` and `name_of_file.c` in the current working directory.
 
-os.system("ls ufl_formulation.*")
+os.system("ls ufl_formulation.*");
 # We can look at the assembly code for the local matrix. We start by inspecting the signature of the `tabulate_tensor`
 # function that computes the local element matrix
 
-os.system("head -102 ufl_formulation.c | tail +28")
+os.system("head -102 ufl_formulation.c | tail +28");
 
 # ## Optional Exercise
 # Study the computational graph for the bi-linear form, and the kernel for the assembly of this form below.
