@@ -12,7 +12,10 @@ dependencies:
   - pygraphviz
   - jupyter-book
   - jupytext
+  - trame-client
   - trame-vtk
+  - trame-server
+  - trame-vuetify
   - ipywidgets
 variables:
   PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
