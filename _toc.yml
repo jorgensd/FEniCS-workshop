@@ -5,6 +5,7 @@ parts:
   - caption: "Finite elements and code generation"
     chapters:
       - file: "src/introduction_fem.py"
+      - file: "src/galerkin.py"
       - file: "src/introduction.py"
       - file: "src/ufl_formulation.py"
       - file: "src/code_generation.py"

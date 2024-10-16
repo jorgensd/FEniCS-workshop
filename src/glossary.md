@@ -57,4 +57,7 @@ PARAVIEW
 
 PYVISTA
     Open source visualization software. See: https://pyvista.org/ for more information
+
+DOFs
+    Degrees of freedom
 ```
