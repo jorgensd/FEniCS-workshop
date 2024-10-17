@@ -95,7 +95,7 @@
 # by choosing different dual basis functions $l_i$.
 #
 # An example of this is choosing different positioning of the dofs (non-equispaced) for Lagrange elements.
-# See [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
+# See [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.9.0/python/demos/demo_lagrange_variants.html)
 # for more information.
 #
 # An algorithmic approach for determining the basis functions based of the dual space is for instance given at
@@ -235,17 +235,37 @@ print(f"{basis_values=}\n   {basis_values.dtype=}")
 
 # We observe that elements that are close to zero is now an order of magnitude larger than its `np.float64` counterpart.
 
-# ## Exercise
+# ## Mixed finite elements
+
+# Not every function we want to represent is scalar valued.
+# For instance, in fluid flow problems, the [Taylor-Hood](https://defelement.com/elements/taylor-hood.html)
+# finite element pair is often used to represent the fluid velocity and pressure.
+# For the velocity, each component (x, y, z) is represented with its own degrees of freedom in a Lagrange space..
+# We represent this by adding a `shape` argument to the `basix.ufl.element` constructor.
+
+import basix.ufl
+vector_element = basix.ufl.element("Lagrange", "triangle", 2, shape=(2,))
+scalar_element = basix.ufl.element("Lagrange", "triangle", 1)
+
+
+# To create the Taylor-Hood finite element pair, we use the `basix.ufl.mixed_element`
+
+m_el = basix.ufl.mixed_element([vector_element, scalar_element])
+
+
+# ## Exercises
 #
+# Basix allows for a large variety of extra options to tweak your finite elements, see for instance
+# [Variants of Lagrange elements](https://docs.fenicsproject.org/dolfinx/v0.9.0/python/demos/demo_lagrange_variants.html)
+# for how to choose the node spacing in a Lagrange element.
 # Using the plotting script above, try to plot basis functions of a high order quadrilateral element with different Lagrange variants.
-# See: [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
-# on how to add Lagrange variants to the element.
 # - Do you observe the same phenomenon on quadrilaterals as on intervals?
 # - What about triangles?
 #
-# **Hint**: Try to increase the plotting resolution to 40.
-
-
+# ```{admonition} Tip
+# :class: dropdown tip
+# Try to increase the plotting resolution to 40.
+# ```
 
 # ## References
 # ```{bibliography}

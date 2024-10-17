@@ -8,10 +8,12 @@ The tutorial is currently built for `v0.9.x` of DOLFINx{cite}`DOLFINx2023`.
 For the tutorial it is recommened to use `conda`, as described in: https://github.com/FEniCS/dolfinx/?tab=readme-ov-file#conda
 
 ```{admonition} Native Windows installation
+:class: important
 Note that on Windows one has to install [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/) for Just In Time-compilation.
 ```
 
 ```{admonition} PETSc on Windows
+:class: important
 PETSc is not available through conda on native Windows.
 The first part of this tutorial does not require PETSc.
 However, for the second part of the tutorial we require PETSc, and thus need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
@@ -20,16 +22,8 @@ However, for the second part of the tutorial we require PETSc, and thus need to 
 ## Agenda:
 
 - An introduction to finite elements
-
-Quick refresher of Galkerin/Ritz-Galerkin methods
-Going from a global polynomial basis to a basis defined on a subdivision of the domain (cell).
-Define the functional used to ensure the “orthogonality” of the basis functions, used in the some Hilbert space
-Maybe talk about the Ciarlet definition of a finite element?
-
 - The finite element in basix
 
-Introduce notion of a basix.ufl.finite_element
-Describe tabulation, i.e. getting numerical values within a single reference cell.
 Introduce the notion of push forward/pull back used for mapping values from/to the reference element to the physical element.
 This will introduce some more “exotic” elements, like Nedelec (first kind) and Raviart Thomas, using co-variant/contravariant Piola to map to and from reference elements
 
