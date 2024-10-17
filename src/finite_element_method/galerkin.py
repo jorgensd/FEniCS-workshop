@@ -107,6 +107,8 @@ plot_interval_basis_functions(5, 1, lambda x: x + 3 * np.sin(np.pi * x))
 
 # -
 
+# ## Choice of basis functions
+
 # We can do the same thing for a higher order set of polynomials
 
 # + tags=["remove-input"]
@@ -149,7 +151,7 @@ plot_interval_basis_functions(5, 2, lambda x: x + 3 * np.sin(np.pi * x))
 # $$
 
 # ```{admonition} Does this equation make sense for piecewise linear polynomials?
-# :class: dropdown
+# :class: dropdown warning
 # As the double derivative of a linear function is $0$, we cannot directly solve this equation!
 # ```
 
@@ -232,14 +234,30 @@ plot_interval_basis_functions(5, 2, lambda x: x + 3 * np.sin(np.pi * x))
 #
 # ## Galerkin orthogonality
 #
-# A key property of this method is that if $a(u_h) = l(v)$, then the error between the exact solution $u$ and $u_h$, given as $\epsilon=u-u_h$ has the following property:
+# A key property of this method is that if $a(u_h, v) = L(v)$, then the error between the exact solution $u$ and $u_h$, given as $\epsilon=u-u_h$ has the following property:
 #
 # $$
-# a(\epsilon, v) = a(u-u_h, v) = a(u, v) - a(u_h, v) = l(v) - l(v) = 0
+# a(\epsilon, v) = a(u-u_h, v) = a(u, v) - a(u_h, v) = L(v) - L(v) = 0
 # $$
 #
 # Thus the error is orthogonal to the chosen sub-space
 
 # ## Questions
-# 1. How does the matrix $A$ look like? Is it dense or sparse?
-# 2. Does the Galerkin orthogonality property say something about the quality of the solution?
+
+# ```{admonition} How does the matrix $A$ look like? Is it dense or sparse?
+# :class: dropdown tip
+# The matrix will be sparse, as the support (function being non-zero) of $\phi_i$ and $\phi_j$ is localized to adjacent elements.
+# ```
+
+# ```{admonition} Does the Galerkin orthogonality property say something about the quality of the solution?
+# :class: dropdown tip
+#  The Galerkin orthogonality states that you get the best approximation in the chosen function space.
+# However, with a poor choice of function space, the error can be large.
+# ```
+
+# ```{admonition} How can we compute the integral $\int_\Omega \frac{\partial \phi_i}{\partial x}\frac{\partial \phi_j}{\partial x}~\mathrm{d} x$?
+# :class: dropdown tip
+# We split the domain $\Omega$ into non-overlapping elements $k\in \mathcal{K}$ such that $\cup_{k\in\mathcal{K}} k = \Omega$
+# where $\phi_i$ and $\phi_j$ are continuous on each section,
+# and use that $\int_{\Omega} h~\mathrm{d}x = \sum_{k\in\mathcal{K}} \int_{k}h~\mathrm{d}x$.
+# ```

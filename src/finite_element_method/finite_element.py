@@ -223,37 +223,6 @@ fig = plot_basis_functions(element, 15)
 second_order_element = basix.ufl.element("Lagrange", "quadrilateral", 2, basix.LagrangeVariant.gll_warped)
 fig = plot_basis_functions(second_order_element, 12)
 
-
-# ## Optional exercise
-#
-# Using the plotting script above, try to plot basis functions of a high order quadrilateral element with different Lagrange variants.
-# See: [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
-# on how to add Lagrange variants to the element.
-# - Do you observe the same phenomenon on quadrilaterals as on intervals?
-# - What about triangles?
-#
-# **Hint**: Try to increase the plotting resolution to 40.
-
-# ## Other finite elements
-# Not every function we want to represent is scalar valued.
-# For instance, in fluid flow problems, the [Taylor-Hood](https://defelement.com/elements/taylor-hood.html)
-# finite element pair is often used to represent the fluid velocity and pressure.
-# For the velocity, each component (x, y, z) is represented with its own degrees of freedom in a Lagrange space..
-# We represent this by adding a `shape` argument to the `basix.ufl.element` constructor.
-
-vector_element = basix.ufl.element("Lagrange", "triangle", 2, shape=(2,))
-
-# Basix allows for a large variety of extra options to tweak your finite elements, see for instance
-# [Variants of Lagrange elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
-# for how to choose the node spacing in a Lagrange element.
-
-# To create the Taylor-Hood finite element pair, we use the `basix.ufl.mixed_element`
-
-m_el = basix.ufl.mixed_element([vector_element, element])
-
-# There is a wide range of finite elements that are supported by ufl and basix.
-# See for instance: [Supported elements in basix/ufl](https://defelement.com/lists/implementations/basix.ufl.html).
-
 # ## Lower precision tabulation
 #
 # In some cases, one might want to use a lower accuracy for tabulation of basis functions to speed up computations.
@@ -265,7 +234,20 @@ basis_values = low_precision_element.tabulate(0, points_low_precision)
 print(f"{basis_values=}\n   {basis_values.dtype=}")
 
 # We observe that elements that are close to zero is now an order of magnitude larger than its `np.float64` counterpart.
+
+# ## Exercise
 #
+# Using the plotting script above, try to plot basis functions of a high order quadrilateral element with different Lagrange variants.
+# See: [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
+# on how to add Lagrange variants to the element.
+# - Do you observe the same phenomenon on quadrilaterals as on intervals?
+# - What about triangles?
+#
+# **Hint**: Try to increase the plotting resolution to 40.
+
+
+
+# ## References
 # ```{bibliography}
-#    :filter: cited and ({"src/introduction"} >= docnames)
+#    :filter: cited and ({"src/finite_element_method/finite_element"} >= docnames)
 # ```

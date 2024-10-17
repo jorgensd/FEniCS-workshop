@@ -17,11 +17,9 @@ The first part of this tutorial does not require PETSc.
 However, for the second part of the tutorial we require PETSc, and thus need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
 ```
 
-
 ## Agenda:
 
 - An introduction to finite elements
-
 
 Quick refresher of Galkerin/Ritz-Galerkin methods
 Going from a global polynomial basis to a basis defined on a subdivision of the domain (cell).

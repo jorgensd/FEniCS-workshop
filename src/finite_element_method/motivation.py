@@ -1,4 +1,11 @@
-# # Motivation: Why use the finite element method?
+# # Motivation
+# The first goal of the workshop is to approximate
+#
+#  $$
+#  g(x) = x \sin(\pi x) \cos (3\pi x)
+#  $$
+# 
+# on the interval $[0, 1]$.
 #
 # We want to start with a simple example to illustrate the basic idea behind the finite element method,
 # which is sub-dividing the domain of interest $\Omega$ into smaller sub-domains, called elements, and
@@ -15,9 +22,7 @@
 #
 # When solving {term}`PDE`s, we will encounter **singularities** and **non-smooth solutions** (e.g. kinks).
 # Both these features make global polynomial approximation and Fourier series less attractive.
-#
-#
-# We will start by trying to approximate $g(x) = x \sin(\pi x) \cos (3\pi x)$ on the interval $[0, 1]$.
+
 
 # +tags=["hide-input"]
 import sys, os

@@ -59,5 +59,8 @@ PYVISTA
     Open source visualization software. See: https://pyvista.org/ for more information
 
 DOFs
-    Degrees of freedom
+    Degrees of freedom. Singular {term}`DOF`
+
+DOF
+    Degree of freedom. Usually the unknown coefficient of a finite element function. Plural Degrees of freedom {term}`DOFs`
 ```

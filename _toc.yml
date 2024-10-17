@@ -2,33 +2,40 @@ format: jb-book
 root: README
 
 parts:
-  - caption: "Finite elements and code generation"
+  - caption: "The finite element method"
     chapters:
-      - file: "src/introduction_fem.py"
-      - file: "src/galerkin.py"
-      - file: "src/introduction.py"
+      - file: "src/finite_element_method/motivation.py"
+      - file: "src/finite_element_method/galerkin.py"
+      - file: "src/finite_element_method/finite_element.py"
+      - file: "src/finite_element_method/advanced_elements.py"
+
+  - caption: "An introduction to the Unified Form Language (UFL)"
+    chapters:
       - file: "src/ufl_formulation.py"
+
+  - caption: The FEniCSx Form Compiler (FFCx)
+    chapters:
       - file: "src/code_generation.py"
+
+  - caption: "Introduction to DOLFINx"
+    chapters:
       - file: "src/problem_specification.py"
+
+  - caption: "DOLFINx Deep dive"
+    chapters:
+      - file: "src/lifting.py"
+      - file: "src/form_compilation.py"
+      - file: "src/approximations.py"
+      - file: "src/outputting.py"
+      - file: "src/assembly.py"
+
   - caption: "Meshes in DOLFINx"
     chapters:
       - file: "src/mesh_generation.py"
       - file: "src/external_mesh.py"
       - file: "src/parallel_mesh.py"
-  - caption: "Assembly"
-    chapters:
       - file: "src/benefits_of_curved_meshes"
-      - file: "src/assembly.py"
-  - caption: "Form compilation"
-    chapters:
-      - file: "src/form_compilation.py"
-  - caption: "Dirichlet boundary conditions"
-    chapters:
-      - file: "src/lifting.py"
-  - caption: Approximation and outputting
-    chapters:
-      - file: "src/approximations.py"
-      - file: "src/outputting.py"
-  - caption: Glossary
+
+  - caption: "Glossary"
     chapters:
       - file: "src/glossary.md"
