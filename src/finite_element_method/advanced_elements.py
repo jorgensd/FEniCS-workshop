@@ -169,7 +169,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # The noteable feature of this map is that it preserves the **tangential** component of the basis function.
 # We start by computing the Jacobian of the mapping from the reference element to the physical element.
 
-# ```{admonition} `basix.tabulate` for vector valued basis functions
+# ```{admonition} Tabulating vector valued basis functions with basix
 # :class: important
 # When the basis function is vector-valued, basix returns the basis functions with the shape
 # `(num_derivatives, num_points, vector_dimension, num_basis_functions)`.
