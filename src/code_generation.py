@@ -11,22 +11,24 @@
 # We use FFCx to generate the code used for finite element assembly.
 #
 # The previous section of the tutorial can be found in the file
-# [ufl_formulation.py](https://github.com/jorgensd/fenics23-tutorial/tree/release/src/ufl_formulation.py)
-# on the FEniCS@Sorbonne [GitHub repository](https://github.com/jorgensd/fenics23-tutorial/).
+# [example.py](https://github.com/jorgensd/fenics-workshop/tree/main/example.py).
 # We can use the FFCx main-module to generate C code for all the objects in this file:
 
+# +
 import os
 from pathlib import Path
 
 import ffcx.main
 
-cwd = Path.cwd()
-infile = cwd / "ufl_formulation.py"
+infile = Path.cwd() / "example.py"
+
+_ = os.system(f"cat {infile}")
+# -
 
 # + tags=["remove-output"]
-ffcx.main.main(["-o", str(cwd), "--visualise", str(infile)])
-
+ffcx.main.main(["-o", str(infile.parent), "--visualise", str(infile)])
 # -
+
 # What happens when we run the command above?
 # The first thing that happens is that each line of code in the file is executed by the Python interpreter.
 # Then, all variational formulations that have been given the name `a`, `L` or `J` is being extracted.
@@ -47,11 +49,12 @@ ffcx.main.main(["-o", str(cwd), "--visualise", str(infile)])
 
 # The generated code can be found in the file `name_of_file.h` and `name_of_file.c` in the current working directory.
 
-_ = os.system("ls ufl_formulation.*")
+_ = os.system(f"ls {infile.with_suffix('.*')}")
+
 # We can look at the assembly code for the local matrix. We start by inspecting the signature of the `tabulate_tensor`
 # function that computes the local element matrix
 
-_ = os.system("head -102 ufl_formulation.c | tail +28")
+_ = os.system(f"head -102 {infile.with_suffix('.c')} | tail +28")
 
 # ## Optional Exercise
 # Study the computational graph for the bi-linear form, and the kernel for the assembly of this form below.
