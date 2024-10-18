@@ -5,6 +5,7 @@
 # Here we will start by creating the domain we want to solve a problem on.
 # In this case, we will use a unit square
 
+# +
 from mpi4py import MPI
 import dolfinx
 import ufl
@@ -14,6 +15,7 @@ import scipy
 N = 10
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, N, N)
 tdim = mesh.topology.dim
+# -
 
 # ## Problem specification
 
@@ -39,12 +41,14 @@ V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
 # We do as in the previous section, and define a manufactured solution
 
 
+# +
 def u_exact(module, x):
     return module.sin(2 * module.pi * x[1]) + x[0] * x[1] ** 2
 
 
 x = ufl.SpatialCoordinate(mesh)
 u_ex = u_exact(ufl, x)
+# -
 
 # As the problem is non-linear we need to prepare for solving this with a
 # Newton-solver.
@@ -54,6 +58,7 @@ uh = dolfinx.fem.Function(V)
 # We define the residual
 
 
+# +
 def p(u):
     return 1 + u**2
 
@@ -71,6 +76,7 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 boundary_dofs = dolfinx.fem.locate_dofs_topological(V, tdim - 1, boundary_facets)
 bc = dolfinx.fem.dirichletbc(gh, boundary_dofs)
 bcs = [bc]
+# -
 
 # We compute the Jacobian of the system using UFL.
 
