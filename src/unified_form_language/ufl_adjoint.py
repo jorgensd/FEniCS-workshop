@@ -1,15 +1,15 @@
 # (functionals)=
-# # Optimization problems in UFL
+# # PDE-constrained optimization problems
 # As seen in the previous section, we can use UFL to differentiate our variatonal forms.
 # We can then also use UFL to represent PDE-constrained optimization problems.
 #
 # In this section, we will consider PDE-constrained optimization problems of the form
-# 
+#
 # $$
 # \min_{c\in Q}J(u, c)
 # $$
-# 
-# subject to 
+#
+# subject to
 #
 # $$
 # F(u, c) = 0.
@@ -84,7 +84,7 @@
 import basix.ufl
 import ufl
 
-domain = ufl.Mesh(basix.ufl.element("Lagrange", "triangle", 1, shape=(2, )))
+domain = ufl.Mesh(basix.ufl.element("Lagrange", "triangle", 1, shape=(2,)))
 
 el_u = basix.ufl.element("Lagrange", "triangle", 1)
 V = ufl.FunctionSpace(domain, el_u)
@@ -95,14 +95,14 @@ f = ufl.Coefficient(Q)
 
 u = ufl.Coefficient(V)
 v = ufl.TestFunction(V)
-F = ufl.inner(ufl.grad(u), ufl.grad(v))*ufl.dx - ufl.inner(f,v)*ufl.dx
+F = ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx - ufl.inner(f, v) * ufl.dx
 # -
 
 # Next we define the functional we want to minimize
 
 d = ufl.Coefficient(V)
 alpha = ufl.Constant(domain)
-J = (u-d)**2*ufl.dx + alpha/2*ufl.inner(f, f)*ufl.dx
+J = (u - d) ** 2 * ufl.dx + alpha / 2 * ufl.inner(f, f) * ufl.dx
 
 # As seen previously, we can now differentiate the functional with respect to the solution of the PDE and the control to
 # obtain the components required for the adjoint problem.
