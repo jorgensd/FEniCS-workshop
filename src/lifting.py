@@ -158,7 +158,7 @@ bcs = [
     dolfinx.fem.dirichletbc(u_prescribed, displaced_dofs, V),
 ]
 
-# The lifting procedure from {ref}`lifiting`` is used in both C++ and Python, and what it does under the hood is to compute the local
+# The lifting procedure from {ref}`lifting`` is used in both C++ and Python, and what it does under the hood is to compute the local
 # matrix-vector products of $A_{d, bc}$ and $g$ (no global matrix vector products are involved). However, we can use UFL
 # to do this in a simpler fashion in Python
 

@@ -15,6 +15,8 @@ N = 10
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, N, N)
 tdim = mesh.topology.dim
 
+# ## Problem specification
+
 # Next, let's consider the problem
 #
 # $$
@@ -234,6 +236,8 @@ b.scatter_reverse(dolfinx.la.InsertMode.add)
 
 A_scipy = A.to_scipy()
 dolfinx.fem.assemble_matrix(A, jacobian, bcs)
+
+# ## Hand-coded Newton solver
 
 # We are ready to do this iteratively
 du = dolfinx.fem.Function(V)
