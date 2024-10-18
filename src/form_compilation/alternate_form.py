@@ -1,4 +1,4 @@
-# # Non-linear Poisson equation with alternative formulation
+# # The standard way of compiling code with DOLFINx
 
 # In this section, we will focus on the approach most users use to interact
 # with UFL, FFCx and basix.
@@ -17,7 +17,7 @@ mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, N, N)
 tdim = mesh.topology.dim
 # -
 
-# ## Problem specification
+# ## Problem specification: Non-linear Poisson.
 
 # Next, let's consider the problem
 #
@@ -300,7 +300,7 @@ plotter.add_mesh(warped_grid, style="wireframe", color="black")
 plotter.show()
 # -
 
-
+# (scipy_nonlinear)=
 # ## Using scipy's Newton solver
 
 # Of course we don't want to write out this kind of loop for every problem.

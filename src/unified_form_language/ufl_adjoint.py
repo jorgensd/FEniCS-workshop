@@ -61,6 +61,7 @@
 # With UFL, we do not need to derive these derivatives by hand, and can use symbolic
 # differentiation to get the left and right hand side of the adjoint problem.
 
+# (mother)=
 # ## Example: The Poisson mother problem
 #
 # We will consider the following PDE constrained optimization problem:
@@ -102,7 +103,7 @@ F = ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx - ufl.inner(f, v) * ufl.dx
 
 d = ufl.Coefficient(V)
 alpha = ufl.Constant(domain)
-J = (u - d) ** 2 * ufl.dx + alpha / 2 * ufl.inner(f, f) * ufl.dx
+J = 1 / 2 * (u - d) ** 2 * ufl.dx + alpha / 2 * ufl.inner(f, f) * ufl.dx
 
 # As seen previously, we can now differentiate the functional with respect to the solution of the PDE and the control to
 # obtain the components required for the adjoint problem.

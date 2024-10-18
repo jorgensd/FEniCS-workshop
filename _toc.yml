@@ -36,6 +36,10 @@ parts:
       - file: "src/parallel_mesh.py"
       - file: "src/benefits_of_curved_meshes"
 
+  - caption: "Applications"
+    chapters:
+      - file: "src/applications/optimal_control.py"
+
   - caption: "Glossary"
     chapters:
       - file: "src/glossary.md"
