@@ -19,6 +19,7 @@ parts:
     chapters:
       - file: "src/code_generation.py"
       - file: "src/form_compilation/compile_form.py"
+      - file: "src/form_compilation/alternate_form.py"
 
   - caption: "Introduction to DOLFINx"
     chapters:
