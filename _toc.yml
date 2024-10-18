@@ -21,10 +21,6 @@ parts:
       - file: "src/form_compilation/compile_form.py"
       - file: "src/form_compilation/alternate_form.py"
 
-  - caption: "Introduction to DOLFINx"
-    chapters:
-      - file: "src/problem_specification.py"
-
   - caption: "DOLFINx Deep dive"
     chapters:
       - file: "src/lifting.py"

@@ -19,35 +19,6 @@ The first part of this tutorial does not require PETSc.
 However, for the second part of the tutorial we require PETSc, and thus need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
 ```
 
-## Agenda:
-
-- An introduction to finite elements
-- The finite element in basix
-
-Introduce the notion of push forward/pull back used for mapping values from/to the reference element to the physical element.
-This will introduce some more “exotic” elements, like Nedelec (first kind) and Raviart Thomas, using co-variant/contravariant Piola to map to and from reference elements
-
-- An introduction to the unified form language (UFL)
-
-Explain how the unified form language works (what are the components needed).
-Show examples:
-Poisson
-Navier-Stokes
-Heat equation
-EM formulation (TEAM 30?: https://github.com/Wells-Group/TEAM30)
-Examples are only shown on a UFL domain, no mesh involved, to illustrate the generality of UFL).
-Show differentiation tools, such that you can build up your adjoints automatically
-
-- Form compilation (The FeniCS form compiler)
-
-Given forms from the previous session, we now want to assemble scalars, vectors or matrices from these, given a mesh. Note the similarity of UFL to the mathematical formulation, where we could write out the pull-back and only insert:
-Coefficient data for given cell
-Constants for given cell
-Nodes describing the geometry to compute the Jacobian
-Show how UFL can do the pull-back for you, writing out the sums, and how FFCx interprets this as graph operations
-These can then be transformed into C code, that can be accessed through the C++ interface of DOLFINx or the Python interface.
-Maybe show how a single file can be used in either language?
-
 - Introduction to DOLFINx
 
 Introduction to how all of the above is glued together in DOLFINx
