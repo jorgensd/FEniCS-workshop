@@ -18,6 +18,7 @@ parts:
   - caption: The FEniCSx Form Compiler (FFCx)
     chapters:
       - file: "src/code_generation.py"
+      - file: "src/form_compilation/compile_form.py"
 
   - caption: "Introduction to DOLFINx"
     chapters:

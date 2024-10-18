@@ -1,3 +1,4 @@
+# (lifting)=
 # # Application of Dirichlet boundary conditions
 # In this section, we will cover how one applies strong Dirichlet conditions to a variational problem.
 #
