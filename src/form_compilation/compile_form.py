@@ -231,7 +231,7 @@ L_compiled = dolfinx.fem.compile_form(MPI.COMM_WORLD, L)
 
 bilinear_form = dolfinx.fem.create_form(a_compiled, [V, V], mesh, {}, {}, {})
 
-# ```{admonition} What do data does the form require?
+# ```{admonition} What data does the form require?
 # :class: dropdown note
 # We need to associate function spaces with the `TestFunction` and `TrialFunction`
 # We also send in what mesh we want to integrate over.
@@ -284,6 +284,7 @@ A_inv = scipy.sparse.linalg.splu(A_scipy)
 x.x.array[:] = A_inv.solve(b.array)
 # -
 
+# (error_estimation)=
 # ## Error estimation
 # We created a symbolic expression for computing the error above
 
@@ -341,6 +342,7 @@ plotter.add_mesh(warped_grid, show_edges=True, edge_color="black")
 plotter.show()
 # -
 
+# (rates)=
 # ## Convergence rates
 #
 # For certain finite element formulations we have expected convergence rates.
