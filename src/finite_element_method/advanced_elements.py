@@ -93,7 +93,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # :class: dropdown tip
 # Yes, for any polytope that we can describe with a Lagrange finite element, we can define a mapping from a reference to a physical element.
 # ```
-# ```{admonition} What happens if we change the order of the basis functions?
+# ```{admonition} What happens if we change the degree of the basis functions?
 # :class: dropdown tip
 # We require more nodes to describe our polygon. For instance, if we use a second order Lagrange element on a triangle, we would require 3 additional
 # nodes to describe the midpoint of each edge.
@@ -154,7 +154,8 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 
 # ```{admonition} What properties do the basis functions above have?
 # :class: dropdown, tip
-# We have that the basis functions are tangential to the edge that they are defined on.
+# Their tangential component is only non-zero on the edge they are associated with, but the normal component can be non-zero there too.
+# This implies that they are normal to the other edges.
 # ```
 
 # To preserve the properties of the basis functions from the reference element to the physical element,
@@ -175,7 +176,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # `(num_derivatives, num_points, vector_dimension, num_basis_functions)`.
 # ```
 
-### Exercise: Compute the Jacobian of the mapping from the reference element to the physical element at a single point in the reference elemnt
+### Exercise: Compute the Jacobian of the mapping from the reference element to the physical element at a single point in the reference element
 # Expand to reveal the solution
 
 # + tags=["hide-input"]
@@ -270,45 +271,25 @@ for i in range(nedelec_el.dim):
 
 # ```{admonition} Why are these elements useful?
 # :class: dropdown tip
-# We consider the time-harmonic Maxwell equation {cite}`chenmaxwell` with no source term, 
-# which simplifies into In a time-harmonic Maxwell equation for a magnetic field
+# The Maxwell's equations can be written as
 #
 # $$
 # \begin{align*}
-# \nabla \times (\tilde\epsilon^{-1} \nabla \times \mathbf{H}) - \omega^2\mu \mathbf{H} &= \nabla \times \mathbf{\tilde J},
-# \qquad \text{in } \Omega\\
-# \nabla \cdot (\mu \mathbf{H}) &= 0,  \qquad \text{in } \Omega\\
-# \mathbf{H}\times \mathbf{n} &= 0 \qquad \text{on } \partial \Omega
-# \end{align*}
-# $$
-# where $\omega$ is the frequency of the problem, $\tilde\epsilon$ is the effective permittivity
-# ,$\mu$ is the permability, and $\mathbf{\tilde J}$ is the current density.
-#
-# As done previously, we integrate this equation by parts to obtain a weak formulation.
-# By doing so, we end up with
-#
-# $$
-# \begin{align*}
-# \int_{\Omega} \nabla \times (\nabla \times \mathbf{H})\cdot \mathbf{v}~\mathrm{d}x &=
-# \int_{\Omega} \nabla \times \mathbf{H} \cdot \nabla \times \mathbf{v}~\mathrm{d}x +
-# \int_{\partial\Omega} \mathbf{n} \times (\nabla \times \mathbf{H}) \cdot \mathbf{v}~\mathrm{d}s
+# \nabla \cdot \mathbf{E} &= \frac{\rho}{\epsilon_0}\\
+# \nabla \cdot \mathbf{B} &= 0\\
+# \nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t}\\
+# \nabla \times \mathbf{B} &= \mu_0 \mathbf{J} + \mu_0\epsilon_0 \frac{\partial \mathbf{E}}{\partial t}
 # \end{align*}
 # $$
 #
+# where $\mathbf{E}$ is the electric field, $\mathbf{B}$ is the magnetic field, $\mathbf{J}$ is the current density,
+# $\rho$ is the electric charge density, $\epsilon_0$ the vacuum permittivity, and $\mu_0$ the vacuum permeability.
 #
-# $$
-# H(\text{curl}, \Omega)=\{\mathbf{v}\vert \mathbf{v}\in L^2(\Omega), \nabla \times \mathbf{v}\in L^2(\Omega)\}
-# $$
-#
-# to represent the magnetic field $\mathbf{H}$.
-#
-# It is known that the tangential component of a magnetic field is continuous across an interface between two materials,
-# while the normal component is discontinuous.
-# i.e. $\mathbf{H}_1\times \mathbf{n}_1 + \mathbf{H}_2 \times\mathbf{n}_2=0$,
-# which is also suitable for the Nédélec element.
-#
-# Considering a problem where $\mathbf{\tilde J}=0$, it can be shown that this equation also
-# implies that the field $\mathbf{H}$ is divergence free {cite}`dean2023` (Chapter 3.7).
+# The normal component of the $\mathbf{B}$-field is always continuous,
+# while the tangential component is discontinuous across a material interface.
+# Similarly, the $\mathbf{H}$-field is related to $\mathbf{B}$ by $\mathbf{H}=\frac{1}{\mu}(\mathbf{B}-\mathbf{M})$,
+# where $\mathbf{M}$ is the magnetization. This field has continuous tangential components and discontinuous normal components,
+# which is suitable for the Nédélec (first kind) element.
 # ```
 #
 # ## References

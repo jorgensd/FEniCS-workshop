@@ -1,3 +1,4 @@
+# (variational_form)=
 # # The UFL forms
 # In this section we will show how to set up the following problem
 #
