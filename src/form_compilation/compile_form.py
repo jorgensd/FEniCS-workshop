@@ -8,7 +8,7 @@
 #
 # $$
 # \begin{align}
-# -\nabla \cdot (\nabla u) &= f \qquad\text{in } \Omega\subset\mathbb{R}^2\\.
+# -\nabla \cdot (\nabla u) &= f \qquad\text{in } \Omega\subset\mathbb{R}^2.\\
 # u &= g \qquad \text{on } \partial\Omega.
 # \end{align}
 # $$
