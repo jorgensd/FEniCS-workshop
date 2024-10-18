@@ -39,7 +39,7 @@ nodes = np.array([[1.0, 0.0], [2.0, 0.0], [3.0, 2.0], [1, 3]], dtype=np.float64)
 
 connectivity = np.array([[0, 1, 2], [0, 2, 3]], dtype=np.int64)
 
-# As we have seen in the [previous section](./ufl_formulation) we use a finite element to
+# As we have seen in the [previous section](./unified_form_language/ufl_forms) we use a finite element to
 # describe the mapping from the reference triangles to the physical triangles described above.
 
 c_el = ufl.Mesh(basix.ufl.element("Lagrange", "triangle", 1, shape=(nodes.shape[1],)))
