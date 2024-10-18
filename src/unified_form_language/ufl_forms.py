@@ -118,8 +118,8 @@ dx = ufl.Measure("dx", domain=domain)
 # We will come back to why this can be smart later.
 
 
-# ## Automatic differentiation
-# Now that we have our $G$, we can use `ufl.derivative` to compute the derivative of $G$ with respect to a coeffcient.
+# ## Symbolic differentiation
+# Now that we have our $G$, we can use `ufl.derivative` to compute the derivative of $G$ with respect to a coefficient.
 # As we want to differentiate with respect to all functions $\delta u \in V$, we define a `ufl.TestFunction`
 
 du = ufl.TestFunction(V)
@@ -137,11 +137,11 @@ F = ufl.derivative(G, uh, du)
 # $$
 # \begin{align*}
 # u_{k+1} &= u_{k} - \delta u\\
-# J \delta u &= \frac{\mathrm{d}J}{\mathrm{d}u}[\delta u]
+# H \delta u &= \frac{\mathrm{d}G}{\mathrm{d}u}[\delta u]
 # \end{align*}
 # $$
 #
-# where $ J= \frac{\mathrm{d}^2J}{\mathrm{d}u^2}[\delta u, \delta v]$
+# where $ H= \frac{\mathrm{d}^2G}{\mathrm{d}u^2}[\delta u, \delta v]$
 # We obtain $J$ with
 
 dv = ufl.TrialFunction(V)
@@ -232,13 +232,13 @@ f_equivalent = ufl.dot(u, v) * dx
 # For two tensors `r`, `s` we have that
 #
 # $$
-# \mathrm{dot}(r, s)$=r_{ik}s_{kl}i_{i}i_{l}
+# \mathrm{dot}(r, s)=r_{ik}s_{kl}i_{i}i_{l}
 # $$
 #
 # The inner product is a contraction over all axes
 #
 # $$
-# \mathrm{inner}(r, s)$=r_{ij}s^*_{ij}
+# \mathrm{inner}(r, s)=r_{ij}s^*_{ij}
 # $$
 #
 # where $s_{ij}^*$ is the complex conjugate of $s_{ij}$.
