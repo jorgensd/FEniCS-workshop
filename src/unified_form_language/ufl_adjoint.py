@@ -48,7 +48,7 @@
 #
 # $$
 # \frac{\mathrm{d}\mathcal{L}}{\mathrm{d}c}[\delta c]
-# = \frac{\partial J}{\partial c}  + \left(\lambda, \frac{\partial F}{\partial c}[\delta c]\right).
+# = \frac{\partial J}{\partial c}[\delta c]  + \left(\lambda, \frac{\partial F}{\partial c}[\delta c]\right).
 # $$
 #
 # To find such a $\lambda$, we can solve the adjoint problem
@@ -80,6 +80,7 @@
 #
 # We start by formulating the forward problem, i.e, convert the PDE into a variational form
 
+# +
 import basix.ufl
 import ufl
 
@@ -95,8 +96,10 @@ f = ufl.Coefficient(Q)
 u = ufl.Coefficient(V)
 v = ufl.TestFunction(V)
 F = ufl.inner(ufl.grad(u), ufl.grad(v))*ufl.dx - ufl.inner(f,v)*ufl.dx
+# -
 
 # Next we define the functional we want to minimize
+
 d = ufl.Coefficient(V)
 alpha = ufl.Constant(domain)
 J = (u-d)**2*ufl.dx + alpha/2*ufl.inner(f, f)*ufl.dx
@@ -107,6 +110,7 @@ J = (u-d)**2*ufl.dx + alpha/2*ufl.inner(f, f)*ufl.dx
 dJdu = ufl.derivative(J, u)
 dJdf = ufl.derivative(J, f)
 dFdu = ufl.derivative(F, u)
+dFdf = ufl.derivative(F, f)
 
 adj_rhs = -dJdu
 adj_lhs = ufl.adjoint(dFdu)
@@ -118,10 +122,12 @@ fwd_rhs = F
 
 # For the derivative of the functional with respect to the control we use
 # the command `ufl.action` to replace the trial function with `lmbda` to create the matrix-vector product
-# without forming the matirx
+# without forming the matrix
 
 lmbda = ufl.Coefficient(V)
-dLdf = ufl.derivative(J, f) + ufl.action(ufl.adjoint(ufl.derivative(F, f)), lmbda)
+dLdf = ufl.derivative(J, f) + ufl.action(ufl.adjoint(dFdf), lmbda)
 
+
+# We collect all the forms we care about in a list called `forms`, which will be explained in the next section.
 
 forms = [adj_lhs, adj_rhs, fwd_lhs, fwd_rhs, dLdf, J]
