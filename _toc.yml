@@ -26,10 +26,10 @@ parts:
       - file: "src/deep_dive/mixed_problems.py"
       - file: "src/deep_dive/expressions.py"
       - file: "src/deep_dive/lifting.py"
+      - file: "src/deep_dive/restriction.py"
       - file: "src/form_compilation.py"
       - file: "src/approximations.py"
       - file: "src/outputting.py"
-      - file: "src/assembly.py"
 
   - caption: "Meshes in DOLFINx"
     chapters:
