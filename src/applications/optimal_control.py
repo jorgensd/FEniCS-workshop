@@ -57,6 +57,7 @@ J = 1 / 2 * (uh - d) * (uh - d) * ufl.dx + alpha / 2 * f**2 * ufl.dx
 
 # As seen in previous sections, can easily constrain all the degrees of freedom on the boundary
 
+# +
 tdim = domain.topology.dim
 
 domain.topology.create_connectivity(tdim - 1, tdim)
@@ -64,7 +65,9 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(domain.topology)
 boundary_dofs = dolfinx.fem.locate_dofs_topological(V, domain.topology.dim - 1, boundary_facets)
 u_bc = dolfinx.fem.Constant(domain, dolfinx.default_scalar_type(0.0))
 bc = dolfinx.fem.dirichletbc(u_bc, boundary_dofs, V)
+# -
 
+# ## The forward problem
 # Next, we use the `NonLinearSolver` we defined in {ref}`scipy_nonlinear`
 
 
@@ -146,10 +149,9 @@ lmbda = dolfinx.fem.Function(V)
 dFdu = ufl.derivative(F, uh, du)
 dFdu_adj = ufl.adjoint(dFdu)
 dJdu = ufl.derivative(J, uh, v)
-q = ufl.TrialFunction(W)
-dJdf = ufl.derivative(J, f, q)
-dFdf = ufl.action(ufl.adjoint(ufl.derivative(F, f, q)), lmbda)
 
+# ## The adjoint problem
+#
 # Next, we create a small linear solver that caches the creation of the matrices, vectors
 # and the compiled forms.
 
@@ -188,9 +190,13 @@ adj_problem = LinearSolver(ufl.replace(dFdu_adj, {uh: v}), -dJdu, lmbda, [bc])
 # The adjoint problem is always linear, and does not require a non-linear solver.
 # ```
 
+# ## The gradient of the functional
 # Next we prepare the evaluation of the derivative of the functional.
 # We split this in two components:
 
+q = ufl.TrialFunction(W)
+dJdf = ufl.derivative(J, f, q)
+dFdf = ufl.action(ufl.adjoint(ufl.derivative(F, f, q)), lmbda)
 dJdf_compiled = dolfinx.fem.form(dJdf)
 dFdf_compiled = dolfinx.fem.form(dFdf)
 dLdf = dolfinx.fem.Function(W)
@@ -199,6 +205,7 @@ dLdf = dolfinx.fem.Function(W)
 # We create a convencience function for evaluating the functional for any specific
 # control input.
 
+# +
 Jh = dolfinx.fem.form(J)
 
 
@@ -208,6 +215,8 @@ def eval_J(x):
     local_J = dolfinx.fem.assemble_scalar(Jh)
     return domain.comm.allreduce(local_J, op=MPI.SUM)
 
+
+# -
 
 # We also create a convenience function for computing the gradient at a given point.
 # Here we:
@@ -226,10 +235,12 @@ def eval_gradient(x):
     return dLdf.x.array
 
 
+# ## Solving the optimization problem
 # We will use scipy to find the minimum.
 # We create a call-back function to monitor the functional value
 
 
+# +
 def callback(intermediate_result):
     fval = intermediate_result.fun
     print(f"J: {fval}")
@@ -246,6 +257,7 @@ opt_sol = minimize(
     options={"disp": True},
     callback=callback,
 )
+# -
 
 # We inspect the optimal solution
 
@@ -311,6 +323,7 @@ print(f"Error: {global_error:.2f}")
 # i.e. that if we compute perturbations with varying step size $\alpha_j$ we should get the rate 2.
 
 # ```{admonition} Compute the convergence rate of the derivative with the gradient
+# :class: tip dropdown
 # For the convergence rate code see previous sections.
 # ```
 #
