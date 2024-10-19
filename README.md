@@ -16,12 +16,8 @@ Note that on Windows one has to install [Microsoft Visual Studio](https://visual
 :class: important
 PETSc is not available through conda on native Windows.
 The first part of this tutorial does not require PETSc.
-However, for the second part of the tutorial we require PETSc, and thus need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
+However, for the second part of the tutorial we require PETSc, and thus IntegralType.interior_facet: need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
 ```
-
-- Introduction to DOLFINx
-
-Custom one-sided integration to illustrate input of custom integration entities
 
 - Non-linear problems
 
