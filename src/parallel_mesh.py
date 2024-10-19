@@ -1,4 +1,4 @@
-# # Extra topic: Reading in meshes in parallel
+# # Reading in meshes in parallel
 # For more information about mesh-partitioning and mesh input, see: https://jsdokken.com/dolfinx_docs/meshes.html
 # ## Cell ownership
 #

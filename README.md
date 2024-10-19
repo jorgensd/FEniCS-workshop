@@ -25,10 +25,6 @@ Show how to solve non-linear problems using NonLinearProblem and Newton solver
 
 - Mesh generation
 
-How one can read in meshes as array structures
-Show how to use built in meshes or load from file/gmsh
-How these can be manually partitioned
-Show higher order geometry
 
 - Multiphysics part 1
 

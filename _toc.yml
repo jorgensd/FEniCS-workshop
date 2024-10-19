@@ -36,7 +36,6 @@ parts:
       - file: "src/mesh_generation.py"
       - file: "src/external_mesh.py"
       - file: "src/parallel_mesh.py"
-      - file: "src/benefits_of_curved_meshes"
 
   - caption: "Applications"
     chapters:

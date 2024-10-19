@@ -335,3 +335,17 @@ pulled_back_a = ufl.algorithms.compute_form_data(
 )
 print(list(itg.metadata() for itg in pulled_back_a.integral_data[0].integrals))
 # -
+
+# We can fix the number of quadraure points by setting the `quadrature_degree` in the `Measure`
+
+dx = ufl.Measure("dx", domain=domain, metadata={"quadrature_degree": 4})
+
+# ```{warning} Variational crimes
+# Reducing the accuracy of the integration by lowering the quadrature rule is considered to be a
+# **variational crime** {cite}`sulli2012lecture` (Chapter 3.4) and should be done with caution.
+# ```
+
+# ## References
+# ```{bibliography}
+#    :filter: cited and ({"src/ufl_forms"} >= docnames)
+# ```

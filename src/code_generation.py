@@ -49,7 +49,7 @@ ffcx.main.main(["-o", str(infile.parent), "--visualise", str(infile)])
 # ![Linear graph](S_L.png)
 
 # The generated code can be found in the file `name_of_file.h` and `name_of_file.c` in the current working directory.
->
+
 _ = os.system(f"ls {infile.with_suffix('.*')}")
 
 # We can look at the assembly code for the local matrix. We start by inspecting the signature of the `tabulate_tensor`
