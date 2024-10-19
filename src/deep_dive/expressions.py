@@ -222,3 +222,8 @@ plt.plot(points_on_proc[:, 0], u_values.flatten(), "ro")
 plt.grid()
 plt.show()
 # -
+
+# ## Evaluate a UFL expression
+# As we have seen in {ref}`code-generation` we can generate code for evaluating integrals.
+# We can also non-integrated UFL expressions at any point in the mesh.
+# We start by creating a UFL expression from the function we used above.
