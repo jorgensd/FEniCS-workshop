@@ -270,6 +270,9 @@ dolfinx.fem.apply_lifting(b.array, [bilinear_form], [bcs])
 b.scatter_reverse(dolfinx.la.InsertMode.add)
 [bc.set(b.array) for bc in bcs]
 
+
+# (scipy-lu)=
+# ## Solving the linear system with scipy
 # We can use scipy sparse LU solver to invert the matrix
 
 # +

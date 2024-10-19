@@ -21,27 +21,14 @@ However, for the second part of the tutorial we require PETSc, and thus need to 
 
 - Introduction to DOLFINx
 
-Introduction to how all of the above is glued together in DOLFINx
 Show how to use built in meshes or load from file/gmsh
-Show how we define functions and constants (holding data)
-Show how solvers work (linear problems first)
-Show how one can use PETSc directly
-Exercises
-
-- DOLFINx deep dive
-
-Explain BCs (dirichlet and others)
-Explain interpolation
 Explain expression
 Explain integration entities
 Custom one-sided integration to illustrate input of custom integration entities
-Maybe use “manual version” of DOLFINx here?
 
 - Non-linear problems
 
 Show how to solve non-linear problems using NonLinearProblem and Newton solver
-Show how to implement custom Newton solver
-Exercises?
 
 - Mesh generation
 
