@@ -21,9 +21,6 @@ However, for the second part of the tutorial we require PETSc, and thus need to 
 
 - Introduction to DOLFINx
 
-Show how to use built in meshes or load from file/gmsh
-Explain expression
-Explain integration entities
 Custom one-sided integration to illustrate input of custom integration entities
 
 - Non-linear problems
@@ -33,6 +30,7 @@ Show how to solve non-linear problems using NonLinearProblem and Newton solver
 - Mesh generation
 
 How one can read in meshes as array structures
+Show how to use built in meshes or load from file/gmsh
 How these can be manually partitioned
 Show higher order geometry
 

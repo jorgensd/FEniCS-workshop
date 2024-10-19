@@ -226,4 +226,185 @@ plt.show()
 # ## Evaluate a UFL expression
 # As we have seen in {ref}`code-generation` we can generate code for evaluating integrals.
 # We can also non-integrated UFL expressions at any point in the mesh.
-# We start by creating a UFL expression from the function we used above.
+# For this part of the tutorial, we will consider a blocked Lagrange space, with 3 components.
+
+mesh = dolfinx.mesh.create_unit_cube(MPI.COMM_WORLD, 5, 5, 5, dolfinx.cpp.mesh.CellType.hexahedron)
+V = dolfinx.fem.functionspace(mesh, ("Lagrange", 2, (3,)))
+u = dolfinx.fem.Function(V)
+
+
+def f(mod, x):
+    return x[2] ** 2, x[0] + x[1], x[1] * x[2]
+
+
+u.interpolate(lambda x: f(np, x))
+
+# We will consider
+#
+# $$
+# \nabla \times \mathbf{u}=\left(
+# \frac{\partial u_2}{\partial x_1} - \frac{\partial u_1}{\partial x_2},
+# \frac{\partial u_0}{\partial x_2} - \frac{\partial u_2}{\partial x_0},
+# \frac{\partial u_1}{\partial x_0} - \frac{\partial u_0}{\partial x_1} \right)
+# $$
+# We can write this in UFL as
+
+import ufl
+
+curl_u = ufl.curl(u)
+
+# We can use `dolfinx.fem.Expression` to compile the evaluation of this expression
+# at a set of points in the reference element.
+# For instance, we can choose the point $(0.2, 0.3, 0.5)$ which is in the reference
+# hexahedron.
+
+points = np.array([[0.2, 0.3, 0.5]], dtype=np.float64)
+expr = dolfinx.fem.Expression(curl_u, points)
+
+# We can now evaluate the expression at this point in any cell in the mesh
+# We pick two random cells on the process
+
+num_cells_local = mesh.topology.index_map(mesh.topology.dim).size_local
+cells = np.random.randint(0, num_cells_local, 2, dtype=np.int32)
+values = expr.eval(mesh, cells)
+
+# We can inspect what the coordinates in the physical cell is by using the
+# same strategy of `ufl.SpatialCoordinate(mesh)`
+
+x_expr = dolfinx.fem.Expression(ufl.SpatialCoordinate(mesh), points)
+coords = x_expr.eval(mesh, cells)
+
+# + tags=["remove-input"]
+
+print(f"{values=}")
+print(f"{coords=}")
+
+# -
+
+# ```{admonition} What points in the reference cells could be interesting to evaluate at?
+# :class: dropdown tip
+# In theory any point could be interesting to evaluate at, but usually evaluating at
+# a set of quadrature points (for debugging) or at the interpolation points of a
+# finite element.
+# ```
+
+# ## Interpolation of a UFL expression
+
+# We can for instance interpolate the gradient of a function into another function space.
+# We will be inspired by the [De Rahm complex](https://defelement.com/de-rham.html)
+# And interpolate the gradient of a $H^1$ function into $H^{k-1}(curl)$
+
+# +
+Q = dolfinx.fem.functionspace(mesh, ("Lagrange", 2))
+q = dolfinx.fem.Function(Q)
+
+
+def f(x):
+    return x[0] ** 2 + 2 * x[1] ** 2 + x[1] * x[2]
+
+
+q.interpolate(f)
+
+grad_q = ufl.grad(q)
+
+P = dolfinx.fem.functionspace(mesh, ("N1curl", 2))
+p = dolfinx.fem.Function(P)
+
+grad_expr = dolfinx.fem.Expression(grad_q, P.element.interpolation_points())
+
+p.interpolate(grad_expr)
+
+
+def grad_f(x):
+    return (2 * x[0], 4 * x[1] + x[2], x[1])
+
+
+x = ufl.SpatialCoordinate(mesh)
+f_ex = ufl.as_vector(grad_f(x))
+
+L2_error = dolfinx.fem.form(ufl.inner(p - f_ex, p - f_ex) * ufl.dx)
+local_error = dolfinx.fem.assemble_scalar(L2_error)
+global_error = np.sqrt(mesh.comm.allreduce(local_error, op=MPI.SUM))
+# -
+
+# + tags=["remove-input"]
+print(f"{global_error=}")
+assert np.isclose(global_error, 0.0, atol=5e-14)
+# -
+
+# ## Expression evaluation on facets
+# Another neat feature for coupling to other codes it that we can evaluate
+# expressions on facets. This could for instance involve the `ufl.FacetNormal`,
+# which represents the normal point out of any facet of the cell.
+# We can for instance consider the heat flux on the boundary of a domain.
+
+n = ufl.FacetNormal(mesh)
+heat_flux = ufl.dot(ufl.grad(q), n)
+
+# ### Integration entities
+# Until now, we have represented the different entities of the domain with a
+# given local index. This was the case for both cells, facets, edges and vertices.
+# However, to be able to define the side of a facet we would like to evaluate an
+# expression, we need to associate it with a cell.
+# We do this by looking at all the facets associated with the cell,
+# and then find its local index.
+# ```{admonition} Integration entity
+# :class: dropdown note
+# There are three distinct integration entities in FEniCS:
+# - For **cell integrals**: The cell index itself is the integration entity
+# - For **exterior facet integrals**: The cell index and the local facet index is the integration entity as a tuple ``(cell, local_facet)``
+# - For **interior facet integrals**: A tuple consisting of the `(cell, local_facet)` for both cells
+# connected to the facet, i.e. `(cell_0, local_facet_0, cell_1, local_facet_1)`
+# ```
+# We will illustrate this below, by first finding all facets on one of the boundaries of the mesh
+
+# +
+tdim = mesh.topology.dim
+set_of_facets = dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, lambda x: np.isclose(x[1], 1))
+# -
+
+# Next, we create the appropriate connectivities in the mesh to be able to find the local index
+
+# +
+mesh.topology.create_connectivity(tdim - 1, tdim)
+f_to_c = mesh.topology.connectivity(tdim - 1, tdim)
+
+mesh.topology.create_connectivity(tdim, tdim - 1)
+c_to_f = mesh.topology.connectivity(tdim, tdim - 1)
+# -
+
+# Next, we loop over all the facets we found and locate it's local index in the
+# cell it is associated to.
+
+cell_facet_pairs = np.empty((len(set_of_facets), 2), dtype=np.int32)
+for i, facet in enumerate(set_of_facets):
+    cells = f_to_c.links(facet)
+    assert len(cells) == 1, "Cell is connected to more than one facet"
+    facets = c_to_f.links(cells[0])
+    facet_index = np.flatnonzero(facets == facet)
+    assert len(facet_index) == 1, "Facet is not connected to cell"
+    cell_facet_pairs[i] = (cells[0], facet_index[0])
+
+# + tags=["remove-input"]
+print(f"{cell_facet_pairs=}")
+# -
+
+# We can pass these pairs to the `dolfinx.fem.Expression` to evaluate
+# the heat flux on the boundary of the domain.
+# As before, we can get the coordinates of the points in the physical cell
+# with `ufl.SpatialCoordinate(mesh)`
+
+# +
+facet_midpoint = np.array([[0.5, 0.5]], dtype=np.float64)
+facet_x = dolfinx.fem.Expression(ufl.SpatialCoordinate(mesh), facet_midpoint)
+heat_flux_expr = dolfinx.fem.Expression(heat_flux, facet_midpoint)
+
+coordinates = facet_x.eval(mesh, cell_facet_pairs.flatten())
+flux_values = heat_flux_expr.eval(mesh, cell_facet_pairs.flatten())
+# -
+
+# + tags=["remove-input"]
+for coordinate, flux in zip(coordinates, flux_values):
+    print(f"{coordinate=}, {flux=} exact_flux={grad_f(coordinate)[1]}")
+    assert np.allclose(flux, grad_f(coordinate)[1])
+# -
