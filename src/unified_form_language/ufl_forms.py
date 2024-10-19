@@ -347,5 +347,5 @@ dx = ufl.Measure("dx", domain=domain, metadata={"quadrature_degree": 4})
 
 # ## References
 # ```{bibliography}
-#    :filter: cited and ({"src/ufl_forms"} >= docnames)
+#    :filter: cited and ({"src/unified_form_language/ufl_forms"} >= docnames)
 # ```
