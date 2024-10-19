@@ -31,7 +31,7 @@ u = dolfinx.fem.Function(V)
 # $$
 # \begin{align}
 # u = \begin{cases}
-# x[0] & \text{if } x[0] < 1\\
+# x[0]^2 & \text{if } x[0] < 1\\
 # x[1] & \text{otherwise}
 # \end{cases}
 # \end{align}
@@ -53,7 +53,7 @@ assert np.intersect1d(left_cells, right_cells).size == 0
 
 # We can now interpolate the function onto each of these subsets
 
-u.interpolate(lambda x: x[0], cells0=left_cells)
+u.interpolate(lambda x: x[0] ** 2, cells0=left_cells)
 u.interpolate(lambda x: x[1], cells0=right_cells)
 
 # Whenever we interpolate on sub-sets of cells, we need to scatter forward the values
@@ -184,9 +184,40 @@ print(f"{u_values=}")
 def exact_function(x):
     left_cond = (x[0] <= 1 + 1e-14).astype(np.float64)
     right_cond = (x[0] >= 1 - 1e-14).astype(np.float64)
-    return left_cond * x[0] + right_cond * x[1]
+    return left_cond * x[0] ** 2 + right_cond * x[1]
 
 
 u_ex = exact_function(points_on_proc.T).T
 np.testing.assert_allclose(u_ex.flatten(), u_values.flatten())
+# -
+
+# ```{admonition} Evaluating along a line $y=0.3, z=0.2$ and plot the result
+# :class: note
+# Expand the dropdowns below to see the solution
+# ```
+
+# + tags=["hide-input","hide-output"]
+
+x_0 = np.linspace(0, 2, 25)
+y_0 = np.full_like(x_0, 0.3)
+z_0 = np.full_like(x_0, 0.2)
+
+points = np.vstack([x_0, y_0, z_0]).T
+potential_colliding_cells = dolfinx.geometry.compute_collisions_points(bb_tree, points)
+colliding_cells = dolfinx.geometry.compute_colliding_cells(mesh, potential_colliding_cells, points)
+points_on_proc = []
+cells = []
+for i, point in enumerate(points):
+    if len(colliding_cells.links(i)) > 0:
+        points_on_proc.append(point)
+        cells.append(colliding_cells.links(i)[0])
+points_on_proc = np.array(points_on_proc, dtype=np.float64).reshape(-1, 3)
+cells = np.array(cells, dtype=np.int32)
+u_values = u.eval(points_on_proc, cells)
+
+import matplotlib.pyplot as plt
+
+fig = plt.figure()
+plt.plot(points_on_proc[:, 0], u_values.flatten(), "ro")
+plt.show()
 # -
