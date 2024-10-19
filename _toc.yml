@@ -24,7 +24,8 @@ parts:
   - caption: "DOLFINx Deep dive"
     chapters:
       - file: "src/deep_dive/mixed_problems.py"
-      - file: "src/lifting.py"
+      - file: "src/deep_dive/expressions.py"
+      - file: "src/deep_dive/lifting.py"
       - file: "src/form_compilation.py"
       - file: "src/approximations.py"
       - file: "src/outputting.py"

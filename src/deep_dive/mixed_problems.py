@@ -156,6 +156,7 @@ F -= ufl.inner(f, v) * ufl.dx
 
 a, L = ufl.system(F)
 
+# (boundary_subset)=
 # ## Locating a subset of entities on a boundary
 # We now want to apply a Dirichlet condition on the degrees of freedom on some subset of the boundary.
 # We start by locating some sub-set of facets on the boundary, by use `dolfinx.mesh.locate_entities_boundary`.

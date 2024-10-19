@@ -63,4 +63,8 @@ DOFs
 
 DOF
     Degree of freedom. Usually the unknown coefficient of a finite element function. Plural Degrees of freedom {term}`DOFs`
+
+GJK
+    Gilbert–Johnson–Keerthi distance algorithm. An algorithm for determining the minimum distance between two convex hulls.
+    For more information see: https://en.wikipedia.org/wiki/Gilbert%E2%80%93Johnson%E2%80%93Keerthi_distance_algorithm
 ```

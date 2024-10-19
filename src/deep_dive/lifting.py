@@ -2,6 +2,11 @@
 # # Using the PETSc for solving linear problems
 # In this section, we will cover how we can work directly with the PETSc Krylov subspace solvers.
 #
+# ```{warning} Native Windows
+# On native Windows, we do not have support for PETSc, as it is not package for
+# [conda](https://petsc.org/main/install/windows/#installing-petsc-on-microsoft-windows).
+# To run any demo with PETSc you should install DOLFINx using conda under WSL2 or docker.
+# ```
 # ## Problem specification
 # We consider the equations of linear elasticity,
 #
