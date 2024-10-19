@@ -192,7 +192,7 @@ np.testing.assert_allclose(u_ex.flatten(), u_values.flatten())
 # -
 
 # ```{admonition} Evaluating along a line $y=0.3, z=0.2$ and plot the result
-# :class: note
+# :class: tip
 # Expand the dropdowns below to see the solution
 # ```
 
@@ -219,5 +219,6 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure()
 plt.plot(points_on_proc[:, 0], u_values.flatten(), "ro")
+plt.grid()
 plt.show()
 # -
