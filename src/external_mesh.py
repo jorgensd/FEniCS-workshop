@@ -6,11 +6,13 @@
 # [Eshelby problem](https://github.com/msolides-2024/MU5MES01-2024/tree/main/02-Eshelby_inclusion)) using GMSH.
 # The Eshelby has an ellipsoid inclusion in the circular domain.
 
+# +
 from mpi4py import MPI
 
 import gmsh
 
 import dolfinx
+# -
 
 # The first thing we do when using GMSH is to initialize it explicitly
 
@@ -148,10 +150,10 @@ print(f"{outer_boundary=}")
 
 # We remove this boundary from the external boundaries before creating a physical group
 
+# + tags=["remove-output"]
 interface = [idx for (dim, idx) in inner_boundary if dim == 1]
 ext_boundary = [idx for (dim, idx) in outer_boundary if idx not in interface and dim == 1]
 
-# + tags=["remove-output"]
 gmsh.model.addPhysicalGroup(1, interface, tag=12)
 gmsh.model.addPhysicalGroup(1, ext_boundary, tag=15)
 # -

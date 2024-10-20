@@ -103,12 +103,14 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):
 
 
 # The mesh we created above is visualized as
+
+# + tags=["hide-input"]
 import sys, os
 
 if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
     pyvista.start_xvfb(0.05)
 plot_mesh(domain)
-
+# -
 
 # ## Higher order meshes
 # As we use a finite element to describe the mapping from the reference element to the physical element,

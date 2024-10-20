@@ -1,0 +1,14 @@
+- Non-linear problems
+
+Show how to solve non-linear problems using NonLinearProblem and Newton solver
+
+- Multiphysics Part 2
+
+Show how mixed assembly of co-dim 0 would work (sub mesh coupled to parent)
+Interpolation to and from these meshes
+Introduce notion of multiple meshes, go through example similar to the one of Remi
+Exercises
+
+- Co-dim 1 meshes, what are they, what are they useful for?
+
+- External operators in UFL

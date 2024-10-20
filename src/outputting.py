@@ -18,6 +18,7 @@
 
 # The easiest way to get going with pyvista is to use the following commands 
 
+# +
 import os, sys, pyvista
 
 if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
@@ -26,6 +27,7 @@ if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
 plotter = pyvista.Plotter()
 plotter.show()
 plotter.screenshot("test.png")
+# -
 
 # The environment variables that has been set for DOLFINx in the provided conda environment is listed below
 # ```bash
@@ -87,6 +89,6 @@ plotter.screenshot("test.png")
 # #### Cons
 # - ASCII (text) based output that creates many files when used with multiple MPI processes
 
-# #### Checkpointing
+# ## Checkpointing
 # Checkpointing in DOLFINx is supported with the extension [ADIOS4DOLFINx](https://github.com/jorgensd/adios4dolfinx).
 # See the online [documentation](https://jsdokken.com/adios4dolfinx) for illustrative use-cases.

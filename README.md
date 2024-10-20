@@ -19,33 +19,6 @@ The first part of this tutorial does not require PETSc.
 However, for the second part of the tutorial we require PETSc, and thus IntegralType.interior_facet: need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
 ```
 
-- Non-linear problems
-
-Show how to solve non-linear problems using NonLinearProblem and Newton solver
-
-- Mesh generation
-
-
-- Multiphysics part 1
-
-Introduce the notion of a submesh
-Solve simple PDE on submesh as a starter
-Exercises
-
-- Multiphysics Part 2
-
-Show how mixed assembly of co-dim 0 would work (sub mesh coupled to parent)
-Interpolation to and from these meshes
-Introduce notion of multiple meshes, go through example similar to the one of Remi
-Exercises
-
-- Co-dim 1 meshes, what are they, what are they useful for?
-
-Co-dim 1 example
-Other ideas?
-
-- External operators in UFL
-
 ```{bibliography}
 :filter: cited and ({"README"} >= docnames)
 ```
