@@ -246,11 +246,6 @@ linear_form = dolfinx.fem.create_form(L_compiled, [V], mesh, {}, {}, {})
 A = dolfinx.fem.create_matrix(bilinear_form)
 b = dolfinx.fem.create_vector(linear_form)
 
-# ```{admonition} Why do we create the matrix explicitly?
-# As the matrix is sparse, we want to pre-compute the sparsity pattern of the matrix before inserting
-# data into it. `dolfinx.fem.create_matrix` estimates the sparsity pattern based on the variational
-# form and creates the appropriate CSR matrix.
-# ```
 # We can get a view into `A` by creating a data wrapper compatible with scipy.
 
 A_scipy = A.to_scipy()
