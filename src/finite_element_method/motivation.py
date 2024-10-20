@@ -4,7 +4,7 @@
 #  $$
 #  g(x) = x \sin(\pi x) \cos (3\pi x)
 #  $$
-# 
+#
 # on the interval $[0, 1]$.
 #
 # We want to start with a simple example to illustrate the basic idea behind the finite element method,
@@ -22,6 +22,8 @@
 #
 # When solving {term}`PDE`s, we will encounter **singularities** and **non-smooth solutions** (e.g. kinks).
 # Both these features make global polynomial approximation and Fourier series less attractive.
+
+# Maybe add a sentence here describing the next figure
 
 
 # +tags=["hide-input"]
@@ -91,16 +93,19 @@ approximate_function(10, 1)
 
 
 # ## Motivating example: Heat equation with different materials
+
+# Instead of using "This" maybe say "Sigularities can for instance ..."
 # This can for instance be seen in heat transfer equation between different materials.
 # We define a domain $\Omega\in \mathbb{R}^d$ as the union of two disjoint domains $\Omega_0$ and $\Omega_1$
 #
 # $$
 # \begin{align*}
 #  \Omega_0\cup\Omega_1&=\Omega,\\
-#  \Omega_0\cap\Omega_1&=\Gamma\subset{R}^{d-1}.
+#  \Omega_0\cap\Omega_1&=\Gamma\subset{\mathbb{R}}^{d-1}.
 # \end{align*}
 # $$
 #
+# I would perhaps skip the heading here and write a proper sentence instead
 # ### Material
 # $c$ is the coefficient of thermal diffusivity
 #

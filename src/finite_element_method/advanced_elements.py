@@ -10,12 +10,15 @@
 # 1) The triangulation covers $\Omega$: $\cup_{j=1}^{M}K_j=\bar{\Omega}$
 # 2) No overlapping polyons: $\mathrm{int} K_i \cap \mathrm{int} K_j=\emptyset$ for $i\neq j$.
 # 3) No vertex lines in the interior of a facet or edge of another element
+# "No vertex lies"?
 #
 # We will call our polygonal domain $\mathcal{K}={K_j}_{j=1}^{M}$.
+# Maybe add some brackets around K_j?
 # Next, we define a reference element $K_{ref}$, which is a simple polygon that we can map to any element $K_j$,
 # using the mapping $F_j:K_{ref}\mapsto K_j$.
 #
 # We define the Jacobian of this mapping as $\mathbf{J_j}$.
+# I would add a definition of the Jacobian here
 #
 # (straight_edge_triangle)=
 # ### Example: Straight edged triangle
@@ -32,6 +35,7 @@ reference_points = basix.create_lattice(
     basix.CellType.triangle, 8, basix.LatticeType.gll, exterior=False, method=basix.LatticeSimplexMethod.warp
 )
 # -
+# Is this code snippet suppose to produce some output?
 
 # Next, we realize that we can use the first order Lagrange space, to represent the mapping from the
 # reference element to any physical element:
@@ -39,8 +43,11 @@ reference_points = basix.create_lattice(
 # as the linear combination of the three basis functions on the reference element $X$.
 #
 # $$x = F_j(X)= \sum_{i=0}^3 \mathbf{p}_i \phi_i(X).$$
+# I guess i = 0 to 2?
+# Adding a figure here that should a point in the reference element being mapped to a physical element would be good
 #
 # In the next snippet we will create a function to compute `x` given the three points and a set of reference coordinates
+
 
 def compute_physical_point(p0, p1, p2, X):
     """
@@ -50,6 +57,7 @@ def compute_physical_point(p0, p1, p2, X):
     basis_values = el.tabulate(0, X)
     x = basis_values[0] @ np.vstack([p0, p1, p2])
     return x
+
 
 # We can now experiment with this code
 
@@ -92,6 +100,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # ```{admonition} Can we use a similar kind of mapping on a quadrilateral/tetrahedral/hexahedral element?
 # :class: dropdown tip
 # Yes, for any polytope that we can describe with a Lagrange finite element, we can define a mapping from a reference to a physical element.
+# I had to google the word polytope, maybe add a definition here or add it to the glossary
 # ```
 # ```{admonition} What happens if we change the degree of the basis functions?
 # :class: dropdown tip
@@ -109,12 +118,14 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # As we have already seen, we can describe any cell in our subdivided domain with a mapping from the reference element.
 # However, as we want to integrate over each element individually, we need to map the basis functions to and from the reference element.
 # We call this map: $(\mathcal{F}_j\phi)(x)$.
+# Can we add domain and codomain to the map?
 #
 # For scalar valued basis functions, such as the Lagrange basis function, this operation is simple
 #
 # $$
 # (\mathcal{F}_j\phi)(x)= \phi(F_j^{-1}(x))=\phi(X).
 # $$
+# I didn't really ge this. What does `j` represent?
 
 # ## Vector-valued finite elements
 #
@@ -122,10 +133,11 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # $u_i$ we have a scalar valued basis function $\phi_i$.
 
 # In this section we will consider vector-valued basis functions
-# 
+#
 # $$
 # \phi_i(x): \mathbb{R}^n \mapsto \mathbb{R}^n.
 # $$
+# I would add a similar section for scalar valued basis functions
 #
 #
 # Instead of defining the dual basis $l_i$ as point evaluations, these dual-basis functions are often defined as integrals
@@ -156,16 +168,19 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # :class: dropdown, tip
 # Their tangential component is only non-zero on the edge they are associated with, but the normal component can be non-zero there too.
 # This implies that they are normal to the other edges.
+# I would maybe add some equations here to make it more clear
 # ```
 
 # To preserve the properties of the basis functions from the reference element to the physical element,
 # we use the covariant Piola map:
+# Maybe add this to the glossary?
 #
 # $$
 # \begin{align*}
 # (\mathcal{F}_j^{\text{curl}}\phi)(x):= J_j^{-T} \phi(F_j^{-1}(x))
 # \end{align*}
 # $$
+# The superscript curl should be explained here
 
 # The noteable feature of this map is that it preserves the **tangential** component of the basis function.
 # We start by computing the Jacobian of the mapping from the reference element to the physical element.
@@ -223,7 +238,11 @@ J_inv_T = np.transpose(jacobian_inverse, (0, 2, 1))
 
 # + tags=["hide-input"]
 nedelec_el = basix.ufl.element("N1curl", "triangle", 1)
-ref_basis = nedelec_el.tabulate(0, X).reshape(num_points, tdim, nedelec_el.dim,)
+ref_basis = nedelec_el.tabulate(0, X).reshape(
+    num_points,
+    tdim,
+    nedelec_el.dim,
+)
 
 physical_basis = np.zeros((num_points, points.shape[1], nedelec_el.dim))
 for i in range(num_points):
@@ -237,6 +256,7 @@ physical_basis = np.transpose(physical_basis, (2, 0, 1))
 # + tags=["hide-input"]
 x = compute_physical_point(p0, p1, p2, X)
 import matplotlib.pyplot as plt
+
 phi = np.linspace(0, theta, num_points)
 theta = 2 * np.pi
 rgb_cycle = (
@@ -246,20 +266,20 @@ reference_vertices = basix.cell.geometry(basix.CellType.triangle)
 
 for i in range(nedelec_el.dim):
     fig, axes = plt.subplots(1, 2)
-    fig.suptitle('Nedelec basis functions of reference and physical cell', fontsize=16)
+    fig.suptitle("Nedelec basis functions of reference and physical cell", fontsize=16)
     ref_triangle = plt.Polygon(reference_vertices, color="blue", alpha=0.2)
     triangle = plt.Polygon(points, color="blue", alpha=0.2)
     axes[0].add_patch(ref_triangle)
-    axes[0].scatter(X[:,0], X[:,1], color=rgb_cycle, label="Reference points")
+    axes[0].scatter(X[:, 0], X[:, 1], color=rgb_cycle, label="Reference points")
     axes[0].quiver(X[:, 0], X[:, 1], ref_basis[:, 0, i], ref_basis[:, 1, i])
-    axes[0].set_title(r"$\phi_{i}$".format(i="{"+str(i)+"}"))
-    axes[0].set_aspect('equal', 'box')
+    axes[0].set_title(r"$\phi_{i}$".format(i="{" + str(i) + "}"))
+    axes[0].set_aspect("equal", "box")
 
-    axes[1].set_title(r"$\mathcal{F}"+r"\phi_{i}$".format(i="{"+str(i)+"}")) 
-    axes[1].scatter(x[:,0], x[:,1], color=rgb_cycle, label="Physical points")
+    axes[1].set_title(r"$\mathcal{F}" + r"\phi_{i}$".format(i="{" + str(i) + "}"))
+    axes[1].scatter(x[:, 0], x[:, 1], color=rgb_cycle, label="Physical points")
     axes[1].quiver(x[:, 0], x[:, 1], physical_basis[i, :, 0], physical_basis[i, :, 1])
     axes[1].add_patch(triangle)
-    axes[1].set_aspect('equal', 'box')
+    axes[1].set_aspect("equal", "box")
     plt.show()
 # -
 

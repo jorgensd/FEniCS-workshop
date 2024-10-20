@@ -1,7 +1,7 @@
 # (launch:thebe)=
 # # Defining a finite element ({term}`FE`)
 #
-# The finite element method is a way of representing a function $u$ in a function space $V$, given $u$
+# The finite element method is a way of representing a function $u$ in a function space $V$, given that $u$
 # satisfies a certain partial differential equation.
 #
 # In this tutorial, we will keep to function spaces $V\subset H^{1}(\Omega)$,
@@ -15,13 +15,18 @@
 #
 # $$u\in V \Leftrightarrow u(x) = \sum_{i=0}^{N-1} u_i \phi_i(x),$$
 # where $N$ are the number of basis functions, $\phi_i$ is the $i$-th basis function and $u_i$ are the coefficients.
+# Here you haven't yet defined the basis functions, so perhaps it would be good to say so and maybe say that we will do so later in the tutorial.
 #
 #
 # ## Formal definition of a finite element
+# I think this section should be moved to later in the tutorial, so that the reader can get familiar with the concept of a finite element before seeing the formal definition. Perhaps just start with first order lagrange, show the basis functions for that and then do the formal definition.
 # A finite element is often described{cite}`ciarlet2002` as a triplet $(R, \mathcal{V}, \mathcal{L})$ where
 # - $R\subset \mathbb{R}^n$ is the reference element (often polygon or polyhedron).
+# Here it is written as if the reader already knows what a reference element is, but I think it would be good to explain this concept first.
 # - $\mathcal{\mathcal{V}}$ is a finite-dimensional polynomial space on $R$ with dimension $n$.
 # - $\mathcal{L}=\{l_0, \dots, l_{n-1}\}$ is the basis of the dual space
+# Maybe add dual space to the glossary? I think perhaps this dual basis might trip a lot of reader off if they are not familiar with the concept of a dual space.
+# Would perhaps be good to explain this in more detail, or move it to later in the tutorial.
 #   $\mathcal{V}^*:=\{f:\mathcal{V}\rightarrow\mathbb{R}\vert f \text{ is linear}\}.$
 #
 # One often associates each $l_i$ with a sub-entity of $R$, i.e. a vertex, an edge, a face or the cell itself.
@@ -39,6 +44,7 @@
 #
 # - $R$ is a quadrilateral with vertices $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$.
 # - $\mathcal{V}=\mathrm{span}\{1, y, y^2, x, x^2, xy, xy^2, x^2, x^2y, x^2y^2\}$.
+# Maybe add a dropbdown with explanation of span?
 # - The basis of the dual space is
 #
 # $$
@@ -61,7 +67,7 @@
 # The basis functions are determined by
 #
 # $$l_i(\phi_j)=\delta_{ij}=\begin{cases}1 \qquad i=j\\ 0 \qquad i \neq j\end{cases}$$
-#
+# I think this needs to be better explained. For for example what are the domain and codomain of $l_i$ and $\phi_j$?.
 # For the example above this gives us the following basis functions
 #
 #
@@ -91,6 +97,7 @@
 # </center>
 #
 # ### Uniqueness of basis functions
+# Maybe not start a section with "This means that" (maybe just delete those words?)
 # This means that we can use different basis functions to span the same polynomial spaces $\mathcal{V}$
 # by choosing different dual basis functions $l_i$.
 #
@@ -138,6 +145,7 @@ element = basix.ufl.element("Lagrange", "triangle", 1)
 #
 
 # Next, we will evaluate the basis functions at a certain set of `points` in the reference triangle.
+# Add "reference triangle" to the glossary?
 # We call this {term}`tabulation` and we use the `tabulate` method of the element object.
 # The two input arguments are:
 # 1) The number of spatial derivatives of the basis functions we want to compute.
@@ -145,6 +153,7 @@ element = basix.ufl.element("Lagrange", "triangle", 1)
 # a numpy array of shape `(num_points, reference_cell_dimension)`.
 #
 # In this case, we want to compute the basis functions themselves, so we set the first argument to 0.
+# Here I think it would be good with a figure showing the reference triangle and the points where the basis functions are evaluated.
 
 # +
 points = np.array([[0.0, 0.1], [0.3, 0.2]])
@@ -234,9 +243,11 @@ basis_values = low_precision_element.tabulate(0, points_low_precision)
 print(f"{basis_values=}\n   {basis_values.dtype=}")
 
 # We observe that elements that are close to zero is now an order of magnitude larger than its `np.float64` counterpart.
+# This is because ... (explain why this happens)
 
 # ## Exercises
 #
+# I think you should also add Basix to the glossary.
 # Basix allows for a large variety of extra options to tweak your finite elements, see for instance
 # [Variants of Lagrange elements](https://docs.fenicsproject.org/dolfinx/v0.9.0/python/demos/demo_lagrange_variants.html)
 # for how to choose the node spacing in a Lagrange element.
