@@ -65,6 +65,9 @@ cell_tags = dolfinx.mesh.meshtags(mesh, mesh.topology.dim,
 assert len(np.unique(marker)) <= 2
 # -
 
+# This section will contain alot of figures, to illustrate the different steps.
+# Expand to see the code for creating a plotter of meshes and meshtags.
+
 # + tags=["hide-input"]
 import sys, os
 
@@ -76,6 +79,7 @@ if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
 
 def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None):
     plotter = pyvista.Plotter()
+    mesh.topology.create_connectivity(tdim-1, tdim)
     if tags is None:
         ugrid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
     else:
@@ -89,8 +93,6 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None):
 
     plotter.add_mesh(ugrid, show_edges=True, line_width=3)
     plotter.show_axes()
-    
-    #plotter.view_xy()
     plotter.show()
 
 plot_mesh(mesh, cell_tags)
@@ -244,13 +246,9 @@ def transfer_meshtags_to_submesh(
 stokes_facet_tags, stokes_facet_map = transfer_meshtags_to_submesh(mesh, facet_tags, stokes_mesh,
                                                                    stokes_vertex_map, stokes_cell_map)
 
-# Add visualization here
-
-with dolfinx.io.XDMFFile(mesh.comm, "sub-tags.xdmf", "w") as xdmf:
-    xdmf.write_mesh(stokes_mesh)
-    stokes_mesh.topology.create_connectivity(stokes_mesh.topology.dim, stokes_mesh.topology.dim-1)
-    stokes_mesh.topology.create_connectivity(stokes_mesh.topology.dim-1, stokes_mesh.topology.dim)
-    xdmf.write_meshtags(stokes_facet_tags, stokes_mesh.geometry) 
+# + tags=["remove-input"]
+plot_mesh(stokes_mesh, stokes_facet_tags)
+# -
 
 # ## Solve Stokes problem on submesh
 # We can now solve the Stokes problem on this sub-mesh
@@ -285,12 +283,11 @@ F += ufl.inner(ufl.div(u), q) * ufl.dx
 F -= ufl.inner(f, v) * ufl.dx
 a, L = ufl.system(F)
 
-
+# Create boundary conditions
 W0 = W.sub(0)
 V, V_to_W0 = W0.collapse()
 u_wall = dolfinx.fem.Function(V)
 u_wall.x.array[:] = 0
-
 stokes_walls = np.union1d(stokes_facet_tags.find(outer_marker), stokes_facet_tags.find(interface_marker))
 dofs_wall = dolfinx.fem.locate_dofs_topological((W0, V), mesh.topology.dim - 1, stokes_walls)
 bc_wall = dolfinx.fem.dirichletbc(u_wall, dofs_wall, W0)
@@ -300,28 +297,57 @@ dofs_inlet = dolfinx.fem.locate_dofs_topological((W0, V), mesh.topology.dim - 1,
 bc_inlet = dolfinx.fem.dirichletbc(u_inlet, dofs_inlet, W0)
 bcs = [bc_wall, bc_inlet]
 
-# -
+# Compile form and assemble system
 a_compiled = dolfinx.fem.form(a)
 L_compiled = dolfinx.fem.form(L)
 A = dolfinx.fem.create_matrix(a_compiled)
 b = dolfinx.fem.create_vector(L_compiled)
 A_scipy = A.to_scipy()
 dolfinx.fem.assemble_matrix(A, a_compiled, bcs=bcs)
-
 dolfinx.fem.assemble_vector(b.array, L_compiled)
 dolfinx.fem.apply_lifting(b.array, [a_compiled], [bcs])
 b.scatter_reverse(dolfinx.la.InsertMode.add)
 [bc.set(b.array) for bc in bcs]
 
+# Solve with SPLU
 import scipy.sparse
-
 A_inv = scipy.sparse.linalg.splu(A_scipy)
-
 wh = dolfinx.fem.Function(W)
 wh.x.array[:] = A_inv.solve(b.array)
+# -
 
-with dolfinx.io.VTXWriter(stokes_mesh.comm, "u.bp", [wh.sub(0).collapse()]) as bp:
-    bp.write(0.0)
+# + tags=["hide-input"]
+def visualize_function(function: dolfinx.fem.Function, scale=1.0):
+    u_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(function.function_space))
+    plotter = pyvista.Plotter()
+    if function.function_space.dofmap.bs == 1:
+        u_grid.point_data[function.name] = function.x.array
+        plotter_p = pyvista.Plotter()
+        plotter_p.add_mesh(u_grid, show_edges=False)
+        plotter_p.view_xy()
+        plotter_p.show()
+
+    else:
+        # Pad u to be 3D
+        gdim = function.function_space.mesh.geometry.dim
+        assert len(function) == gdim
+        u_values = np.zeros((len(function.x.array) // gdim, 3), dtype=np.float64)
+        u_values[:, :gdim] = function.x.array.real.reshape((-1, gdim))
+
+        # Create a point cloud of glyphs
+        u_grid[function.name] = u_values
+        glyphs = u_grid.glyph(orient=function.name, factor=scale)
+
+        plotter = pyvista.Plotter()
+        plotter.add_mesh(u_grid, show_edges=False, show_scalar_bar=False)
+        plotter.add_mesh(glyphs)
+        plotter.view_xy()
+        plotter.show()
+uh = wh.sub(0).collapse()
+ph = wh.sub(1).collapse()
+visualize_function(uh)
+visualize_function(ph)
+# -
 
 # ## Solving with integration over full mesh
 # As we have seen above, we can create a sub-mesh and use it as one would use any other
@@ -337,9 +363,14 @@ kappa.x.array[:] = 25
 subset_cells = dolfinx.mesh.locate_entities(mesh, tdim, lambda x: x[1] > 0.3)
 kappa.interpolate(lambda x: 12*x[0]+x[1], cells0 = subset_cells)
 
-# Add visualization of kappa here
-with dolfinx.io.VTXWriter(mesh.comm, "kappa.bp", [kappa]) as bp:
-    bp.write(0.0)
+# + tags=["hide-input"]
+plotter = pyvista.Plotter()
+u_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
+u_grid.cell_data["kappa"] = kappa.x.array
+plotter.add_mesh(u_grid, show_edges=True)
+plotter.view_xy()
+plotter.show()
+# -
 
 # We create the submesh and the function space for the temperature on the submesh
 
@@ -358,7 +389,6 @@ heat_facet_tags , _= transfer_meshtags_to_submesh(mesh, facet_tags, heat_mesh,
 K_sub = dolfinx.fem.functionspace(heat_mesh, ("DG", 0))
 kappa_sub = dolfinx.fem.Function(K_sub)
 
-# 
 # We do this by supplying to lists to interpolate.
 # As we have seen before `cells0` relate to what cells in the incoming space (`K_sub`)
 # we want to interpolate data onto.
@@ -368,9 +398,14 @@ kappa_sub = dolfinx.fem.Function(K_sub)
 
 kappa_sub.interpolate(kappa, cells0=heat_cell_map, cells1=np.arange(len(heat_cell_map)))
 
-# Add visualization of kappa here
-with dolfinx.io.VTXWriter(mesh.comm, "kappa_sub.bp", [kappa_sub]) as bp:
-    bp.write(0.0)
+# + tags=["hide-input"]
+plotter = pyvista.Plotter()
+u_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(heat_mesh))
+u_grid.cell_data["kappa_sub"] = kappa_sub.x.array
+plotter.add_mesh(u_grid, show_edges=True)
+plotter.view_xy()
+plotter.show()
+# -
 
 # However, as we have already seen how to deal with problems that are pure related to
 # quantities on a submesh, we will move to option number 2.
@@ -390,6 +425,7 @@ dx_heat = dx(heat_marker)
 # Next, we set up the problem as done previously, with test-functions and trial-functions
 # on the `heat_mesh`
 
+# +
 T = dolfinx.fem.functionspace(heat_mesh, ("Lagrange", 1))
 t = ufl.TrialFunction(T)
 dt = ufl.TestFunction(T)
@@ -397,9 +433,10 @@ dt = ufl.TestFunction(T)
 x = ufl.SpatialCoordinate(mesh)
 f = 10*ufl.sin(5*ufl.pi*x[1]) + x[0]**3
 F_heat = ufl.inner(kappa*ufl.grad(t), ufl.grad(dt))*dx_heat - ufl.inner(f, dt)*dx_heat
+# -
 
 # ```{warning}
-# As we chose `mesh` as the integration domain, all spatial quantities such as `ufl.SpatialCoordinate`
+# As we choose `mesh` as the integration domain, all spatial quantities such as `ufl.SpatialCoordinate`
 # and `ufl.FacetNormal` should be defined wrt. this domain.
 # ```
 
@@ -433,8 +470,9 @@ entity_maps = {heat_mesh: mesh_to_heat_entity}
 
 a_heat, L_heat = dolfinx.fem.form(ufl.system(F_heat), entity_maps=entity_maps)
 
-# Now we can solve the problem, for instance with scipy
+# Now we can solve assemble the system
 
+# +
 A_heat = dolfinx.fem.assemble_matrix(a_heat, bcs=bcs_heat)
 A_heat_scipy = A_heat.to_scipy()
 
@@ -442,6 +480,7 @@ b_heat = dolfinx.fem.assemble_vector(L_heat)
 dolfinx.fem.apply_lifting(b.array, [a_heat], [bcs_heat])
 b_heat.scatter_reverse(dolfinx.la.InsertMode.add)
 [bc.set(b_heat.array) for bc in bcs_heat]
+# -
 
 # ```{admonition} Why did we not pass matrices to assemble vector/matrix?
 # In all the previous examples we have seen, we have been explicitly creating the matrices
@@ -453,16 +492,18 @@ b_heat.scatter_reverse(dolfinx.la.InsertMode.add)
 # It is cheaper to zero out the initial contributions in the matrix than creating a new one.
 # ```
 
+# We can now solve the system
 
+# +
 A_heat_inv = scipy.sparse.linalg.splu(A_heat_scipy)
 
-th = dolfinx.fem.Function(T)
+th = dolfinx.fem.Function(T, name="Temperature")
 th.x.array[:] = A_heat_inv.solve(b_heat.array)
+# -
 
-
-# Add visualization of kappa here
-with dolfinx.io.VTXWriter(mesh.comm, "T.bp", [th]) as bp:
-    bp.write(0.0)
+# + tags=["remove-input"]
+visualize_function(th)
+# -
 
 # ## Combined assembly
 # As we aim to solve multiphysics problems in a monolitic way, we will go through the basic steps of setting up such as system.
@@ -526,3 +567,99 @@ for i in range(3):
 # Therefore we added a integral $\int_{\Omega_s} 0 * \delta p ~\mathrm{d}x$
 # to ensure that we get the right block structure.
 # ```
+
+# We create the appropriate inverse maps and compile the forms
+
+mesh_to_heat_entity = np.full(num_cells_local, -1, dtype=np.int32)
+mesh_to_heat_entity[heat_cell_map] = np.arange(len(heat_cell_map), dtype=np.int32)
+mesh_to_stokes_entity = np.full(num_cells_local, -1, dtype=np.int32)
+mesh_to_stokes_entity[stokes_cell_map] = np.arange(len(stokes_cell_map), dtype=np.int32)
+entity_maps = {heat_mesh: mesh_to_heat_entity, stokes_mesh: mesh_to_stokes_entity}
+a_blocked_compiled = dolfinx.fem.form(a_blocked, entity_maps=entity_maps)
+L_blocked_compiled = dolfinx.fem.form(L_blocked, entity_maps=entity_maps)
+
+# We create the boundary condition as before
+
+# +
+T_bndry = dolfinx.fem.Function(T)
+T_bndry.x.array[:] = 0
+heat_mesh.topology.create_connectivity(heat_mesh.topology.dim-1, heat_mesh.topology.dim)
+heat_bc_dofs = dolfinx.fem.locate_dofs_topological(T, heat_mesh.topology.dim-1, heat_facet_tags.find(outer_marker))
+bc_heat = dolfinx.fem.dirichletbc(T_bndry, heat_bc_dofs)
+
+stokes_walls = np.union1d(stokes_facet_tags.find(outer_marker), stokes_facet_tags.find(interface_marker))
+dofs_wall = dolfinx.fem.locate_dofs_topological(V, mesh.topology.dim - 1, stokes_walls)
+u_wall = dolfinx.fem.Function(V)
+u_wall.x.array[:] = 0
+bc_wall = dolfinx.fem.dirichletbc(u_wall, dofs_wall)
+u_inlet = dolfinx.fem.Function(V)
+u_inlet.interpolate(lambda x: (0.5*x[1], 0*x[0]))
+dofs_inlet = dolfinx.fem.locate_dofs_topological(V, mesh.topology.dim - 1, stokes_facet_tags.find(inlet_marker))
+bc_inlet = dolfinx.fem.dirichletbc(u_inlet, dofs_inlet)
+
+bcs = [bc_heat, bc_wall, bc_inlet]
+# -
+
+# We could now use [scipy.sparse.vstack](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.vstack.html)
+# and [scipy.sparse.hstack]https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.hstack.html to create the full matrix
+# in a scipy compatible format, and solve as we have shown before.
+
+# However, DOLFINx provides wrapper to assemble this into PETSc blocked and PETSc nest matrices.
+# We will illustrate how to do this with PETSc blocked matrices.
+
+# +
+from petsc4py import PETSc
+import dolfinx.fem.petsc
+
+A = dolfinx.fem.petsc.create_matrix_block(a_blocked_compiled)
+A.zeroEntries()
+dolfinx.fem.petsc.assemble_matrix_block(A, a_blocked_compiled, bcs=bcs)
+A.assemble()
+
+b = dolfinx.fem.petsc.create_vector_block(L_blocked_compiled)
+dolfinx.fem.petsc.assemble_vector_block(b, L_blocked_compiled, a_blocked_compiled, bcs=bcs)
+b.ghostUpdate(PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD)
+# -
+
+# ```{admonition} Assembly of blocked matrices and vectors
+# :class: dropdown note
+# We observe that assembling blocked matrices looks like how we assemble native matrices.
+# However, we observe that the lifting procedure is embedded in `assemble_block_vector`,
+# as this code gets a bit compilcated for block systems.
+# ```
+#
+
+# We create the KSP object and solve the system
+
+# +
+ksp = PETSc.KSP().create(mesh.comm)
+ksp.setOperators(A)
+ksp.setType(PETSc.KSP.Type.PREONLY)
+ksp.getPC().setType(PETSc.PC.Type.LU)
+ksp.getPC().setFactorSolverType("mumps")
+
+w_blocked = dolfinx.fem.petsc.create_vector_block(L_blocked_compiled)
+
+ksp.solve(b, w_blocked)
+assert ksp.getConvergedReason() > 0, "Solve failed"
+# -
+
+# We extract the individual functions from the blocked solution vector and visualize them
+
+# +
+blocked_maps = [(space.dofmap.index_map, space.dofmap.index_map_bs) for space in W.ufl_sub_spaces()]
+local_values = dolfinx.cpp.la.petsc.get_local_vectors(w_blocked, blocked_maps)
+
+Th = dolfinx.fem.Function(T, name="Temperature")
+uh = dolfinx.fem.Function(V, name="Velocity")
+ph = dolfinx.fem.Function(Q, name="Pressure")
+Th.x.array[:] = local_values[0]
+uh.x.array[:] = local_values[1]
+ph.x.array[:] = local_values[2]
+# -
+
+# + tags=["remove-input"]
+visualize_function(uh)
+visualize_function(ph)
+visualize_function(Th)
+# -

@@ -8,6 +8,7 @@ parts:
       - file: "src/finite_element_method/galerkin.py"
       - file: "src/finite_element_method/finite_element.py"
       - file: "src/finite_element_method/advanced_elements.py"
+      - file: "src/outputting.py"
 
   - caption: "An introduction to the Unified Form Language (UFL)"
     chapters:
@@ -29,7 +30,6 @@ parts:
       - file: "src/deep_dive/restriction.py"
       - file: "src/form_compilation.py"
       - file: "src/approximations.py"
-      - file: "src/outputting.py"
 
   - caption: "Meshes in DOLFINx"
     chapters:
