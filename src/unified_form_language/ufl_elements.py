@@ -34,6 +34,7 @@ coordinate_element = basix.ufl.element("Lagrange", "triangle", 1, shape=(2,))
 # - The second input is what cells the computational domain will consist of.
 # - The third input is the degree of the finite element space we want to use to describe the domain.
 # - The fourth argument is a tuple telling basix what the dimension of the points in the physical space are in.
+# Maybe add a forth argument to the code as well?
 #
 # For triangular elements, the last argument can either be `(2, )` or `(3, )`.
 # If the input is `(3, )` we are describing a 2D manifold embedded in 3D.
@@ -58,7 +59,8 @@ domain = ufl.Mesh(coordinate_element)
 # -
 
 # ## The finite element
-# Next, we want to describe the finite element our unknown $uh$ will live in.
+# Next, we want to describe the finite element our unknown $u_h$ will live in.
+# I thinks it sounds strange that the unknown lives in the finite element
 # In DOLFINx, we are not limited to *iso-parameteric* elements, that is elements that match the coordinate element.
 
 # In this problem, we choose a *sub-parametric* element, that is, our unknown will have more degrees of freedom than
@@ -93,6 +95,7 @@ blocked_el = basix.ufl.mixed_element([curl_el for _ in range(4)])
 # We want to enrich this space with a degree [tree bubble element](https://defelement.com/elements/examples/triangle-bubble-3.html).
 # A degree three bubble element is the element whose functional is $l_0: v\mapsto v\left(\frac{1}{3},\frac{1}{3}\right)$ and
 # is zero at all edges of the reference triangle. This means that it spans $xy(1-x-y)$.
+# I did not understand this part.
 # We thus want to create an element with the dual basis $l_0$, $l_1$, $l_2$, $l_3$ that spans $\{1, x, y, xy(1-x-y)\}$.
 # ```
 # We do this with basix in the following way
@@ -105,6 +108,8 @@ enriched_element = basix.ufl.enriched_element(
 # This means that we want to create an element with multiple blocks.
 
 el_u = basix.ufl.blocked_element(enriched_element, shape=(2,))
+
+# This was a bit confusing. el_u is the element for the velocity right? I didn't understand why we need to use blocked_element here. Is it becase we want to make a mixed element with an enriched element?
 
 # We can create a mixed element for a mixed problem with
 

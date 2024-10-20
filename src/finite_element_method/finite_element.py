@@ -60,7 +60,7 @@
 #   l_8&: v \mapsto v(0.5, 0.5)\\
 # \end{align*}
 # $$
-#
+# I think these mappings needs to be better defined. Perhaps also add some exercises
 
 # ## Determining the underlying basis functions $\phi_i$
 #

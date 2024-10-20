@@ -8,6 +8,7 @@
 #
 # for some known $g$.
 # This problem is known as the $L^2$-projection of $g$ into $u$.
+# Or into V?
 # We can observe this by looking at what solving this problem implies:
 # To find the minimum, we need to find where $\frac{\mathrm{d}G}{\mathrm{d}u}$ is $0$.
 # We define the residual $F$ as
@@ -15,6 +16,7 @@
 # $$
 # F(u, \delta u) := \frac{\mathrm{d}G}{\mathrm{d}u}[\delta u] = 0, \quad \forall \delta u \in V.
 # $$
+# Maybe explain this notation? i.e that is is a directional derivative?
 #
 # We could compute this by hand and get:
 # Find $u_h\in V$ such that
@@ -75,7 +77,7 @@ alt_grad_uh = ufl.as_vector((duh_dx, duh_dy))
 # Next, we define our $g$. We will consider four different cases for $g$:
 # 1. $g$ is a constant over the whole domain
 # 2. $g$ is an expression depending on the spatial coordinates of the domain, i.e. $g=g(x,y,z)$
-# 3. $g$ is a function form another finite element function space
+# 3. $g$ is a function from another finite element function space
 # 4. $g$ is a mixture of the above, combined with spatial derivatives
 
 # For case 1., we create a symbolic representation of a constant
@@ -95,7 +97,7 @@ x = ufl.SpatialCoordinate(domain)
 g = ufl.sin(x[0]) + ufl.cos(ufl.pi * x[1])
 
 # As the third case is easy to represent, we move directly to the fourth,
-# where we choose $g=\nabla \cdot f where $f$ in a vector DG-3 space
+# where we choose $g=\nabla \cdot f$ where $f$ in a vector DG-3 space
 
 el_f = basix.ufl.element("DG", cell, 3, shape=(2,))
 Q = ufl.FunctionSpace(domain, el_f)
@@ -141,11 +143,13 @@ F = ufl.derivative(G, uh, du)
 # \end{align*}
 # $$
 #
-# where $ H= \frac{\mathrm{d}^2G}{\mathrm{d}u^2}[\delta u, \delta v]$
+# where $ H= \frac{\mathrm{d}^2G}{\mathrm{d}u^2}[\delta u, \delta v]$.
 # We obtain $J$ with
 
 dv = ufl.TrialFunction(V)
 J = ufl.derivative(F, uh, dv)
+
+# Maybe some more details on TrailFunction here?
 
 # ```{admonition} Special case for quadratic functional
 # :class: note
@@ -157,7 +161,7 @@ forms = [G, J, F]
 # ## Further analysis of the variational form
 #
 # We next consider the steps we would have to implement if we wanted to solve this problem by hand.
-# For illustrative purposes, we choose $g=\frac{f}{h}$ where $f$ and $h$ are two known functions in respectve finite element
+# For illustrative purposes, we choose $g=\frac{f}{h}$ where $f$ and $h$ are two known functions in respective finite element
 # spaces $Q$, $T$, where both $Q$ and $T$ uses the scalar valued elements.
 #
 # We next use the map $F_K:K_{ref}\mapsto K$ to map the integrals over each cell in the domain back to the reference cell.
@@ -168,7 +172,7 @@ forms = [G, J, F]
 # \int_\Omega \frac{f}{h}v~\mathrm{d}x
 # &=\sum_{K\in\mathcal{K}}\int_{K_{ref}}\frac{f(F_K(\bar x))}{h(F_K(\bar x))} v(F_K(\bar x)) \vert \mathrm{det} J_K(\bar x)\vert~\mathrm{d}\bar x
 # \end{align}
-# where $K$ is each element in the physical space, $J_K$ the Jacobian of the mapping.
+# where $K$ is each element in the physical space, and $J_K$ the Jacobian of the mapping.
 
 #
 # Next, we can insert the expansion of $u, v, f, h$ into the formulation:
@@ -190,11 +194,11 @@ forms = [G, J, F]
 # ```
 #
 # ```{warning}
-# Next, one can choose an appropriate quadrature rule with points and weights, include the
+# Next, one can choose an appropriate quadrature rule with points and weights, including the
 # correct mapping/restrictions of degrees of freedom for each cell.
 # All of this becomes quite tedious and error prone work, and has to be repeated for every variational form!
 # ```
-#
+# Maybe say a few uplifting words here? I.e. that UFL can do this for you if you trust the defaults?
 
 Q = ufl.FunctionSpace(domain, basix.ufl.element("Lagrange", cell, 3))
 f = ufl.Coefficient(Q)
@@ -204,7 +208,8 @@ g = f / g
 v = ufl.TestFunction(V)
 L = f / g * v * ufl.dx
 
-# We can use UFL to analyse the linear form above
+# We can use UFL to analyse the linear form above using the `ufl.algorithms.compute_form_data` function
+# and then say something about the arguments here?
 
 pulled_back_L = ufl.algorithms.compute_form_data(
     L,
@@ -218,6 +223,7 @@ print(pulled_back_L.integral_data[0])
 # ## Inner products and dot products
 # When working with vectors and tensors, we often want to compute the inner product or dot product
 # between two values `u` and `v`.
+# I would add some math here explaining the difference between the two and some examples of inner products in Hilbert spaces.
 
 V = ufl.FunctionSpace(domain, basix.ufl.element("N1curl", cell, 1))
 u = ufl.TrialFunction(V)
@@ -269,16 +275,18 @@ pulled_back_a = ufl.algorithms.compute_form_data(
 )
 print(pulled_back_a.integral_data[0])
 # -
+# Very nice way to add solutions!
 
 # ## Quadrature rule
 # The next step in the analysis of {eq}`system` is to choose a suitable [quadrature rule](https://en.wikipedia.org/wiki/Numerical_integration),
 # and expand the integral as a sum of evaluations of the basis functions at points.
+# I think it would be nice with a short introduction numerical integration here.
 #
 # $$
 # A_{j, i} = \sum_{q=0}^M w_q \phi_i(F_K(\bar x_q))\phi_j(F_K(\bar x_q))\vert \mathrm{det} J_K(\bar x_q)\vert
 # $$
 #
-# As you might have spotted in the previous exercise, UFL can estimate want degree you should use for your quadrature rule.
+# As you might have spotted in the previous exercise, UFL can estimate what degree you should use for your quadrature rule.
 # We can get this number explicitly with the following code.
 
 pulled_back_a = ufl.algorithms.compute_form_data(
@@ -344,6 +352,7 @@ dx = ufl.Measure("dx", domain=domain, metadata={"quadrature_degree": 4})
 # Reducing the accuracy of the integration by lowering the quadrature rule is considered to be a
 # **variational crime** {cite}`sulli2012lecture` (Chapter 3.4) and should be done with caution.
 # ```
+# Maybe also add a few words on why it might be a good idea to lower the quadrature degree?
 
 # ## References
 # ```{bibliography}

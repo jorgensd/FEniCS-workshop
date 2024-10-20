@@ -180,7 +180,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # (\mathcal{F}_j^{\text{curl}}\phi)(x):= J_j^{-T} \phi(F_j^{-1}(x))
 # \end{align*}
 # $$
-# The superscript curl should be explained here
+# The superscript curl should be explained her
 
 # The noteable feature of this map is that it preserves the **tangential** component of the basis function.
 # We start by computing the Jacobian of the mapping from the reference element to the physical element.
