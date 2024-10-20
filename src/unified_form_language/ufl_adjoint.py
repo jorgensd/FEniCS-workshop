@@ -14,10 +14,12 @@
 # $$
 # F(u, c) = 0.
 # $$
+# Perhaps write a little bit about what PDE-constrained optimization is? E.g give some real world examples and say that c is a control parameter.
 #
 # We can use the adjoint method to compute the sensitivity of the functional with
 # respect to the solution of the PDE.
 # This is done by introducing the Lagrangian
+# Here it would also be good with a box explaining what the Lagrangian is and perhaps refer to some literature.
 #
 # $$\min_{c}\mathcal{L}(u_h, c) = J_h(u_h,c) + (\lambda, F(u_h,c)).$$
 #
@@ -65,6 +67,7 @@
 # ## Example: The Poisson mother problem
 #
 # We will consider the following PDE constrained optimization problem:
+# Maybe give some explanation of what this problem represents physically.
 #
 # $$
 # \min_{f\in Q} \int_{\Omega} (u - d)^2 ~\mathrm{d}x + \frac{\alpha}{2}\int_{\Omega}  f \cdot f ~\mathrm{d}x
@@ -128,6 +131,7 @@ fwd_rhs = F
 lmbda = ufl.Coefficient(V)
 dLdf = ufl.derivative(J, f) + ufl.action(ufl.adjoint(dFdf), lmbda)
 
+# I would add the mathematical equivalent of the code above here.
 
 # We collect all the forms we care about in a list called `forms`, which will be explained in the next section.
 

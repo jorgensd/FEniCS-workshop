@@ -21,7 +21,7 @@
 # $$
 #
 # where $u_i$ are the coefficients of function.
-# These coefficients are also known as the degrees of freedom {term}`DOFs` of the function.
+# These coefficients are also known as the degrees of freedom or {term}`DOFs` of the function.
 
 # + tags=["remove-input"]
 
@@ -155,7 +155,7 @@ plot_interval_basis_functions(5, 2, lambda x: x + 3 * np.sin(np.pi * x))
 # As the double derivative of a linear function is $0$, we cannot directly solve this equation!
 # ```
 
-# We want to weaken the requirement of the equality
+# We need to weaken the requirement of the equality
 #
 # Inner product:
 #
@@ -241,6 +241,8 @@ plot_interval_basis_functions(5, 2, lambda x: x + 3 * np.sin(np.pi * x))
 # $$
 #
 # Thus the error is orthogonal to the chosen sub-space
+
+# I guess here it might also be good to refer to some more mathematical literature (i.e Cea's lemma)
 
 # ## Questions
 
