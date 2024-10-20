@@ -40,6 +40,7 @@ parts:
   - caption: "Applications"
     chapters:
       - file: "src/applications/optimal_control.py"
+      - file: "src/multiphysics/submeshes.py"
 
   - caption: "Glossary"
     chapters:
