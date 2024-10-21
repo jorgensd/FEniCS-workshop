@@ -274,7 +274,7 @@ forward_problem.solve()
 #
 # $$
 # \begin{align*}
-# f_{ex} &= \frac{1}{1+4\alpha \pi^4}\sin(\pi x)\sin(\pi y)
+# f_{ex} &= \frac{1}{1+4\alpha \pi^4}\sin(\pi x)\sin(\pi y)\\
 # u_{ex} &= \frac{1}{2\pi^2}f_{ex}
 # \end{align*}
 # $$
