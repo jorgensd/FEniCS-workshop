@@ -5,13 +5,13 @@
 // This code was generated with the following options:
 //
 //  {'epsilon': 1e-14,
-//   'output_directory': '/home/dokken/Documents/FEniCS-workshop/src',
+//   'output_directory': '/home/dokken/Documents/src/FEniCS-workshop/src',
 //   'profile': False,
 //   'scalar_type': 'float64',
 //   'sum_factorization': False,
 //   'table_atol': 1e-09,
 //   'table_rtol': 1e-06,
-//   'ufl_file': ['/home/dokken/Documents/FEniCS-workshop/src/ufl_formulation.py'],
+//   'ufl_file': ['/home/dokken/Documents/src/FEniCS-workshop/src/ufl_formulation.py'],
 //   'verbosity': 30,
 //   'visualise': True}
 
@@ -36,18 +36,18 @@ void tabulate_tensor_integral_72453e6970f39670be718c17ab8a2eefd72b5b6e(double* r
 static const double weights_39d[6] = {0.054975871827661, 0.054975871827661, 0.054975871827661, 0.1116907948390055, 0.1116907948390055, 0.1116907948390055};
 // Precomputed values of basis functions and precomputations
 // FE* dimensions: [permutation][entities][points][dofs]
-static const double FE1_C0_D10_Q39d[1][1][1][3] = {{{{-1.0, 1.0, 0.0}}}};
-static const double FE1_C1_D01_Q39d[1][1][1][3] = {{{{-1.0, 0.0, 1.0}}}};
-static const double FE2_C0_Q39d[1][1][6][6] = {{{{-0.07480380774819603, 0.5176323419876736, -0.07480380774819671, 0.2992152309927871, 0.03354481152314834, 0.2992152309927839},
+static const double FE0_C0_Q39d[1][1][6][6] = {{{{-0.07480380774819603, 0.5176323419876736, -0.07480380774819671, 0.2992152309927871, 0.03354481152314834, 0.2992152309927839},
   {-0.07480380774819613, -0.0748038077481966, 0.5176323419876735, 0.2992152309927871, 0.2992152309927838, 0.03354481152314828},
   {0.5176323419876713, -0.0748038077481967, -0.07480380774819674, 0.03354481152314866, 0.2992152309927869, 0.2992152309927868},
   {-0.04820837781551195, -0.08473049309397784, -0.04820837781551192, 0.1928335112620479, 0.7954802262009061, 0.1928335112620478},
   {-0.04820837781551193, -0.048208377815512, -0.08473049309397786, 0.1928335112620479, 0.192833511262048, 0.7954802262009062},
   {-0.08473049309397794, -0.04820837781551188, -0.04820837781551195, 0.7954802262009061, 0.1928335112620479, 0.1928335112620479}}}};
+static const double FE2_C0_D10_Q39d[1][1][1][3] = {{{{-1.0, 1.0, 0.0}}}};
+static const double FE2_C1_D01_Q39d[1][1][1][3] = {{{{-1.0, 0.0, 1.0}}}};
 // ------------------------ 
 // Section: Jacobian
-// Inputs: FE1_C1_D01_Q39d, FE1_C0_D10_Q39d, coordinate_dofs
-// Outputs: J_c2, J_c0, J_c3, J_c1
+// Inputs: coordinate_dofs, FE2_C0_D10_Q39d, FE2_C1_D01_Q39d
+// Outputs: J_c1, J_c2, J_c0, J_c3
 double J_c0 = 0.0;
 double J_c3 = 0.0;
 double J_c1 = 0.0;
@@ -55,10 +55,10 @@ double J_c2 = 0.0;
 {
   for (int ic = 0; ic < 3; ++ic)
   {
-    J_c0 += coordinate_dofs[(ic) * 3] * FE1_C0_D10_Q39d[0][0][0][ic];
-    J_c3 += coordinate_dofs[(ic) * 3 + 1] * FE1_C1_D01_Q39d[0][0][0][ic];
-    J_c1 += coordinate_dofs[(ic) * 3] * FE1_C1_D01_Q39d[0][0][0][ic];
-    J_c2 += coordinate_dofs[(ic) * 3 + 1] * FE1_C0_D10_Q39d[0][0][0][ic];
+    J_c0 += coordinate_dofs[(ic) * 3] * FE2_C0_D10_Q39d[0][0][0][ic];
+    J_c3 += coordinate_dofs[(ic) * 3 + 1] * FE2_C1_D01_Q39d[0][0][0][ic];
+    J_c1 += coordinate_dofs[(ic) * 3] * FE2_C1_D01_Q39d[0][0][0][ic];
+    J_c2 += coordinate_dofs[(ic) * 3 + 1] * FE2_C0_D10_Q39d[0][0][0][ic];
   }
 }
 // ------------------------ 
@@ -80,19 +80,19 @@ for (int iq = 0; iq < 6; ++iq)
   // ------------------------ 
   // ------------------------ 
   // Section: Tensor Computation
-  // Inputs: fw0, FE2_C0_Q39d
+  // Inputs: FE0_C0_Q39d, fw0
   // Outputs: A
   {
     double temp_0[6] = {0};
     for (int j = 0; j < 6; ++j)
     {
-      temp_0[j] = fw0 * FE2_C0_Q39d[0][0][iq][j];
+      temp_0[j] = fw0 * FE0_C0_Q39d[0][0][iq][j];
     }
     for (int j = 0; j < 6; ++j)
     {
       for (int i = 0; i < 6; ++i)
       {
-        A[6 * (i) + (j)] += FE2_C0_Q39d[0][0][iq][i] * temp_0[j];
+        A[6 * (i) + (j)] += FE0_C0_Q39d[0][0][iq][i] * temp_0[j];
       }
     }
   }
@@ -129,15 +129,15 @@ void tabulate_tensor_integral_5f3a0a020d959b598d839e3e41ad0d7402e3607a(double* r
 static const double weights_7a4[6] = {0.08333333333333333, 0.08333333333333333, 0.08333333333333333, 0.08333333333333333, 0.08333333333333333, 0.08333333333333333};
 // Precomputed values of basis functions and precomputations
 // FE* dimensions: [permutation][entities][points][dofs]
-static const double FE0_C0_Q7a4[1][1][6][3] = {{{{0.1090390090728771, 0.659027622374092, 0.231933368553031},
+static const double FE1_C0_Q7a4[1][1][6][3] = {{{{0.1090390090728771, 0.659027622374092, 0.231933368553031},
   {0.2319333685530311, 0.659027622374092, 0.109039009072877},
   {0.109039009072877, 0.231933368553031, 0.6590276223740918},
   {0.6590276223740921, 0.231933368553031, 0.109039009072877},
   {0.231933368553031, 0.109039009072877, 0.6590276223740918},
   {0.6590276223740921, 0.1090390090728769, 0.231933368553031}}}};
-static const double FE1_C0_D10_Q7a4[1][1][1][3] = {{{{-1.0, 1.0, 0.0}}}};
-static const double FE1_C1_D01_Q7a4[1][1][1][3] = {{{{-1.0, 0.0, 1.0}}}};
-static const double FE2_C0_Q7a4[1][1][6][6] = {{{{-0.08525999807368716, 0.2096071917300056, -0.1243471936563188, 0.6114019857068721, 0.1011591387118275, 0.2874388755813007},
+static const double FE2_C0_D10_Q7a4[1][1][1][3] = {{{{-1.0, 1.0, 0.0}}}};
+static const double FE2_C1_D01_Q7a4[1][1][1][3] = {{{{-1.0, 0.0, 1.0}}}};
+static const double FE3_C0_Q7a4[1][1][6][6] = {{{{-0.08525999807368716, 0.2096071917300056, -0.1243471936563188, 0.6114019857068721, 0.1011591387118275, 0.2874388755813007},
   {-0.1243471936563188, 0.2096071917300055, -0.08525999807368713, 0.2874388755813008, 0.1011591387118276, 0.6114019857068723},
   {-0.0852599980736872, -0.1243471936563187, 0.2096071917300056, 0.6114019857068721, 0.2874388755813007, 0.1011591387118275},
   {0.2096071917300056, -0.1243471936563188, -0.08525999807368713, 0.1011591387118276, 0.2874388755813008, 0.6114019857068723},
@@ -145,8 +145,8 @@ static const double FE2_C0_Q7a4[1][1][6][6] = {{{{-0.08525999807368716, 0.209607
   {0.2096071917300057, -0.08525999807368712, -0.1243471936563187, 0.1011591387118275, 0.6114019857068722, 0.2874388755813007}}}};
 // ------------------------ 
 // Section: Jacobian
-// Inputs: FE1_C1_D01_Q7a4, FE1_C0_D10_Q7a4, coordinate_dofs
-// Outputs: J_c2, J_c0, J_c3, J_c1
+// Inputs: FE2_C0_D10_Q7a4, coordinate_dofs, FE2_C1_D01_Q7a4
+// Outputs: J_c1, J_c2, J_c0, J_c3
 double J_c0 = 0.0;
 double J_c3 = 0.0;
 double J_c1 = 0.0;
@@ -154,10 +154,10 @@ double J_c2 = 0.0;
 {
   for (int ic = 0; ic < 3; ++ic)
   {
-    J_c0 += coordinate_dofs[(ic) * 3] * FE1_C0_D10_Q7a4[0][0][0][ic];
-    J_c3 += coordinate_dofs[(ic) * 3 + 1] * FE1_C1_D01_Q7a4[0][0][0][ic];
-    J_c1 += coordinate_dofs[(ic) * 3] * FE1_C1_D01_Q7a4[0][0][0][ic];
-    J_c2 += coordinate_dofs[(ic) * 3 + 1] * FE1_C0_D10_Q7a4[0][0][0][ic];
+    J_c0 += coordinate_dofs[(ic) * 3] * FE2_C0_D10_Q7a4[0][0][0][ic];
+    J_c3 += coordinate_dofs[(ic) * 3 + 1] * FE2_C1_D01_Q7a4[0][0][0][ic];
+    J_c1 += coordinate_dofs[(ic) * 3] * FE2_C1_D01_Q7a4[0][0][0][ic];
+    J_c2 += coordinate_dofs[(ic) * 3 + 1] * FE2_C0_D10_Q7a4[0][0][0][ic];
   }
 }
 // ------------------------ 
@@ -170,13 +170,13 @@ for (int iq = 0; iq < 6; ++iq)
 {
   // ------------------------ 
   // Section: Coefficient
-  // Inputs: FE0_C0_Q7a4, w
+  // Inputs: FE1_C0_Q7a4, w
   // Outputs: w1
   double w1 = 0.0;
   {
     for (int ic = 0; ic < 3; ++ic)
     {
-      w1 += w[1 + (ic)] * FE0_C0_Q7a4[0][0][iq][ic];
+      w1 += w[1 + (ic)] * FE1_C0_Q7a4[0][0][iq][ic];
     }
   }
   // ------------------------ 
@@ -193,12 +193,12 @@ for (int iq = 0; iq < 6; ++iq)
   // ------------------------ 
   // ------------------------ 
   // Section: Tensor Computation
-  // Inputs: fw0, FE2_C0_Q7a4
+  // Inputs: FE3_C0_Q7a4, fw0
   // Outputs: A
   {
     for (int i = 0; i < 6; ++i)
     {
-      A[(i)] += fw0 * FE2_C0_Q7a4[0][0][iq][i];
+      A[(i)] += fw0 * FE3_C0_Q7a4[0][0][iq][i];
     }
   }
   // ------------------------ 

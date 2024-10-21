@@ -159,7 +159,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # ```
 
 # To preserve the properties of the basis functions from the reference element to the physical element,
-# we use the covariant Piola map:
+# we use the covariant {term}`Piola map`:
 #
 # $$
 # \begin{align*}

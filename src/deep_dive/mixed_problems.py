@@ -256,7 +256,7 @@ bc.set(wh.x.array)
 wh.x.scatter_forward()
 # -
 
-# + tags=["remove-input"]
+# + tags=["hide-input"]
 import pyvista
 import os, sys
 
@@ -295,6 +295,7 @@ def visualize_mixed(mixed_function: dolfinx.fem.Function, scale=1.0):
 
     pyvista.set_jupyter_backend("html")
 
+# -
 
 # A convenience function for visualizing the velocity and pressure fields
 # is found by expanding the cell below
