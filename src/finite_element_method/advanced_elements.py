@@ -9,9 +9,9 @@
 # smaller (polygonal) elements $K_j$ such that
 # 1) The triangulation covers $\Omega$: $\cup_{j=1}^{M}K_j=\bar{\Omega}$
 # 2) No overlapping polyons: $\mathrm{int} K_i \cap \mathrm{int} K_j=\emptyset$ for $i\neq j$.
-# 3) No vertex lines in the interior of a facet or edge of another element
+# 3) No vertex lies in the interior of a facet or edge of another element
 #
-# We will call our polygonal domain $\mathcal{K}={K_j}_{j=1}^{M}$.
+# We will call our polygonal domain $\mathcal{K}=\{K_j\}_{j=1}^{M}$.
 # Next, we define a reference element $K_{ref}$, which is a simple polygon that we can map to any element $K_j$,
 # using the mapping $F_j:K_{ref}\mapsto K_j$.
 #
@@ -23,7 +23,7 @@
 # As we saw in [the section on finite elements](./finite_element), we can use basix to get a
 # sample of points within the reference element.
 
-# + tags = ["hide-input"]
+# +
 import numpy as np
 
 import basix.ufl
@@ -38,7 +38,7 @@ reference_points = basix.create_lattice(
 # Given three points, $\mathbf{p}_0=(x_0, y_0)^T, \mathbf{p}_1=(x_1,y_1)^T, \mathbf{p}_2=(x_2,y_2)^T$, we can represent any point $x$
 # as the linear combination of the three basis functions on the reference element $X$.
 #
-# $$x = F_j(X)= \sum_{i=0}^3 \mathbf{p}_i \phi_i(X).$$
+# $$x = F_j(X)= \sum_{i=0}^2 \mathbf{p}_i \phi_i(X).$$
 #
 # In the next snippet we will create a function to compute `x` given the three points and a set of reference coordinates
 
@@ -91,7 +91,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 
 # ```{admonition} Can we use a similar kind of mapping on a quadrilateral/tetrahedral/hexahedral element?
 # :class: dropdown tip
-# Yes, for any polytope that we can describe with a Lagrange finite element, we can define a mapping from a reference to a physical element.
+# Yes, as long as we can describe the shape with a Lagrange finite element, we can define a mapping from a reference to a physical element.
 # ```
 # ```{admonition} What happens if we change the degree of the basis functions?
 # :class: dropdown tip
