@@ -263,6 +263,7 @@ opt_sol = minimize(
 
 # + tags=["remove-input"]
 print(f"{opt_sol=}")
+# -
 
 # And assign it to `f` to get a final solution:
 
