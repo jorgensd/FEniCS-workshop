@@ -8,6 +8,8 @@
 # One can interpret the variational form written in UFL as a directed acyclic graph ({term}`DAG`) of operations,
 # where each operation can be implemented in C.
 
+# I think an example of DAG her with a simple expression would be good for readers that are not familiar with the concept of DAGs.
+
 # ## The FEniCSx Form Compiler ({term}`FFCx`)
 # We use FFCx to generate the code used for finite element assembly.
 #
@@ -24,6 +26,8 @@ import ffcx.main
 infile = Path.cwd() / "example.py"
 
 _ = os.system(f"cat {infile}")
+
+# Instead of using os.system, we could use ! to run the commands
 # -
 
 # + tags=["remove-output"]
@@ -47,6 +51,8 @@ ffcx.main.main(["-o", str(infile.parent), "--visualise", str(infile)])
 # ![Bilinear graph](S_a.png)
 # ## Linear graph
 # ![Linear graph](S_L.png)
+
+# I didn't understand these graphs.
 
 # The generated code can be found in the file `name_of_file.h` and `name_of_file.c` in the current working directory.
 

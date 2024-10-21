@@ -15,6 +15,7 @@ import scipy
 N = 10
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, N, N)
 tdim = mesh.topology.dim
+# At some point in might be useful to also talk about topology vs geometry
 # -
 
 # ## Problem specification: Non-linear Poisson.
@@ -98,14 +99,16 @@ b = dolfinx.fem.create_vector(residual)
 # u_{k+1} = u_k - \delta u
 # \end{align}
 # $$
+# Might be nice to write this as Ax = b so that the next section becomes more clear.
 
-# As we want $u_{k+1}=g$, but we do not know if $u_k=g$, we need to take this into account when assembling the
+# As we want $u_{k+1}=g$ (on the boundary, right?), but we do not know if $u_k=g$, we need to take this into account when assembling the
 # right hand side for the Jacobian equation.
 #
 # We will go through how we apply this boundary condition using lifting
 #
 # ## Lifting
 # Let us split the degrees of freedom into two disjoint sets, $u_d$, and $u_{bc}$, and set up the corresponding linear system
+# where $u_d$ is ....?
 #
 # $$
 # \begin{align}
@@ -114,7 +117,7 @@ b = dolfinx.fem.create_vector(residual)
 # A_{bc,d} & A_{bc, bc}
 # \end{pmatrix}
 # \begin{pmatrix}
-# u_d \\jacobian
+# u_d \\
 # u_{bc}
 # \end{pmatrix}
 # &=
@@ -125,6 +128,7 @@ b = dolfinx.fem.create_vector(residual)
 # \end{align}
 # $$ (A_split)
 #
+# Identity row approach?
 # In the identity row approach, we set the rows corresponding to the Dirichlet conditions to the identity row
 # and set the appropriate dofs on the right hand side to contain the Dirichlet values:
 #
@@ -197,13 +201,14 @@ dolfinx.fem.assemble_vector(b.array, residual)
 # \delta u = u_k - g
 # $$
 #
-# since $u_{k+1} = u_k - \delta u$
+# since $u_{k+1} = u_k - \delta u = g$
 #
 # This means that we would like to compute
 #
 # $$
 # b - J (u_k - g) = b + J (g - u_k)
 # $$
+# I did not understand this part. Where does J come from?
 
 # ```{admonition} What does apply lifting do?
 # :class: dropdown note
@@ -212,6 +217,7 @@ dolfinx.fem.assemble_vector(b.array, residual)
 # $$
 # b-= \alpha \sum_j(A_j(g_j - x0_j))
 # $$
+# x0_j looks strange (looks like x times 0_j), what about x_0^j? or x_{0_j}
 #
 # `dolfinx.fem.apply_lifting` takes in five arguments:
 # 1. An array `b` that we will modify the entries of
@@ -221,7 +227,7 @@ dolfinx.fem.assemble_vector(b.array, residual)
 # 4. A list of vectors where the $j$th entry $x0_j$ will be subtracted from $g_j$.
 # 5. A scalar value $\alpha$ that determines the magnitude of the modification.
 # ```
-# This means that we set $\alpha=-1$, $x0=uk$, $A=J$.
+# This means that we set $\alpha=-1$, $x0=u_k$, $A=J$.
 
 dolfinx.fem.apply_lifting(b.array, [jacobian], [bcs], x0=[uh.x.array], alpha=-1.0)
 b.scatter_reverse(dolfinx.la.InsertMode.add)
@@ -238,7 +244,8 @@ b.scatter_reverse(dolfinx.la.InsertMode.add)
 
 [bc.set(b.array, x0=uh.x.array, alpha=-1.0) for bc in bcs]
 
-# Next, we can compute the assemble the Jacobian
+# Looks a bit strain with the [None] output here. I would suggestion to remove the output from the list comprehension and use a for loop instead.
+# Next, we can assemble the Jacobian
 
 A_scipy = A.to_scipy()
 dolfinx.fem.assemble_matrix(A, jacobian, bcs)
@@ -254,6 +261,7 @@ for i in range(1, 20):
     dolfinx.fem.assemble_vector(b.array, residual)
     dolfinx.fem.apply_lifting(b.array, [jacobian], [bcs], x0=[uh.x.array], alpha=-1.0)
     b.scatter_reverse(dolfinx.la.InsertMode.add)
+    # Scatter reverse has not been explained yet
     [bc.set(b.array, x0=uh.x.array, alpha=-1.0) for bc in bcs]
 
     print(f"Iteration {i}, |F|={np.linalg.norm(b.array)}, |du|={correction_norm}")
@@ -331,6 +339,7 @@ class NonLinearSolver(scipy.sparse.linalg.LinearOperator):
         self.update(uh.x.array, None)
 
     def update(self, x, f):
+        # What is f here? Maybe add docstring with the arguments
         """Update and invert Jacobian"""
         self.A.data[:] = 0
         self.uh.x.array[:] = x

@@ -1,5 +1,6 @@
 # # Using compiled forms in DOLFINx
 #
+# This is the first mention of dolfinx in the tutorial, so maybe a introduction to dolfinx would be good here.
 # As DOLFINx is a C++ framework with a Python interface, we could use the generated C-code directly in our DOLFINx C++ programs.
 # However, we could also use the abstract formulations within the DOLFINx framework.
 # In this section, we will explore how we can use code written in the exact same way as in the previous sections within the
@@ -26,9 +27,11 @@ domain = ufl.Mesh(c_el)
 # ## Manufactured solutions
 
 # For the example we will solve in this section, we will use a manufactured solution.
+# Something wrong with the sentence above
 # This means that we derive a source term $f$ and appropriate boundary conditions $g$ from a given $u$.
 # For instance, if we choose $u_{ex}=\sin(\pi/2 x)\cos(\pi y)$, we can derive an $f$ by inserting this into
 # our initial equation
+# Maybe say some word about why this is useful, i.e to get an analytic solution to e.g study convergence rates.
 #
 # $$
 # \begin{align}
@@ -53,10 +56,12 @@ V = ufl.FunctionSpace(domain, el)
 u = ufl.TrialFunction(V)
 v = ufl.TestFunction(V)
 F = ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx - ufl.inner(f, v) * ufl.dx
+# Maybe it would be good to also write the weak form mathematically here?
 # -
 
 # ## Scalar, vector or tensor?
 # Previously we have not focused too much on what the output of `F` would be.
+# Not clear what F refers to here
 #
 # ```{admonition} Are the expressions above going to output scalars, vectors or tensors (matrices)?
 # :class: dropdown tip
@@ -79,6 +84,7 @@ uh = ufl.Coefficient(V)
 error = ufl.inner(uh - u_ex, uh - u_ex) * ufl.dx
 
 # ## The discrete problem
+# An alternative heading here could be "A concrete domain". ufl is abstract while dolfinx takes the abstract ufl and applies it to a concrete domain.
 # We choose to use a unit-square for our problem, we create a mesh (a subdivision of the unit square into triangles)
 # ```{admonition} What is mpi4py?
 # :class: dropdown note
@@ -102,6 +108,9 @@ mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, Nx, Ny, cell_type=dolfinx
 
 V = dolfinx.fem.functionspace(mesh, el)
 
+# Here I would adda sentence about the factory method "functionspace" that creates an instance of the FunctionSpace class (with capical F and S).
+# I think this might be confusing first time you see it, so stressing that lowercase functionspace is a factory method that creates an instance of the FunctionSpace class might be helpful.
+
 # ```{admonition} Consistency between ufl and DOLFINx
 # :class: note
 # Note that we have used the element defined in our abstract formulation above.
@@ -114,6 +123,7 @@ x = dolfinx.fem.Function(V)
 
 # + tags=["remove-input"]
 print(f"{x.x.array=}")
+# I think it would be better to also show the input here, or just write print(x.x.array) because it looks weird with x.x.array = array([0., 0., 0., ..., 0., 0., 0.]) I think
 # -
 
 # Next we create a function that can hold the boundary conditions.
@@ -129,6 +139,7 @@ print(f"{x.x.array=}")
 #
 # For point evaluations this amounts to setting the coefficient for
 # the $i$th basis function to the value $g(x)$ at that point in this physical element.
+# I think the reader would need a reminder of what l_i(g) and phi_i(x) are here. Also perhaps what n is. I would consider adding a separate page about interpolation since it is a key concept I think.
 # ```
 #
 # We can compute the interpolated version of the exact solution with DOLFINx by
@@ -139,9 +150,30 @@ print(f"{x.x.array=}")
 
 # +
 import numpy as np
+import numpy.typing as npt
 
 gh = dolfinx.fem.Function(V)
 gh.interpolate(lambda x: u_exact(np, x))
+
+
+# I would maybe first add a regular function here with type annotations and perhaps a docstring first i.e
+def interpolant(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """_summary_
+
+    Parameters
+    ----------
+    x : npt.NDArray[np.float64]
+        Array of coordinates of shape (3, num_points)
+
+    Returns
+    -------
+    npt.NDArray[np.float64]
+        Array of interpolated values of shape (3, num_points)
+    """
+    return u_exact(np, x)
+
+
+# and then later you could show the lambda function, and just say that this is more compact way of writing the same thing.
 # -
 
 # + tags=["remove-input"]
@@ -149,6 +181,7 @@ print(f"{gh.x.array=}")
 # -
 
 # ## Dirichlet boundary conditions
+# Might be good with a mathematical definition of what a Dirichlet boundary condition is here.
 # Now that we have created a function that represent the boundary condition, we can create a
 # Dirichlet boundary condition object.
 # The specifics of what happens under the hood when applying such conditions will be covered in
@@ -157,7 +190,7 @@ print(f"{gh.x.array=}")
 # We start by noting that for the problem at hand, we want to constrain all external boundaries.
 # This means that we want to locate any degree of freedom that is associated with either a
 # vertex, edge or a facet that can be defined as being on the boundary.
-# We start by locating all facets that are only connected to a single cell.
+# We start by locating all facets that are only connected to a single cell (maybe add a question box of why these are the facets on the boundary?).
 # The fastest way to do this is with
 
 mesh.topology.create_entities(mesh.topology.dim - 1)
@@ -169,7 +202,7 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 # When a mesh is created in DOLFINx we only compute the  **unique** global numbering
 # and ownership of cells and vertices.
 # However, one can compute this numbering for any sub-entity by calling
-# `mesh.topology.create_entities(j)`.
+# `mesh.topology.create_entities(j)`. Where `j` is the dimension of the entity to create, for example j = 0 will create vertices while j = 1 will create edges.
 # For instance computing the ownership and numbering of the facets can be done with
 # `mesh.topology.create_entities(mesh.topology.dim-1)`.
 # ```
@@ -178,7 +211,7 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 # When a mesh is created in DOLFINx, the relation between the cells and the vertices is computed.
 # However, one can compute the relationship between any set of entities in the mesh with
 # `dolfinx.mesh.create_connectivity(i, j)` where `i` is the dimension of the index to map from
-# and `j` is the dimension of the entities to map from.
+# and `j` is the dimension of the entities to map to.
 # As an example, calling `mesh.topology.create_connectivity(mesh.topology.dim-1, mesh.topology.dim)`
 # will compute the relationship between all facets in the mesh and their cells.
 # The inverse map (cell-to-facet) is computed with
@@ -187,12 +220,13 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 #
 # With these two preliminaries computed, DOLFINx can determine which facets that are connected to
 # a single cell only.
+# I think it would also be good to explain what a facet is. To me I have always thought of it as a face of a cell, but the way you have writen it here it seems like a facet is a sub-entity with one dimension less than the cell.
 
 # We can access the connectivity with
 
 facet_to_cell = mesh.topology.connectivity(mesh.topology.dim - 1, mesh.topology.dim)
 
-# and get the indices of the cells a facet is connected to with `facet_to_cell.links(i)`
+# and get the indices of the cells a facet is connected to with `facet_to_cell.links(i)`, where `i` is ...
 #
 # ```{admonition} Given a unit square, verify that the exterior facet indices are only connected to a single cell.
 # :class: dropdown tip
@@ -220,6 +254,8 @@ boundary_dofs = dolfinx.fem.locate_dofs_topological(V, mesh.topology.dim - 1, bo
 bc = dolfinx.fem.dirichletbc(gh, boundary_dofs)
 bcs = [bc]
 
+# Similar to functionspace I think it is important to stress that dirichletbc is a factory method that creates an instance of the DirichletBC class.
+
 # We are now ready to create the system matrix and vector. However, to do this,
 # we need to compile the symbolic forms `a` and `L`.
 
@@ -230,6 +266,8 @@ L_compiled = dolfinx.fem.compile_form(MPI.COMM_WORLD, L)
 # We now associate these with the data we have created for the given mesh:
 
 bilinear_form = dolfinx.fem.create_form(a_compiled, [V, V], mesh, {}, {}, {})
+
+# I think it would be good with some comments here about the input argument here. I am also in favor of using keyword arguments if possible beacuse it makes it easier to understand what the arguments are.
 
 # ```{admonition} What data does the form require?
 # :class: dropdown note
@@ -251,10 +289,12 @@ b = dolfinx.fem.create_vector(linear_form)
 # data into it. `dolfinx.fem.create_matrix` estimates the sparsity pattern based on the variational
 # form and creates the appropriate CSR matrix.
 # ```
+# Looks like this admonition did show up
 # We can get a view into `A` by creating a data wrapper compatible with scipy.
 
 A_scipy = A.to_scipy()
 
+# Maybe add a link to the scipy documentation about CSR matrices here.
 # + tags=["remove-input"]
 print(f"{A_scipy=}")
 # -
@@ -270,6 +310,7 @@ dolfinx.fem.apply_lifting(b.array, [bilinear_form], [bcs])
 b.scatter_reverse(dolfinx.la.InsertMode.add)
 [bc.set(b.array) for bc in bcs]
 
+# What does the output [None] mean here?
 
 # (scipy-lu)=
 # ## Solving the linear system with scipy
@@ -310,6 +351,7 @@ print(f"{np.sqrt(error_global)=}")
 
 # ## Visualizing the solution
 # We use Pyvista to visualize the solution.
+# Maybe add a link to the pyvista documentation here.
 # DOLFINx provides data extraction interfaces that are compatible with Pyvista.
 
 # +
@@ -321,6 +363,7 @@ mesh_pyvista = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(x.function_space)
 # We have now created a pyvista Unstructured grid compatible with the array
 # from `u.x.array`.
 # ```{warning} Pyvista compatible function spaces
+# This heading didn't show up
 # Pyvista supports arbitrary continuous and discontinuous Lagrange function spaces.
 # If you have a function in another finite element space, please interpolate into a
 # compatible continuous or discontinuous Lagrange space.
