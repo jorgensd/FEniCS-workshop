@@ -114,7 +114,7 @@ b = dolfinx.fem.create_vector(residual)
 # A_{bc,d} & A_{bc, bc}
 # \end{pmatrix}
 # \begin{pmatrix}
-# u_d \\jacobian
+# u_d \\
 # u_{bc}
 # \end{pmatrix}
 # &=

@@ -1,5 +1,5 @@
 # (lifting)=
-# # Using the PETSc for solving linear problems
+# # PETSc solving interface
 # In this section, we will cover how we can work directly with the PETSc Krylov subspace solvers.
 #
 # ```{warning} Native Windows
@@ -266,3 +266,43 @@ assert problem.solver.getConvergedReason() > 0, "Solver did not converge"
 # We verify that the solution is the same as above
 
 np.testing.assert_allclose(uh.x.array, u_new.x.array, atol=1e-12)
+
+
+# ## PETSc nonlinear solver
+
+# We could rewrite the problem above as a non-linear problem, by replacing the trial-function with the
+# unknown `uh`
+
+uh_new = dolfinx.fem.Function(V)
+F = a - L
+F = ufl.replace(F, {u: uh_new})
+
+# Next we define a wrapper for the non-linear problem
+
+import dolfinx.fem.petsc
+problem = dolfinx.fem.petsc.NonlinearProblem(F, uh_new, bcs=bcs)
+
+# and a Newton-solver
+
+import dolfinx.nls.petsc
+solver = dolfinx.nls.petsc.NewtonSolver(mesh.comm, problem)
+
+# We can access the underlying petsc krylov solver
+
+ksp = solver.krylov_solver
+ksp.setType("preonly")
+ksp.getPC().setType("lu")
+ksp.getPC().setFactorSolverType("mumps")
+
+# We then solve the problem
+
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
+num_iterations, converged = solver.solve(uh_new)
+assert converged, "Solver did not converge"
+
+# Observe that since the problem is linear, we converge in one iteration
+
+# + tags=["remove-input"]
+print(f"{converged=} {num_iterations=}")
+np.testing.assert_allclose(uh.x.array, uh_new.x.array, atol=1e-12)
+# -

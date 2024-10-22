@@ -5,7 +5,20 @@ The tutorial is currently built for `v0.9.x` of DOLFINx{cite}`DOLFINx2023`.
 
 ## Installation
 
-For the tutorial it is recommened to use `conda`, as described in: https://github.com/FEniCS/dolfinx/?tab=readme-ov-file#conda
+For the tutorial it is recommended to use `conda`.
+All dependencies used for the tutorial can be installed with the conda environment file [environment.yml](./environment.yml).
+
+Store this file on your system, and from the folder with the file, run
+
+```bash
+conda env create -f environment.yml
+```
+
+The environment can then be activated with
+
+```bash
+conda env activate workshop-env
+```
 
 ```{admonition} Native Windows installation
 :class: important
