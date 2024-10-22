@@ -275,7 +275,7 @@ du, dpsi = ufl.TrialFunctions(W)
 jac = ufl.derivative(F, u, du) + ufl.derivative(F, psi, dpsi)
 J = dolfinx.fem.form(ufl.extract_blocks(jac), entity_maps=entity_maps)
 
-# ```{admonition}
+# ```{admonition} Jacobian for mixed function spaces
 # Note that we differentiate with respect to the function in the respective
 # "sub space", $V$ and $Q$, but use trial functions form $W$. This is to be able
 # to extract blocks when creating the form for the Jacobian.
