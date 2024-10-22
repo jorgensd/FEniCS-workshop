@@ -347,27 +347,6 @@ plotter.view_xz()
 plotter.show()
 pyvista.set_jupyter_backend("html")
 # -
-# ## Exercises
-#
-# ### Von Mises stresses
-# When working with linear elasticity, it is often common to consider Von Mises stresses, defined as:
-# \begin{align}
-#   \sigma_m &= \sqrt{\frac{3}{2}s:s}\\
-#   s(u)&=\sigma(u) -\frac{1}{3}\mathrm{tr}(\sigma(u))I
-# \end{align}
-#
-# 1. Implement a simple linear elastic beam (2D), where the right hand side is fixed to the wall and the beam is deformed in y-direction
-# by gravity.
-# 2. Compute the von Mises stresses with a projector
-#
-# ### Discussion exercises
-# 3. If we choose displacement in a first order continuous Lagrange space, what space should we place $\sigma_s$ in?
-# 4. Can we use interpolation to compute Von Mises stresses in a continuous Lagrange space?
-# 5. Can we use interpolation to compute Von Mises stresses in a discontinuous Lagrange space?
-#
-# ### Further implementation exercises
-# 6. Implement the suitable options derived from 3.-5.
-
 
 # ## Bibliography
 # ```{bibliography}

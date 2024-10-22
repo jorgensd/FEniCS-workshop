@@ -1,4 +1,4 @@
-# (mesh_generation:eshelby)=
+# (external_mesh)=
 # # Meshes from external sources
 # As DOLFINx works on `numpy`-arrays it is quite straightforward to convert any mesh format into this structure.
 # DOLFINx has a `gmsh`-interface, using the {term}`GMSH` Python-API to read `GMSH`-models or `.msh` files.

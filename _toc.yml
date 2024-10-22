@@ -25,10 +25,10 @@ parts:
   - caption: "DOLFINx Deep dive"
     chapters:
       - file: "src/deep_dive/mixed_problems.py"
-      - file: "src/deep_dive/expressions.py"
-      - file: "src/deep_dive/lifting.py"
-      - file: "src/deep_dive/restriction.py"
       - file: "src/form_compilation.py"
+      - file: "src/deep_dive/lifting.py"
+      - file: "src/deep_dive/expressions.py"
+      - file: "src/deep_dive/restriction.py"
       - file: "src/approximations.py"
 
   - caption: "Meshes in DOLFINx"
@@ -41,6 +41,7 @@ parts:
     chapters:
       - file: "src/applications/optimal_control.py"
       - file: "src/multiphysics/submeshes.py"
+      - file: "src/multiphysics/coupling.py"
 
   - caption: "Glossary"
     chapters:
