@@ -3,6 +3,9 @@
 The FEniCS project is a collection of scientific software for solving partial differential equations {term}`PDE`s with the Finite Element method {term}`FEM`.
 The tutorial is currently built for `v0.9.x` of DOLFINx{cite}`DOLFINx2023`.
 
+```tableofcontents
+```
+
 ## Installation
 
 For the tutorial it is recommended to use `conda`.
