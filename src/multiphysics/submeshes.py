@@ -477,7 +477,7 @@ A_heat = dolfinx.fem.assemble_matrix(a_heat, bcs=bcs_heat)
 A_heat_scipy = A_heat.to_scipy()
 
 b_heat = dolfinx.fem.assemble_vector(L_heat)
-dolfinx.fem.apply_lifting(b.array, [a_heat], [bcs_heat])
+dolfinx.fem.apply_lifting(b_heat.array, [a_heat], [bcs_heat])
 b_heat.scatter_reverse(dolfinx.la.InsertMode.add)
 [bc.set(b_heat.array) for bc in bcs_heat]
 # -
