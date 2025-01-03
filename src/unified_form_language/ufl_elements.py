@@ -90,7 +90,7 @@ blocked_el = basix.ufl.mixed_element([curl_el for _ in range(4)])
 # We can also make more advanced elements, for instance by enriching a linear Lagrange element.
 # ```{admonition} Enrichment of a Lagrange function
 # A piecewise linear Lagrange function on a triangle spans: $\{1, x, y\}$.
-# We want to enrich this space with a degree [tree bubble element](https://defelement.com/elements/examples/triangle-bubble-3.html).
+# We want to enrich this space with a degree [tree bubble element](https://defelement.org/elements/examples/triangle-bubble-3.html).
 # A degree three bubble element is the element whose functional is $l_0: v\mapsto v\left(\frac{1}{3},\frac{1}{3}\right)$ and
 # is zero at all edges of the reference triangle. This means that it spans $xy(1-x-y)$.
 # We thus want to create an element with the dual basis $l_0$, $l_1$, $l_2$, $l_3$ that spans $\{1, x, y, xy(1-x-y)\}$.
@@ -111,10 +111,10 @@ el_u = basix.ufl.blocked_element(enriched_element, shape=(2,))
 el_p = basix.ufl.element("Lagrange", cell, 1)
 el_mixed = basix.ufl.mixed_element([el_u, el_p])
 
-# This mixed element is known as the [MINI element](https://defelement.com/elements/mini.html)
+# This mixed element is known as the [MINI element](https://defelement.org/elements/mini.html)
 # and is often used for the Stokes problem.
 
-# Another example is the [Taylor-Hood](https://defelement.com/elements/taylor-hood.html) which we can create with
+# Another example is the [Taylor-Hood](https://defelement.org/elements/taylor-hood.html) which we can create with
 
 import basix.ufl
 

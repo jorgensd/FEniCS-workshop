@@ -1,7 +1,7 @@
 # # Advanced finite elements
 
 # There is a wide range of finite elements that are supported by ufl and basix.
-# See for instance: [Supported elements in basix/ufl](https://defelement.com/lists/implementations/basix.ufl.html).
+# See for instance: [Supported elements in basix/ufl](https://defelement.org/lists/implementations/basix.ufl.html).
 
 # ## Domain mapping
 
@@ -131,7 +131,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # Instead of defining the dual basis $l_i$ as point evaluations, these dual-basis functions are often defined as integrals
 # over a sub-entity of the reference cell, i.e. an edge, facet or the cell itself.
 #
-# We will considered the finite element called [Nédélec (first kind)](https://defelement.com/elements/nedelec1.html).
+# We will considered the finite element called [Nédélec (first kind)](https://defelement.org/elements/nedelec1.html).
 # For simplicity we will consider the first order element on a triangle, where:
 #
 # $$
@@ -143,11 +143,11 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # where $t_i$ is the tangent to the edge $e_i$.
 
 # <center>
-# <img src="https://defelement.com/img/element-Nedelec-variant-equispaced-triangle-1-0-large.png"
+# <img src="https://defelement.org/img/element-Nedelec-variant-equispaced-triangle-1-0-large.png"
 # width="250" height="250" />
-# <img src="https://defelement.com/img/element-Nedelec-variant-equispaced-triangle-1-1-large.png"
+# <img src="https://defelement.org/img/element-Nedelec-variant-equispaced-triangle-1-1-large.png"
 # width="250" height="250" />
-# <img src="https://defelement.com/img/element-Nedelec-variant-equispaced-triangle-1-2-large.png"
+# <img src="https://defelement.org/img/element-Nedelec-variant-equispaced-triangle-1-2-large.png"
 # width="250" height="250" /><br>
 #  Nédélec (first kind) basis functions<br><br>
 # </center>

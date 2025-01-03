@@ -30,10 +30,10 @@
 #
 # ```{sidebar}
 # <center>
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-dofs.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-dofs.png"
 # width="250" height="250" /><br>
 # Illustration of dof positioning on a quadrilateral
-# (from <a href=https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-dofs.html>DefElement</a>, CC BY 4.0).
+# (from <a href=https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-dofs.html>DefElement</a>, CC BY 4.0).
 # </center>
 # ```
 #
@@ -66,27 +66,27 @@
 #
 #
 # <center>
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-0.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-0.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-1.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-1.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-2.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-2.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-3.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-3.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-4.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-4.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-5.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-5.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-6.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-6.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-7.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-7.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-8.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-8.png"
 # width="202" height="115" />
 # <br>
 # The basis functions of a second order Lagrange space on a quadrilateral
-# (from <a href=https://defelement.com/elements/examples/quadrilateral-lagrange-equispaced-2.html>DefElement</a>, CC BY 4.0).
+# (from <a href=https://defelement.org/elements/examples/quadrilateral-lagrange-equispaced-2.html>DefElement</a>, CC BY 4.0).
 # <br>
 # </center>
 #
@@ -104,18 +104,18 @@
 #
 # # Creating a finite element in FEniCSx
 #
-# There is a large variety of finite elements: [List of finite elements](https://defelement.com/elements/index.html).
+# There is a large variety of finite elements: [List of finite elements](https://defelement.org/elements/index.html).
 #
-# However, in today's lecture, we will focus on the [Lagrange elements](https://defelement.com/elements/lagrange.html).
+# However, in today's lecture, we will focus on the [Lagrange elements](https://defelement.org/elements/lagrange.html).
 #
 # We start by considering the basis functions of a first order Lagrange element on a triangle:
 #
 # <center>
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-0-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-0-large.png"
 # width="150" height="150" />
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-1-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-1-large.png"
 # width="150" height="150" />
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-2-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-2-large.png"
 # width="150" height="150" /><br>
 # First order Lagrange basis functions<br><br>
 # </center>
