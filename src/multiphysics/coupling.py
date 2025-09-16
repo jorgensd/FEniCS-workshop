@@ -136,7 +136,7 @@ plot_mesh(omega, ft)
 # -
 
 # ## Variational formulation
-# We will use a formulation of this problem based on {cite}`keith2024` and {cite}`dokken2024`.
+# We will use a formulation of this problem based on {cite}`keith2024` and {cite}`dokken2025`.
 # We phrase this problem as a minimization problem, where we seek to find the displacement $\mathbf{u}$ that minimizes
 # the functional
 #
