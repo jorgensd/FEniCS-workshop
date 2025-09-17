@@ -19,7 +19,7 @@
 # \sigma_n(\mathbf{u})(\mathbf{u}\cdot \hat{\mathbf{n}}-g) &= 0 \text{ on } \Gamma
 # \end{align*}
 # $$
-# 
+#
 # where $\mathbf{u}$ is the displacement, $C$ the stiffness tensor, $\epsilon$ the
 # symmetric strain tensor and $\mathbf{f}$ the body force.
 
@@ -71,7 +71,7 @@ if MPI.COMM_WORLD.rank == 0:
 
     # Tag physical groups for the surface
     for i, tags in enumerate(new_tags):
-        gmsh.model.addPhysicalGroup(tags[0], [tags[1]], i+1)
+        gmsh.model.addPhysicalGroup(tags[0], [tags[1]], i + 1)
 
     # Tag physical groups for the boundary
     gmsh.model.add_physical_group(1, contact_boundary, potential_contact_marker)
@@ -110,11 +110,10 @@ if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
     pyvista.start_xvfb(0.05)
 
 
-def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None,
-              style:str = "surface"):
+def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags = None, style: str = "surface"):
     plotter = pyvista.Plotter()
     tdim = mesh.topology.dim
-    mesh.topology.create_connectivity(tdim-1, tdim)
+    mesh.topology.create_connectivity(tdim - 1, tdim)
     if tags is None:
         ugrid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
     else:
@@ -131,12 +130,13 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None,
     plotter.show_bounds()
     plotter.show()
 
+
 plot_mesh(omega, ct, style="wireframe")
 plot_mesh(omega, ft)
 # -
 
 # ## Variational formulation
-# We will use a formulation of this problem based on {cite}`keith2024` and {cite}`dokken2024`.
+# We will use a formulation of this problem based on {cite}`keith2024` and {cite}`dokken2025`.
 # We phrase this problem as a minimization problem, where we seek to find the displacement $\mathbf{u}$ that minimizes
 # the functional
 #
@@ -163,22 +163,21 @@ plot_mesh(omega, ft)
 tdim = omega.topology.dim
 fdim = tdim - 1
 gdim = omega.geometry.dim
-gamma, gamma_to_omega = dolfinx.mesh.create_submesh(omega, fdim, ft.find(potential_contact_marker))[
-        0:2]
+gamma, gamma_to_omega = dolfinx.mesh.create_submesh(omega, fdim, ft.find(potential_contact_marker))[0:2]
 
 # Next, we define the function spaces, and combine them in a block structure
 # using `ufl.MixedFunctionSpace`
 
-V = dolfinx.fem.functionspace(omega, ("Lagrange", 1, (omega.geometry.dim, )))
+V = dolfinx.fem.functionspace(omega, ("Lagrange", 1, (omega.geometry.dim,)))
 Q = dolfinx.fem.functionspace(gamma, ("Lagrange", 1))
 W = ufl.MixedFunctionSpace(V, Q)
 
 # We can write the variational formulation as
 # Given $\alpha_k$, $\psi_{k-1}$, solve:
-# 
+#
 # $$
 # \begin{align*}
-# \alpha_k(\sigma(\mathbf{u}), \epsilon(\mathbf{v}))_\Omega - (\psi, \mathbf{v}\cdot \mathbf{n})_\Gamma &= -\alpha_k(\mathbf{f}, v)_\Omega - (\psi^{k-1}, \mathbf{v}\cdot \mathbf{n})_\Gamma\\
+# \alpha_k(\sigma(\mathbf{u}), \epsilon(\mathbf{v}))_\Omega - (\psi, \mathbf{v}\cdot \mathbf{n})_\Gamma &= \alpha_k(\mathbf{f}, v)_\Omega - (\psi^{k-1}, \mathbf{v}\cdot \mathbf{n})_\Gamma\\
 # (\mathbf{u}\cdot \mathbf{n}, w)_\Gamma - (e^{\psi}, w)_\Gamma &= (g, w)_\Gamma
 # \end{align*}
 # $$
@@ -199,7 +198,7 @@ W = ufl.MixedFunctionSpace(V, Q)
 # As discussed in the previous chapter, we need to choose a mesh to integrate over.
 # As we would like to exploit the definition of the `n=ufl.FacetNormal(\Omega)` in our
 # variational problem, we choose the integration domain to be $\Omega$.
-# This means that we have to create a map from each facet in $\Omega$ to 
+# This means that we have to create a map from each facet in $\Omega$ to
 # the corresponding facet in $\Gamma$.
 
 facet_imap = omega.topology.index_map(ft.dim)
@@ -212,8 +211,7 @@ entity_maps = {gamma: omega_to_gamma}
 # Next, we define the integration measures
 
 dx = ufl.Measure("dx", domain=omega)
-ds = ufl.Measure("ds", domain=omega, subdomain_data=ft,
-                 subdomain_id=potential_contact_marker)
+ds = ufl.Measure("ds", domain=omega, subdomain_data=ft, subdomain_id=potential_contact_marker)
 
 # ```{note} Integration over $\Gamma$
 # Note that we have restricted the `ds` integration measure to the boundary $\Gamma$,
@@ -252,8 +250,10 @@ psi_k = dolfinx.fem.Function(Q, name="Previous_Latent_variable")
 mu = E / (2.0 * (1.0 + nu))
 lmbda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu))
 
+
 def epsilon(w):
     return ufl.sym(ufl.grad(w))
+
 
 def sigma(w, mu, lmbda):
     ew = epsilon(w)
@@ -287,15 +287,16 @@ J = dolfinx.fem.form(ufl.extract_blocks(jac), entity_maps=entity_maps)
 
 # +
 
+
 def disp_func(x):
     values = np.zeros((gdim, x.shape[1]), dtype=dolfinx.default_scalar_type())
     values[1] = -uD
     return values
 
+
 u_bc = dolfinx.fem.Function(V)
 u_bc.interpolate(disp_func)
-bc = dolfinx.fem.dirichletbc(
-    u_bc, dolfinx.fem.locate_dofs_topological(V, fdim, ft.find(displacement_marker)))
+bc = dolfinx.fem.dirichletbc(u_bc, dolfinx.fem.locate_dofs_topological(V, fdim, ft.find(displacement_marker)))
 bcs = [bc]
 
 # -
@@ -307,6 +308,7 @@ bcs = [bc]
 from petsc4py import PETSc
 import warnings
 import dolfinx.fem.petsc
+
 
 class NewtonSolver:
     max_iterations: int
@@ -389,9 +391,7 @@ class NewtonSolver:
             s.x.scatter_forward()
 
         # Scatter local vectors to blocked vector
-        dolfinx.cpp.la.petsc.scatter_local_vectors(
-            self.x, [si.x.petsc_vec.array_r for si in self.w], maps
-        )
+        dolfinx.cpp.la.petsc.scatter_local_vectors(self.x, [si.x.petsc_vec.array_r for si in self.w], maps)
         self.x.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
 
     def solve(self, tol=1e-6, beta=1.0) -> int:
@@ -420,13 +420,9 @@ class NewtonSolver:
             with self.b.localForm() as b_loc:
                 b_loc.set(0)
             try:
-                dolfinx.fem.petsc.assemble_vector_block(
-                    self.b, self.F, self.J, bcs=self.bcs, x0=self.x, scale=-1.0
-                )
+                dolfinx.fem.petsc.assemble_vector_block(self.b, self.F, self.J, bcs=self.bcs, x0=self.x, scale=-1.0)
             except TypeError:
-                dolfinx.fem.petsc.assemble_vector_block(
-                    self.b, self.F, self.J, bcs=self.bcs, x0=self.x, alpha=-1.0
-                )
+                dolfinx.fem.petsc.assemble_vector_block(self.b, self.F, self.J, bcs=self.bcs, x0=self.x, alpha=-1.0)
             self.b.ghostUpdate(PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD)
 
             # Assemble Jacobian
@@ -442,9 +438,7 @@ class NewtonSolver:
             # Check for convergence
             converged_reason = self._solver.getConvergedReason()
             if self.error_on_nonconvergence:
-                assert (
-                    converged_reason > 0
-                ), f"Linear solver did not converge, received reason {converged_reason}"
+                assert converged_reason > 0, f"Linear solver did not converge, received reason {converged_reason}"
             else:
                 warnings.warn(f"Linear solver did not converge, reason {converged_reason} exiting", RuntimeWarning)
                 return 0
@@ -452,13 +446,10 @@ class NewtonSolver:
             # Update solution
             self._update_solution(beta)
 
-
             # Compute norm of primal space diff
             local_du, _ = dolfinx.cpp.la.petsc.get_local_vectors(self.dx, blocked_maps)
             self.norm_array.x.array[:] = local_du
-            self.norm_array.x.petsc_vec.ghostUpdate(
-                PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD
-            )
+            self.norm_array.x.petsc_vec.ghostUpdate(PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD)
             self.norm_array.x.petsc_vec.normBegin(1)
             correction_norm = self.norm_array.x.petsc_vec.normEnd(1)
 
@@ -469,6 +460,8 @@ class NewtonSolver:
         if self.error_on_nonconvergence and i == self.max_iterations:
             raise RuntimeError("Newton solver did not converge")
         return i
+
+
 # -
 
 # We want to consider the Von-Mises stresses in post-processing, and
@@ -479,9 +472,7 @@ V_DG = dolfinx.fem.functionspace(omega, ("DG", 1, (omega.geometry.dim,)))
 stress_space, stress_to_disp = V_DG.sub(0).collapse()
 von_mises = dolfinx.fem.Function(stress_space, name="von_Mises")
 u_dg = dolfinx.fem.Function(V_DG, name="u")
-s = sigma(u, mu, lmbda) - 1.0 / 3 * ufl.tr(sigma(u, mu, lmbda)) * ufl.Identity(
-    len(u)
-)
+s = sigma(u, mu, lmbda) - 1.0 / 3 * ufl.tr(sigma(u, mu, lmbda)) * ufl.Identity(len(u))
 von_Mises = ufl.sqrt(3.0 / 2 * ufl.inner(s, s))
 stress_expr = dolfinx.fem.Expression(von_Mises, stress_space.element.interpolation_points())
 
@@ -515,13 +506,13 @@ diff = dolfinx.fem.Function(V)
 for it in range(max_iterations):
     print(f"{it=}/{max_iterations} {normed_diff:.2e}")
     # Solve the first iterations inaccurately
-    solver_tol = 100*tol if it < 3 else tol
+    solver_tol = 100 * tol if it < 3 else tol
     converged = solver.solve(solver_tol, 1)
 
     diff.x.array[:] = u.x.array - u_prev.x.array
     diff.x.petsc_vec.normBegin(2)
     normed_diff = diff.x.petsc_vec.normEnd(2)
-    if normed_diff <= tol and it >=3:
+    if normed_diff <= tol and it >= 3:
         print(f"Converged at {it=} with increment norm {normed_diff:.2e}<{tol:.2e}")
         break
     u_prev.x.array[:] = u.x.array
@@ -556,11 +547,11 @@ grid = dolfinx.plot.vtk_mesh(u_dg.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)
 values = u_dg.x.array.reshape(-1, omega.geometry.dim)
 values_padded = np.zeros((values.shape[0], 3))
-values_padded[:, :omega.geometry.dim] = values
+values_padded[:, : omega.geometry.dim] = values
 pyvista_grid.point_data["u"] = values_padded
 warped = pyvista_grid.warp_by_vector("u")
 stresses = np.zeros_like(u_dg.x.array)
-stresses[stress_to_disp]= von_mises.x.array
+stresses[stress_to_disp] = von_mises.x.array
 stresses = stresses.reshape(-1, omega.geometry.dim)[:, 0]
 warped.point_data["von_Mises"] = stresses
 
