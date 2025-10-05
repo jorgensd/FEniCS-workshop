@@ -1,4 +1,4 @@
-name: workshop-env2
+name: workshop-env
 channels:
   - conda-forge
 dependencies:
