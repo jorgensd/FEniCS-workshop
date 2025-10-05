@@ -1,14 +1,12 @@
-name: workshop-env
+name: workshop-env2
 channels:
   - conda-forge
 dependencies:
   - fenics-dolfinx
-  - pyvista
-  - pip
-  - git
+  - pyvista>=0.45.0
   - ipyparallel
-  - tqdm
   - scipy
+  - vtk
   - pygraphviz
   - jupyter-book
   - jupytext
@@ -21,8 +19,6 @@ dependencies:
   - sphinx>=6.0.0
   - python-gmsh
 variables:
-  PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
-  PYVISTA_TRAME_SERVER_PROXY_ENABLED: "True"
   PYVISTA_OFF_SCREEN: false
-  PYVISTA_JUPYTER_BACKEND: "html"
+  PYVISTA_JUPYTER_BACKEND: "trame"
   LIBGL_ALWAYS_SOFTWARE: 1
