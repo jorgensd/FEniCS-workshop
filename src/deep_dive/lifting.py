@@ -50,6 +50,7 @@
 # +
 from mpi4py import MPI
 from petsc4py import PETSc
+
 import numpy as np
 
 import dolfinx
@@ -233,12 +234,8 @@ _ = b.destroy()
 # ```
 
 # + tags=["hide-input"]
-import sys, os
-
 import pyvista
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 grid = dolfinx.plot.vtk_mesh(uh.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)
 values = uh.x.array.reshape(-1, 3)
@@ -280,11 +277,13 @@ F = ufl.replace(F, {u: uh_new})
 # Next we define a wrapper for the non-linear problem
 
 import dolfinx.fem.petsc
+
 problem = dolfinx.fem.petsc.NonlinearProblem(F, uh_new, bcs=bcs)
 
 # and a Newton-solver
 
 import dolfinx.nls.petsc
+
 solver = dolfinx.nls.petsc.NewtonSolver(mesh.comm, problem)
 
 # We can access the underlying petsc krylov solver

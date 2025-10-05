@@ -7,8 +7,10 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
+
 import numpy as np
+
+import dolfinx
 
 N = 2
 mesh = dolfinx.mesh.create_box(
@@ -61,11 +63,8 @@ u.interpolate(lambda x: x[1], cells0=right_cells)
 u.x.scatter_forward()
 
 # + tags=["remove-input"]
-import pyvista
-import os, sys
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
+import pyvista
 
 
 def visualize_scalar(u: dolfinx.fem.Function, scale=1.0):

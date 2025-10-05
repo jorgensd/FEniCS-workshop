@@ -25,12 +25,9 @@
 
 # + tags=["remove-input"]
 
-import sys, os
-
 import matplotlib as mpl
 import numpy as np
 import pyvista
-import vtk  # noqa
 
 import basix.ufl
 
@@ -61,9 +58,6 @@ def plot_interval_basis_functions(N: int, degree: int, g):
     perm = np.hstack([np.array([0]), np.arange(2, nbpc), np.array([1])])
     ordered_basis_functions = basis_functions[perm]
 
-    if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-        pyvista.start_xvfb(0.05)
-    pyvista.set_jupyter_backend("static")
     basis_plotter = pyvista.Plotter()
     colors = mpl.cm.tab20c(np.linspace(0, 1, (nbpc - 1) * N + nbpc))
     pv_nodes = np.vstack([nodes, np.zeros_like(nodes), np.zeros_like(nodes)]).T
@@ -100,7 +94,6 @@ def plot_interval_basis_functions(N: int, degree: int, g):
     func_plotter.show_grid()
     basis_plotter.show()
     func_plotter.show()
-    pyvista.set_jupyter_backend("html")
 
 
 plot_interval_basis_functions(5, 1, lambda x: x + 3 * np.sin(np.pi * x))

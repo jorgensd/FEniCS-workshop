@@ -1,9 +1,9 @@
 # # Multiphysics: Solving PDEs on subdomains
 # So far we have considered problems where the PDE is defined over the entire domain.
 # However, in many cases this is not accurate. An example of this is fluid-structure interaction,
-# where the fluid and solid domains are coupled. 
+# where the fluid and solid domains are coupled.
 # In this case, the PDEs are defined over different subdomains,
-# and the coupling is done at the interface between the subdomains. 
+# and the coupling is done at the interface between the subdomains.
 # In this section, we will show how to solve PDEs on subdomains using FEniCS.
 #
 # We will consider a simple problem where we have a domain $\Omega$ that is divided into two subdomains $\Omega_1$ and $\Omega_2$.
@@ -34,16 +34,21 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
+
 import numpy as np
 
+import dolfinx
+
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 40, 40)
+
 
 def Omega1(x, tol=1e-14):
     return x[0] <= 0.7 + tol
 
+
 def Omega0(x, tol=1e-14):
-    return 0.7-tol <= x[0]
+    return 0.7 - tol <= x[0]
+
 
 tdim = mesh.topology.dim
 cell_map = mesh.topology.index_map(tdim)
@@ -55,9 +60,7 @@ stokes_marker = 3
 marker[dolfinx.mesh.locate_entities(mesh, tdim, Omega0)] = heat_marker
 marker[dolfinx.mesh.locate_entities(mesh, tdim, Omega1)] = stokes_marker
 
-cell_tags = dolfinx.mesh.meshtags(mesh, mesh.topology.dim,
-                                    np.arange(num_cells_local, dtype=np.int32),
-                                    marker)
+cell_tags = dolfinx.mesh.meshtags(mesh, mesh.topology.dim, np.arange(num_cells_local, dtype=np.int32), marker)
 
 # -
 
@@ -69,17 +72,13 @@ assert len(np.unique(marker)) <= 2
 # Expand to see the code for creating a plotter of meshes and meshtags.
 
 # + tags=["hide-input"]
-import sys, os
 
 import pyvista
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
-
-def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None):
+def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags = None):
     plotter = pyvista.Plotter()
-    mesh.topology.create_connectivity(tdim-1, tdim)
+    mesh.topology.create_connectivity(tdim - 1, tdim)
     if tags is None:
         ugrid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
     else:
@@ -95,6 +94,7 @@ def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags=None):
     plotter.show_axes()
     plotter.show()
 
+
 plot_mesh(mesh, cell_tags)
 
 # -
@@ -103,46 +103,53 @@ plot_mesh(mesh, cell_tags)
 
 # + tags=["hide-input"]
 
-mesh.topology.create_connectivity(tdim-1, tdim)
-facet_map = mesh.topology.index_map(tdim-1)
+mesh.topology.create_connectivity(tdim - 1, tdim)
+facet_map = mesh.topology.index_map(tdim - 1)
 num_facets_local = facet_map.size_local + facet_map.num_ghosts
 facet_values = np.zeros(num_facets_local, dtype=np.int32)
 outer_marker = 4
 facet_values[dolfinx.mesh.exterior_facet_indices(mesh.topology)] = 4
 
+
 def inlet(x, tol=1e-14):
-    return np.isclose(x[0], 0.0) & ((x[1] >= 0.4-tol) & (x[1]<=0.6+tol))
+    return np.isclose(x[0], 0.0) & ((x[1] >= 0.4 - tol) & (x[1] <= 0.6 + tol))
+
 
 inlet_marker = 1
-facet_values[dolfinx.mesh.locate_entities_boundary(mesh, tdim-1, inlet)] = inlet_marker
+facet_values[dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, inlet)] = inlet_marker
+
 
 def outlets(x, tol=1e-14):
-    return ((np.isclose(x[1], 0.0) &  ((0.4 - tol <= x[0]) & (x[0]<=0.6 + tol))) |
-            (np.isclose(x[1], 1.0) &  ((0.2 - tol <= x[0]) & (x[0] <= 0.35 + tol))))
+    return (np.isclose(x[1], 0.0) & ((0.4 - tol <= x[0]) & (x[0] <= 0.6 + tol))) | (
+        np.isclose(x[1], 1.0) & ((0.2 - tol <= x[0]) & (x[0] <= 0.35 + tol))
+    )
+
 
 outlet_marker = 2
-facet_values[dolfinx.mesh.locate_entities_boundary(mesh, tdim-1, outlets)] = outlet_marker
+facet_values[dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, outlets)] = outlet_marker
 
 interface_marker = 3
-facet_values[dolfinx.mesh.locate_entities(mesh, tdim-1, lambda x: np.isclose(x[0], 0.7))] = interface_marker
+facet_values[dolfinx.mesh.locate_entities(mesh, tdim - 1, lambda x: np.isclose(x[0], 0.7))] = interface_marker
 
-facet_tags = dolfinx.mesh.meshtags(mesh, tdim-1, np.arange(num_facets_local, dtype=np.int32), facet_values)
+facet_tags = dolfinx.mesh.meshtags(mesh, tdim - 1, np.arange(num_facets_local, dtype=np.int32), facet_values)
 plot_mesh(mesh, facet_tags)
 
 with dolfinx.io.XDMFFile(mesh.comm, "tags.xdmf", "w") as xdmf:
     xdmf.write_mesh(mesh)
-    xdmf.write_meshtags(facet_tags, mesh.geometry) 
+    xdmf.write_meshtags(facet_tags, mesh.geometry)
 
 # -
 
 # Next, we want to extract a sub-mesh containing only the the cellsthat will be used in the Stokes problem.
 # We do this with `dolfinx.mesh.create_submesh`
 
-stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh(mesh, cell_tags.dim, cell_tags.find(stokes_marker))
+stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh(
+    mesh, cell_tags.dim, cell_tags.find(stokes_marker)
+)
 
-#```{admonition} Creating a submesh
+# ```{admonition} Creating a submesh
 # :class: dropdown note
-# `dolfinx.mesh.create_submesh` takes in three inputs: 
+# `dolfinx.mesh.create_submesh` takes in three inputs:
 # 1. The mesh we want to extract a mesh from
 # 2. The dimension of the entities we want to make the mesh from. This can be any number $[0, tdim]$.
 # We define a submesh consisting of a subset of cells from the input mesh is a submesh of **co-dimension 0**,
@@ -165,13 +172,15 @@ stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh
 # + tags=["hide-input"]
 
 import numpy.typing as npt
+
+
 def transfer_meshtags_to_submesh(
     mesh: dolfinx.mesh.Mesh,
     entity_tag: dolfinx.mesh.MeshTags,
     submesh: dolfinx.mesh.Mesh,
     sub_vertex_to_parent: npt.NDArray[np.int32],
-    sub_cell_to_parent: npt.NDArray[np.int32]
-)-> tuple[dolfinx.mesh.MeshTags, npt.NDArray[np.int32]]:
+    sub_cell_to_parent: npt.NDArray[np.int32],
+) -> tuple[dolfinx.mesh.MeshTags, npt.NDArray[np.int32]]:
     """
     Transfer a meshtag from a parent mesh to a sub-mesh.
 
@@ -193,16 +202,13 @@ def transfer_meshtags_to_submesh(
     cell_imap = mesh.topology.index_map(tdim)
     num_cells = cell_imap.size_local + cell_imap.num_ghosts
     mesh_to_submesh = np.full(num_cells, -1)
-    mesh_to_submesh[sub_cell_to_parent] = np.arange(
-        len(sub_cell_to_parent), dtype=np.int32
-    )
+    mesh_to_submesh[sub_cell_to_parent] = np.arange(len(sub_cell_to_parent), dtype=np.int32)
     sub_vertex_to_parent = np.asarray(sub_vertex_to_parent)
 
     submesh.topology.create_connectivity(entity_tag.dim, 0)
 
     num_child_entities = (
-        submesh.topology.index_map(entity_tag.dim).size_local
-        + submesh.topology.index_map(entity_tag.dim).num_ghosts
+        submesh.topology.index_map(entity_tag.dim).size_local + submesh.topology.index_map(entity_tag.dim).num_ghosts
     )
     submesh.topology.create_connectivity(submesh.topology.dim, entity_tag.dim)
 
@@ -225,9 +231,7 @@ def transfer_meshtags_to_submesh(
                 for child_facet in c_c_to_e.links(child_cell):
                     child_vertices = c_e_to_v.links(child_facet)
                     child_vertices_as_parent = sub_vertex_to_parent[child_vertices]
-                    is_facet = np.isin(
-                        child_vertices_as_parent, p_f_to_v.links(facet)
-                    ).all()
+                    is_facet = np.isin(child_vertices_as_parent, p_f_to_v.links(facet)).all()
                     if is_facet:
                         child_markers[child_facet] = value
                         facet_found = True
@@ -241,10 +245,12 @@ def transfer_meshtags_to_submesh(
     tags.name = entity_tag.name
     return tags, sub_to_parent_entity_map
 
+
 # -
 
-stokes_facet_tags, stokes_facet_map = transfer_meshtags_to_submesh(mesh, facet_tags, stokes_mesh,
-                                                                   stokes_vertex_map, stokes_cell_map)
+stokes_facet_tags, stokes_facet_map = transfer_meshtags_to_submesh(
+    mesh, facet_tags, stokes_mesh, stokes_vertex_map, stokes_cell_map
+)
 
 # + tags=["remove-input"]
 plot_mesh(stokes_mesh, stokes_facet_tags)
@@ -262,9 +268,10 @@ plot_mesh(stokes_mesh, stokes_facet_tags)
 
 # + tags=["hide-input"]
 
-import ufl
-import basix
 import scipy
+
+import basix
+import ufl
 
 # Define variational form on submesh
 el_u = basix.ufl.element("Lagrange", stokes_mesh.basix_cell(), 3, shape=(stokes_mesh.geometry.dim,))
@@ -292,7 +299,7 @@ stokes_walls = np.union1d(stokes_facet_tags.find(outer_marker), stokes_facet_tag
 dofs_wall = dolfinx.fem.locate_dofs_topological((W0, V), mesh.topology.dim - 1, stokes_walls)
 bc_wall = dolfinx.fem.dirichletbc(u_wall, dofs_wall, W0)
 u_inlet = dolfinx.fem.Function(V)
-u_inlet.interpolate(lambda x: (0.5*x[1], 0*x[0]))
+u_inlet.interpolate(lambda x: (0.5 * x[1], 0 * x[0]))
 dofs_inlet = dolfinx.fem.locate_dofs_topological((W0, V), mesh.topology.dim - 1, stokes_facet_tags.find(inlet_marker))
 bc_inlet = dolfinx.fem.dirichletbc(u_inlet, dofs_inlet, W0)
 bcs = [bc_wall, bc_inlet]
@@ -311,10 +318,12 @@ b.scatter_reverse(dolfinx.la.InsertMode.add)
 
 # Solve with SPLU
 import scipy.sparse
+
 A_inv = scipy.sparse.linalg.splu(A_scipy)
 wh = dolfinx.fem.Function(W)
 wh.x.array[:] = A_inv.solve(b.array)
 # -
+
 
 # + tags=["hide-input"]
 def visualize_function(function: dolfinx.fem.Function, scale=1.0):
@@ -343,6 +352,8 @@ def visualize_function(function: dolfinx.fem.Function, scale=1.0):
         plotter.add_mesh(glyphs)
         plotter.view_xy()
         plotter.show()
+
+
 uh = wh.sub(0).collapse()
 ph = wh.sub(1).collapse()
 visualize_function(uh)
@@ -361,7 +372,7 @@ K = dolfinx.fem.functionspace(mesh, ("DG", 0))
 kappa = dolfinx.fem.Function(K)
 kappa.x.array[:] = 25
 subset_cells = dolfinx.mesh.locate_entities(mesh, tdim, lambda x: x[1] > 0.3)
-kappa.interpolate(lambda x: 12*x[0]+x[1], cells0 = subset_cells)
+kappa.interpolate(lambda x: 12 * x[0] + x[1], cells0=subset_cells)
 
 # + tags=["hide-input"]
 plotter = pyvista.Plotter()
@@ -374,9 +385,10 @@ plotter.show()
 
 # We create the submesh and the function space for the temperature on the submesh
 
-heat_mesh, heat_cell_map, heat_vertex_map, _ = dolfinx.mesh.create_submesh(mesh, cell_tags.dim, cell_tags.find(heat_marker))
-heat_facet_tags , _= transfer_meshtags_to_submesh(mesh, facet_tags, heat_mesh,
-                                                                   heat_vertex_map, heat_cell_map)
+heat_mesh, heat_cell_map, heat_vertex_map, _ = dolfinx.mesh.create_submesh(
+    mesh, cell_tags.dim, cell_tags.find(heat_marker)
+)
+heat_facet_tags, _ = transfer_meshtags_to_submesh(mesh, facet_tags, heat_mesh, heat_vertex_map, heat_cell_map)
 
 # However, in this case $\kappa$ lives on the parent mesh.
 # There are two ways of handling this:
@@ -431,8 +443,8 @@ t = ufl.TrialFunction(T)
 dt = ufl.TestFunction(T)
 
 x = ufl.SpatialCoordinate(mesh)
-f = 10*ufl.sin(5*ufl.pi*x[1]) + x[0]**3
-F_heat = ufl.inner(kappa*ufl.grad(t), ufl.grad(dt))*dx_heat - ufl.inner(f, dt)*dx_heat
+f = 10 * ufl.sin(5 * ufl.pi * x[1]) + x[0] ** 3
+F_heat = ufl.inner(kappa * ufl.grad(t), ufl.grad(dt)) * dx_heat - ufl.inner(f, dt) * dx_heat
 # -
 
 # ```{warning}
@@ -444,8 +456,8 @@ F_heat = ufl.inner(kappa*ufl.grad(t), ufl.grad(dt))*dx_heat - ufl.inner(f, dt)*d
 
 T_bndry = dolfinx.fem.Function(T)
 T_bndry.x.array[:] = 0
-heat_mesh.topology.create_connectivity(heat_mesh.topology.dim-1, heat_mesh.topology.dim)
-heat_bc_dofs = dolfinx.fem.locate_dofs_topological(T, heat_mesh.topology.dim-1, heat_facet_tags.find(outer_marker))
+heat_mesh.topology.create_connectivity(heat_mesh.topology.dim - 1, heat_mesh.topology.dim)
+heat_bc_dofs = dolfinx.fem.locate_dofs_topological(T, heat_mesh.topology.dim - 1, heat_facet_tags.find(outer_marker))
 bc_heat = dolfinx.fem.dirichletbc(T_bndry, heat_bc_dofs)
 bcs_heat = [bc_heat]
 
@@ -511,7 +523,7 @@ visualize_function(th)
 # however, instead of creating a `basix.ufl.mixed_element, we will create individual function spaces for `u` and `p`.
 
 T = dolfinx.fem.functionspace(heat_mesh, ("Lagrange", 1))
-V = dolfinx.fem.functionspace(stokes_mesh, ("Lagrange", 2, (stokes_mesh.topology.dim, )))
+V = dolfinx.fem.functionspace(stokes_mesh, ("Lagrange", 2, (stokes_mesh.topology.dim,)))
 Q = dolfinx.fem.functionspace(stokes_mesh, ("Lagrange", 1))
 
 # Next, we use `ufl.MixedFunctionSpace` to create a representation of the monolitic problem.
@@ -540,9 +552,9 @@ a += ufl.inner(ufl.div(u), dp) * dx_fluid
 L = ufl.inner(f_fluid, du) * dx_fluid
 L += ufl.inner(dolfinx.fem.Constant(stokes_mesh, 0.0), dp) * dx_fluid
 x = ufl.SpatialCoordinate(mesh)
-f_heat = 10*ufl.sin(5*ufl.pi*x[1]) + x[0]**3
-a += ufl.inner(kappa*ufl.grad(t), ufl.grad(dt))*dx_heat
-L += ufl.inner(f, dt)*dx_thermal
+f_heat = 10 * ufl.sin(5 * ufl.pi * x[1]) + x[0] ** 3
+a += ufl.inner(kappa * ufl.grad(t), ufl.grad(dt)) * dx_heat
+L += ufl.inner(f, dt) * dx_thermal
 
 # We can extract the matrix block structure by calling `ufl.extract_blocks`
 
@@ -559,7 +571,7 @@ for i in range(3):
 
 # ```{admonition} Extract blocks
 # For a bi-linear form, the output of `extract_blocks` is an nested list
-# of size M, where each sub-list is also of length M, representing the 
+# of size M, where each sub-list is also of length M, representing the
 # MxM blocked matrix.
 # For extract blocks on a linear form, we need to supply an
 # integral for each the M components.
@@ -583,8 +595,8 @@ L_blocked_compiled = dolfinx.fem.form(L_blocked, entity_maps=entity_maps)
 # +
 T_bndry = dolfinx.fem.Function(T)
 T_bndry.x.array[:] = 0
-heat_mesh.topology.create_connectivity(heat_mesh.topology.dim-1, heat_mesh.topology.dim)
-heat_bc_dofs = dolfinx.fem.locate_dofs_topological(T, heat_mesh.topology.dim-1, heat_facet_tags.find(outer_marker))
+heat_mesh.topology.create_connectivity(heat_mesh.topology.dim - 1, heat_mesh.topology.dim)
+heat_bc_dofs = dolfinx.fem.locate_dofs_topological(T, heat_mesh.topology.dim - 1, heat_facet_tags.find(outer_marker))
 bc_heat = dolfinx.fem.dirichletbc(T_bndry, heat_bc_dofs)
 
 stokes_walls = np.union1d(stokes_facet_tags.find(outer_marker), stokes_facet_tags.find(interface_marker))
@@ -593,7 +605,7 @@ u_wall = dolfinx.fem.Function(V)
 u_wall.x.array[:] = 0
 bc_wall = dolfinx.fem.dirichletbc(u_wall, dofs_wall)
 u_inlet = dolfinx.fem.Function(V)
-u_inlet.interpolate(lambda x: (0.5*x[1], 0*x[0]))
+u_inlet.interpolate(lambda x: (0.5 * x[1], 0 * x[0]))
 dofs_inlet = dolfinx.fem.locate_dofs_topological(V, mesh.topology.dim - 1, stokes_facet_tags.find(inlet_marker))
 bc_inlet = dolfinx.fem.dirichletbc(u_inlet, dofs_inlet)
 
@@ -609,6 +621,7 @@ bcs = [bc_heat, bc_wall, bc_inlet]
 
 # +
 from petsc4py import PETSc
+
 import dolfinx.fem.petsc
 
 A = dolfinx.fem.petsc.create_matrix_block(a_blocked_compiled)

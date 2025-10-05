@@ -14,7 +14,6 @@
 # We will use `ufl.conditional` as explained in the [the previous section](./form_compilation).
 
 # +
-import sys
 
 from mpi4py import MPI
 from petsc4py import PETSc
@@ -229,7 +228,6 @@ def create_side_by_side_plot(
     pyvista_continuous = warp_1D(u_continuous)
     pyvista_dg = warp_1D(u_dg)
 
-    pyvista.set_jupyter_backend("static")
     plotter = pyvista.Plotter(shape=(1, 2))
     plotter.subplot(0, 0)
     plotter.add_text(f"Continuous Lagrange N={num_glob_cells(u_continuous)}")
@@ -242,13 +240,7 @@ def create_side_by_side_plot(
     plotter.show_axes()
     plotter.view_xz()
     plotter.show()
-    pyvista.set_jupyter_backend("html")
 
-
-import os
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 create_side_by_side_plot(uh, wh)
 # -
@@ -335,7 +327,6 @@ q.interpolate(compile_dudx)
 # and plot the result
 
 # + tags=["hide-input"]
-pyvista.set_jupyter_backend("static")
 plotter = pyvista.Plotter()
 plotter.add_mesh(warp_1D(u, 1), style="wireframe", line_width=5)
 plotter.view_xz()
@@ -345,7 +336,6 @@ plotter.add_mesh(warp_1D(q, 0.1), style="wireframe", line_width=5)
 plotter.show_axes()
 plotter.view_xz()
 plotter.show()
-pyvista.set_jupyter_backend("html")
 # -
 
 # ## Bibliography

@@ -16,8 +16,8 @@
 # We start as before by defining the abstract finite element formulation
 
 # +
-import ufl
 import basix.ufl
+import ufl
 
 c_el = basix.ufl.element("Lagrange", "triangle", 1, shape=(2,))
 domain = ufl.Mesh(c_el)
@@ -90,6 +90,7 @@ error = ufl.inner(uh - u_ex, uh - u_ex) * ufl.dx
 
 # +
 from mpi4py import MPI
+
 import dolfinx
 
 Nx = 13
@@ -322,15 +323,6 @@ mesh_pyvista = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(x.function_space)
 # ```
 
 mesh_pyvista.point_data["x"] = x.x.array
-
-# To visualize both in notebooks, on the web and when running the script,
-# we launche a virtiual frame-buffer under certain conditions.
-
-# +
-import sys, os
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 # Next, we create a plotting instance, and warp the solution grid by the solution.
 plotter = pyvista.Plotter()

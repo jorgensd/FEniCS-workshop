@@ -7,10 +7,12 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
-import ufl
+
 import numpy as np
 import scipy
+
+import dolfinx
+import ufl
 
 N = 10
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, N, N)
@@ -279,7 +281,6 @@ print(f"L2-error: {global_error:.2e}")
 
 # + tags=["remove-input"]
 import pyvista
-import sys, os
 
 mesh_pyvista = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(uh.function_space))
 mesh_pyvista.point_data["uh"] = uh.x.array
@@ -288,8 +289,6 @@ Q = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
 u_linear = dolfinx.fem.Function(Q)
 u_linear.interpolate(uh)
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 # Next, we create a plotting instance, and warp the solution grid by the solution.
 plotter = pyvista.Plotter()
