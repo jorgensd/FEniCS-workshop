@@ -4,7 +4,7 @@
 #  $$
 #  g(x) = x \sin(\pi x) \cos (3\pi x)
 #  $$
-# 
+#
 # on the interval $[0, 1]$.
 #
 # We want to start with a simple example to illustrate the basic idea behind the finite element method,
@@ -25,8 +25,6 @@
 
 
 # +tags=["hide-input"]
-import sys, os
-
 from mpi4py import MPI
 
 import numpy as np
@@ -35,9 +33,6 @@ import scipy.sparse
 
 import dolfinx
 import ufl
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 
 def approximate_function(N: int, degree: int):
@@ -67,7 +62,6 @@ def approximate_function(N: int, degree: int):
     lin_grid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(lin_V))
     lin_grid.point_data["u"] = lin_u.x.array
     lin_warped = lin_grid.warp_by_scalar("u", normal=[0, 1, 0])
-    pyvista.set_jupyter_backend("static")
     plotter = pyvista.Plotter()
     plotter.add_lines(
         np.vstack([x_ref, g_ref, np.zeros_like(x_ref)]).T, connected=True, color="red", label="Exact", width=3
@@ -77,7 +71,6 @@ def approximate_function(N: int, degree: int):
     plotter.view_xy()
     plotter.add_legend(face="triangle")
     plotter.show()
-    pyvista.set_jupyter_backend("html")
 
 
 approximate_function(5, 1)

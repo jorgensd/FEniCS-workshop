@@ -5,8 +5,10 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
+
 import numpy as np
+
+import dolfinx
 
 mesh = dolfinx.mesh.create_unit_square(
     MPI.COMM_WORLD, 10, 10, dolfinx.mesh.CellType.triangle, ghost_mode=dolfinx.mesh.GhostMode.shared_facet
@@ -25,11 +27,8 @@ marker = np.ones(num_cells, dtype=np.int32)
 marker[dolfinx.mesh.locate_entities(mesh, tdim, inner_square)] = 2
 
 # + tags=["remove-input"]
-import pyvista
-import os, sys
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
+import pyvista
 
 ugrid = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(mesh))
 ugrid.cell_data["Marker"] = marker

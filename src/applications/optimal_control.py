@@ -19,12 +19,12 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
-import ufl
 
 import numpy as np
 import scipy
 
+import dolfinx
+import ufl
 
 M = 55
 domain = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, M, M)

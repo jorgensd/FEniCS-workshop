@@ -12,12 +12,9 @@ env:
   # Directory that will be published on github pages
   PUBLISH_DIR: ./_build/html
   DEB_PYTHON_INSTALL_LAYOUT: deb_system
-  PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
-  PYVISTA_TRAME_SERVER_PROXY_ENABLED: "True"
   PYVISTA_OFF_SCREEN: false
   PYVISTA_JUPYTER_BACKEND: "html"
   LIBGL_ALWAYS_SOFTWARE: 1
-  DISPLAY: ":99.0"
 jobs:
   build-docs:
     env:
@@ -31,7 +28,7 @@ jobs:
       - name: Install graphviz and pyvista deps
         run: |
           apt-get update 
-          apt-get install -y graphviz-dev libgl1-mesa-dev xvfb
+          apt-get install -y graphviz-dev libgl1-mesa-dev mesa-utils
 
       - name: Update pip
         run: python3 -m pip install --upgrade pip setuptools
@@ -40,7 +37,7 @@ jobs:
         run: python3 -m pip install -e ".[dev]"
 
       - name: Build docs
-        run: jupyter book build -W .
+        run: jupyter book build .
 
       - name: Upload documentation as artifact
         uses: actions/upload-artifact@v4

@@ -31,9 +31,11 @@
 
 # + tags=["hide-input", "hide-output"]
 from mpi4py import MPI
-import dolfinx
+
 import gmsh
 import numpy as np
+
+import dolfinx
 import ufl
 
 gmsh_model_rank = 0
@@ -102,12 +104,8 @@ omega, ct, ft = dolfinx.io.gmshio.model_to_mesh(gmsh.model, mesh_comm, gmsh_mode
 gmsh.finalize()
 
 # + tags=["hide-input"]
-import sys, os
 
 import pyvista
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 
 def plot_mesh(mesh: dolfinx.mesh.Mesh, tags: dolfinx.mesh.MeshTags = None, style: str = "surface"):
@@ -305,8 +303,10 @@ bcs = [bc]
 # We use the following wrapper to solve the problem
 
 # + tags=["hide-input"]
-from petsc4py import PETSc
 import warnings
+
+from petsc4py import PETSc
+
 import dolfinx.fem.petsc
 
 
@@ -537,12 +537,7 @@ u_dg.interpolate(u)
 # -
 
 # + tags=["hide-input"]
-import sys, os
 
-import pyvista
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 grid = dolfinx.plot.vtk_mesh(u_dg.function_space)
 pyvista_grid = pyvista.UnstructuredGrid(*grid)
 values = u_dg.x.array.reshape(-1, omega.geometry.dim)

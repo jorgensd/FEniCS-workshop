@@ -77,10 +77,12 @@
 
 # +
 from mpi4py import MPI
-import dolfinx
-import basix.ufl
-import ufl
+
 import numpy as np
+
+import basix.ufl
+import dolfinx
+import ufl
 
 M = 6
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, M, M)
@@ -257,11 +259,8 @@ wh.x.scatter_forward()
 # -
 
 # + tags=["hide-input"]
-import pyvista
-import os, sys
 
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
+import pyvista
 
 
 def visualize_mixed(mixed_function: dolfinx.fem.Function, scale=1.0):
@@ -279,7 +278,6 @@ def visualize_mixed(mixed_function: dolfinx.fem.Function, scale=1.0):
     # Create a point cloud of glyphs
     u_grid["u"] = u_values
     glyphs = u_grid.glyph(orient="u", factor=scale)
-    pyvista.set_jupyter_backend("static")
     plotter = pyvista.Plotter()
     plotter.add_mesh(u_grid, show_edges=False, show_scalar_bar=False)
     plotter.add_mesh(glyphs)
@@ -293,7 +291,6 @@ def visualize_mixed(mixed_function: dolfinx.fem.Function, scale=1.0):
     plotter_p.view_xy()
     plotter_p.show()
 
-    pyvista.set_jupyter_backend("html")
 
 # -
 

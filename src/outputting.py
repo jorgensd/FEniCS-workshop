@@ -16,13 +16,10 @@
 # In this tutorial the primary focus is interactive plotting.
 #
 
-# The easiest way to get going with pyvista is to use the following commands 
+# The easiest way to get going with pyvista is to use the following commands
 
 # +
-import os, sys, pyvista
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
+import pyvista
 
 plotter = pyvista.Plotter()
 plotter.show()
@@ -47,7 +44,7 @@ plotter.screenshot("test.png")
 # benefits and drawbacks.
 
 # ### XDMFFile
-# 
+#
 # #### Pros
 #  - Preferred format for reading in meshes and mesh tags
 #  - Can store multiple meshes in a single file

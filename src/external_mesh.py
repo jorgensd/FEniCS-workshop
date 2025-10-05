@@ -12,6 +12,7 @@ from mpi4py import MPI
 import gmsh
 
 import dolfinx
+
 # -
 
 # The first thing we do when using GMSH is to initialize it explicitly
@@ -220,12 +221,7 @@ print(f"{cell_marker.find(3)=}")
 # We can now plot the mesh with the `plot_mesh` function from the previous section.
 
 # + tags=["hide-input"]
-import sys, os
-
 import pyvista
-
-if sys.platform == "linux" and (os.getenv("CI") or pyvista.OFF_SCREEN):
-    pyvista.start_xvfb(0.05)
 
 
 def plot_mesh(mesh: dolfinx.mesh.Mesh, values=None):

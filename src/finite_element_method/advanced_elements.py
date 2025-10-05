@@ -42,6 +42,7 @@ reference_points = basix.create_lattice(
 #
 # In the next snippet we will create a function to compute `x` given the three points and a set of reference coordinates
 
+
 def compute_physical_point(p0, p1, p2, X):
     """
     Map coordinates `X` in reference element to triangle defined by `p0`, `p1` and `p2`
@@ -50,6 +51,7 @@ def compute_physical_point(p0, p1, p2, X):
     basis_values = el.tabulate(0, X)
     x = basis_values[0] @ np.vstack([p0, p1, p2])
     return x
+
 
 # We can now experiment with this code
 
@@ -122,7 +124,7 @@ _ = ax.scatter(x[:, 0], x[:, 1], c=rgb_cycle)
 # $u_i$ we have a scalar valued basis function $\phi_i$.
 
 # In this section we will consider vector-valued basis functions
-# 
+#
 # $$
 # \phi_i(x): \mathbb{R}^n \mapsto \mathbb{R}^n.
 # $$
@@ -223,7 +225,11 @@ J_inv_T = np.transpose(jacobian_inverse, (0, 2, 1))
 
 # + tags=["hide-input"]
 nedelec_el = basix.ufl.element("N1curl", "triangle", 1)
-ref_basis = nedelec_el.tabulate(0, X).reshape(num_points, tdim, nedelec_el.dim,)
+ref_basis = nedelec_el.tabulate(0, X).reshape(
+    num_points,
+    tdim,
+    nedelec_el.dim,
+)
 
 physical_basis = np.zeros((num_points, points.shape[1], nedelec_el.dim))
 for i in range(num_points):
@@ -237,6 +243,7 @@ physical_basis = np.transpose(physical_basis, (2, 0, 1))
 # + tags=["hide-input"]
 x = compute_physical_point(p0, p1, p2, X)
 import matplotlib.pyplot as plt
+
 phi = np.linspace(0, theta, num_points)
 theta = 2 * np.pi
 rgb_cycle = (
@@ -246,20 +253,20 @@ reference_vertices = basix.cell.geometry(basix.CellType.triangle)
 
 for i in range(nedelec_el.dim):
     fig, axes = plt.subplots(1, 2)
-    fig.suptitle('Nedelec basis functions of reference and physical cell', fontsize=16)
+    fig.suptitle("Nedelec basis functions of reference and physical cell", fontsize=16)
     ref_triangle = plt.Polygon(reference_vertices, color="blue", alpha=0.2)
     triangle = plt.Polygon(points, color="blue", alpha=0.2)
     axes[0].add_patch(ref_triangle)
-    axes[0].scatter(X[:,0], X[:,1], color=rgb_cycle, label="Reference points")
+    axes[0].scatter(X[:, 0], X[:, 1], color=rgb_cycle, label="Reference points")
     axes[0].quiver(X[:, 0], X[:, 1], ref_basis[:, 0, i], ref_basis[:, 1, i])
-    axes[0].set_title(r"$\phi_{i}$".format(i="{"+str(i)+"}"))
-    axes[0].set_aspect('equal', 'box')
+    axes[0].set_title(r"$\phi_{i}$".format(i="{" + str(i) + "}"))
+    axes[0].set_aspect("equal", "box")
 
-    axes[1].set_title(r"$\mathcal{F}"+r"\phi_{i}$".format(i="{"+str(i)+"}")) 
-    axes[1].scatter(x[:,0], x[:,1], color=rgb_cycle, label="Physical points")
+    axes[1].set_title(r"$\mathcal{F}" + r"\phi_{i}$".format(i="{" + str(i) + "}"))
+    axes[1].scatter(x[:, 0], x[:, 1], color=rgb_cycle, label="Physical points")
     axes[1].quiver(x[:, 0], x[:, 1], physical_basis[i, :, 0], physical_basis[i, :, 1])
     axes[1].add_patch(triangle)
-    axes[1].set_aspect('equal', 'box')
+    axes[1].set_aspect("equal", "box")
     plt.show()
 # -
 
