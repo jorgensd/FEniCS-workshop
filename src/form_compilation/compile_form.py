@@ -32,11 +32,12 @@ domain = ufl.Mesh(c_el)
 #
 # $$
 # \begin{align}
-# -\nabla \cdot \nabla u_{ex} = -\frac{\partial^2 u_{ex}}{\partial x^2} -\frac{\partial^2 u_{ex}}{\partial y^2} = 5/4\pi^2(\sin(\pi/2 x)\cos(\pi y))
+# -\nabla \cdot \nabla u_{ex} = -\frac{\partial^2 u_{ex}}{\partial x^2}
+# -\frac{\partial^2 u_{ex}}{\partial y^2} = 5/4\pi^2(\sin(\pi/2 x)\cos(\pi y))
 # \end{align}
 # $$
 
-# We can formulate this directly in UFL with `SpatialCoordinate` and the different derivative operators
+# We can formulate this directly in UFL with {py:class}`ufl.SpatialCoordinate` and the different derivative operators
 
 # +
 
@@ -65,7 +66,7 @@ F = ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx - ufl.inner(f, v) * ufl.dx
 # vector in the appropriate space, as one compute the contributions for each $\phi_i$.
 # If there is both a `TestFunction(V)` and a `TrialFunction(Q)` in the variational form, it will assemble into a
 # matrix, as we compute contributions $\phi_i\in V$, $\psi_j\in Q$ for both spaces. Note that $V$ and $Q$ can be the
-# same space. If they are not the same space we get a rectangular marix
+# same space. If they are not the same space we get a rectangular matrix
 # ```
 #
 # The form `F` above contains a mixture of terms, some involving just the test function and others involving both the
@@ -99,7 +100,8 @@ mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, Nx, Ny, cell_type=dolfinx
 # -
 
 # As we previously have discussed, we are going to determine a set of coefficients $u_i$ for the given domain.
-# We create a `dolfinx.fem.FunctionSpace` that contains the information for `mesh` with
+# We create a {py:class}`dolfinx.fem.FunctionSpace`
+# that contains the information for {py:class}`mesh<dolfinx.mesh.Mesh>` with
 
 V = dolfinx.fem.functionspace(mesh, el)
 
@@ -107,7 +109,7 @@ V = dolfinx.fem.functionspace(mesh, el)
 # :class: note
 # Note that we have used the element defined in our abstract formulation above.
 # ```
-# To store the coefficients $u_i$, we create a `dolfinx.fem.Function`
+# To store the coefficients $u_i$, we create a {py:class}`dolfinx.fem.Function`
 
 x = dolfinx.fem.Function(V)
 
@@ -133,7 +135,7 @@ print(f"{x.x.array=}")
 # ```
 #
 # We can compute the interpolated version of the exact solution with DOLFINx by
-# passing in a Python function to `dolfinx.fem.Function.interpolate`.
+# passing in a Python function to {py:meth}`dolfinx.fem.Function.interpolate`.
 # This function takes in a set of coordinates (x,y,z) written as a single two-dimensional
 # array of shape `(3, num_points)`, meaning that we can perform vectorized operations on all
 # of the `i`the coordinate with `x[i]`, i.e `np.sin(x[0])` evaluates an array of points at once.
@@ -170,7 +172,7 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 # When a mesh is created in DOLFINx we only compute the  **unique** global numbering
 # and ownership of cells and vertices.
 # However, one can compute this numbering for any sub-entity by calling
-# `mesh.topology.create_entities(j)`.
+# {py:meth}`mesh.topology.create_entities(j)<dolfinx.mesh.Topology.create_entities>`.
 # For instance computing the ownership and numbering of the facets can be done with
 # `mesh.topology.create_entities(mesh.topology.dim-1)`.
 # ```
@@ -178,7 +180,8 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 # :class: dropdown note
 # When a mesh is created in DOLFINx, the relation between the cells and the vertices is computed.
 # However, one can compute the relationship between any set of entities in the mesh with
-# `dolfinx.mesh.create_connectivity(i, j)` where `i` is the dimension of the index to map from
+# {py:meth}`mesh.topology.create_connectivity(i, j)<dolfinx.mesh.Topology.create_connectivity>`
+# where `i` is the dimension of the index to map from
 # and `j` is the dimension of the entities to map from.
 # As an example, calling `mesh.topology.create_connectivity(mesh.topology.dim-1, mesh.topology.dim)`
 # will compute the relationship between all facets in the mesh and their cells.
@@ -193,7 +196,8 @@ boundary_facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
 
 facet_to_cell = mesh.topology.connectivity(mesh.topology.dim - 1, mesh.topology.dim)
 
-# and get the indices of the cells a facet is connected to with `facet_to_cell.links(i)`
+# and get the indices of the cells a facet is connected to with
+# {py:meth}`facet_to_cell.links(i)<dolfinx.graph.AdjacencyList.links>`
 #
 # ```{admonition} Given a unit square, verify that the exterior facet indices are only connected to a single cell.
 # :class: dropdown tip
@@ -213,10 +217,11 @@ boundary_dofs = dolfinx.fem.locate_dofs_topological(V, mesh.topology.dim - 1, bo
 
 # ```{admonition} The dof-closure
 # :class: dropdown note
-# When we want to find all degrees of freedom associated with an entity, and all sub entities of a lower topological dimension,
+# When we want to find all degrees of freedom associated with an entity,
+# and all sub entities of a lower topological dimension,
 # we call this the closure dofs of that entity.
 # ```
-# And we can create the `dolfinx.fem.DirichletBC` object
+# And we can create the {py:class}`dolfinx.fem.DirichletBC` object
 
 bc = dolfinx.fem.dirichletbc(gh, boundary_dofs)
 bcs = [bc]
@@ -234,7 +239,8 @@ bilinear_form = dolfinx.fem.create_form(a_compiled, [V, V], mesh, {}, {}, {})
 
 # ```{admonition} What data does the form require?
 # :class: dropdown note
-# We need to associate function spaces with the `TestFunction` and `TrialFunction`
+# We need to associate function spaces with the {py:func}`ufl.TestFunction` and
+# {py:func}`ufl.TrialFunction`
 # We also send in what mesh we want to integrate over.
 # We will cover the other inputs later.
 # ```
@@ -245,7 +251,7 @@ linear_form = dolfinx.fem.create_form(L_compiled, [V], mesh, {}, {}, {})
 # We now create DOLFINx native stuctures for storing the sparse matrix and right hand side vector
 
 A = dolfinx.fem.create_matrix(bilinear_form)
-b = dolfinx.fem.create_vector(linear_form)
+b = dolfinx.fem.create_vector(linear_form.function_spaces[0])
 
 # We can get a view into `A` by creating a data wrapper compatible with scipy.
 
@@ -290,12 +296,12 @@ x.x.array[:] = A_inv.solve(b.array)
 compiled_error = dolfinx.fem.compile_form(MPI.COMM_WORLD, error)
 
 # As we now need to supply `x` to replace `uh`, from the definition of error, we do this by adding
-# {u: x} in the second of the three dictionaries in `dolfinx.fem.create_form`
+# {u: x} in the second of the three dictionaries in {py:func}`dolfinx.fem.create_form`
 
 L2_error_form = dolfinx.fem.create_form(compiled_error, [], mesh, {}, {uh: x}, {})
 
-# We use `dolfinx.fem.assemble_scalar` to compute the integral over cells owned by the current process
-# and accumulate the result with `mesh.comm.allreduce`
+# We use {py:func}`dolfinx.fem.assemble_scalar` to compute the integral over cells owned by the current process
+# and accumulate the result with {py:meth}`mesh.comm.allreduce<mpi4py.MPI.Comm.allreduce>`
 
 error_local = dolfinx.fem.assemble_scalar(L2_error_form)
 error_global = mesh.comm.allreduce(error_local, op=MPI.SUM)
@@ -314,8 +320,8 @@ import pyvista
 mesh_pyvista = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(x.function_space))
 # -
 
-# We have now created a pyvista Unstructured grid compatible with the array
-# from `u.x.array`.
+# We have now created a {py:class}`pyvista.UnstructuredGrid` compatible with the array
+# from {py:attr}`u.x.array<dolfinx.la.Vector.array>`.
 # ```{warning} Pyvista compatible function spaces
 # Pyvista supports arbitrary continuous and discontinuous Lagrange function spaces.
 # If you have a function in another finite element space, please interpolate into a
@@ -325,6 +331,8 @@ mesh_pyvista = pyvista.UnstructuredGrid(*dolfinx.plot.vtk_mesh(x.function_space)
 mesh_pyvista.point_data["x"] = x.x.array
 
 # Next, we create a plotting instance, and warp the solution grid by the solution.
+
+# +
 plotter = pyvista.Plotter()
 warped_grid = mesh_pyvista.warp_by_scalar("x")
 
@@ -381,7 +389,7 @@ for i, N in enumerate(Ns):
     linear_form = dolfinx.fem.create_form(L_compiled, [V], mesh, {}, {}, {})
 
     A = dolfinx.fem.create_matrix(bilinear_form)
-    b = dolfinx.fem.create_vector(linear_form)
+    b = dolfinx.fem.create_vector(linear_form.function_spaces[0])
 
     A_scipy = A.to_scipy()
     dolfinx.fem.assemble_matrix(A, bilinear_form, bcs=bcs)

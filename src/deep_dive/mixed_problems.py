@@ -91,7 +91,7 @@ mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, M, M)
 # ## Finite elements and mixed function space
 
 # Next, we define the finite element spaces we would like to use for the velocity and pressure fields.
-# We do this as descibed in {ref}`ufl-intro` and use `basix.ufl.mixed_element`
+# We do this as descibed in {ref}`ufl-intro` and use {py:func}`basix.ufl.mixed_element`
 # to create a mixed element for the velocity and pressure fields.
 # We choose the Taylor-Hood finite element pair for this problem.
 
@@ -109,9 +109,11 @@ v, q = ufl.TestFunctions(W)
 
 # ```{admonition} Test and trial functions in mixed spaces
 # :class: dropdown note
-# We observe that we use `ufl.TrialFunctions` and `ufl.TestFunctions` to define the trial and test functions for the mixed space,
-# rather than `ufl.TestFunction` and `ufl.TrialFunction`.
-# We could use the latter, but would then either have to index the corresponding functions or use `ufl.split` to extract the components.
+# We observe that we use {py:func}`ufl.TrialFunctions` and {py:func}`ufl.TestFunctions`
+# to define the trial and test functions for the mixed space,
+# rather than {py:func}`ufl.TestFunction` and {py:func}`ufl.TrialFunction`.
+# We could use the latter, but would then either have to index the corresponding functions
+# or use {py:func}`ufl.split` to extract the components.
 # ```
 # To see alternative approach for defining the test and trial functions expand the below cell
 
@@ -127,14 +129,16 @@ p = w[2]
 
 wh = dolfinx.fem.Function(W)
 
-# We can split this function into symbolic components for the velocity and pressure fields with `ufl.split`
+# We can split this function into symbolic components for the velocity and pressure fields
+# with {py:func}`ufl.split`
 
 uh, ph = ufl.split(wh)
 
 # ## Boundary integrals
-# So far, we have only considered the integrals over the domain $\Omega$. We also need to consider the integrals over the boundary.
+# So far, we have only considered the integrals over the domain $\Omega$.
+# We also need to consider the integrals over the boundary.
 # We do this by introducing the exterior facet measure, called `ds` in UFL.
-# This measure will only consist of facet integrals over those facets that are connected to a signle cell.
+# This measure will only consist of facet integrals over those facets that are connected to a single cell.
 
 ds = ufl.Measure("ds", domain=mesh)
 
@@ -154,15 +158,16 @@ F += ufl.inner(ufl.div(u), q) * ufl.dx
 F -= ufl.inner(f, v) * ufl.dx
 # -
 
-# We can do as previosly, and split this into a bi-linear and linear form with
+# We can do as previously, and split this into a bi-linear and linear form with
 
 a, L = ufl.system(F)
 
 # (boundary_subset)=
 # ## Locating a subset of entities on a boundary
 # We now want to apply a Dirichlet condition on the degrees of freedom on some subset of the boundary.
-# We start by locating some sub-set of facets on the boundary, by use `dolfinx.mesh.locate_entities_boundary`.
-# Let's say we want to prescibe the conditions:
+# We start by locating some sub-set of facets on the boundary, by using
+# {py:func}`dolfinx.mesh.locate_entities_boundary`.
+# Let's say we want to prescribe the conditions:
 #
 # $$
 # \begin{align}
@@ -171,11 +176,11 @@ a, L = ufl.system(F)
 # \end{align}
 # $$
 # We would have to locate what degrees of freedom that are in the closure of this boundary.
-# Previously, we used `dolfinx.mesh.exterior_facet_indices` to locate all the facets on the boundary.
+# Previously, we used {py:func}`dolfinx.mesh.exterior_facet_indices` to locate all the facets on the boundary.
 # However, in this case, we only want to find a subset of facets on the boundary.
-# We therefore use `dolfinx.mesh.locate_entities_boundary`:
+# We therefore use {py:func}`dolfinx.mesh.locate_entities_boundary`:
 # 1. Define a function `boundary_marker` that takes in a set of coordinates `x` on the form `(3, num_points)`
-# and returns an array of length `num_points` indcating if the point is on the boundary.
+# and returns an array of length `num_points` indicating if the point is on the boundary.
 # For instance, for the case $u(0, y) = (ux, uy)$, we would have
 
 
@@ -194,16 +199,18 @@ if MPI.COMM_WORLD.size == 0:
     assert len(left_facets) == M
 # -
 
-# ```{admonition} What points are sent into locate entitites boundary?
+# ```{admonition} What points are sent into locate entities boundary?
 # :class: dropdown note
 # The function checks that all vertices of a given entity satisfies the input constraint.
 # ```
 #
-# Whenever we have a union of constraints, we can use the `numpy` bit operations `&` (and) and `|` (or) to combine the constraints.
+# Whenever we have a union of constraints, we can use the {py:mod}`numpy`
+# bit operations `&` (and) and `|` (or) to combine the constraints.
 #
 # ```{admonition} Create a boundary marker for the top and bottom boundary and locate the facets on those boundaries
 # :class: dropdown note
-# We can use `numpy.isclose` for each of the cases, and combine them with `numpy.bitwise_or` or `|`
+# We can use {py:func}`numpy.isclose` for each of the cases,
+# and combine them with {py:func}`numpy.bitwise_or` or `|`
 # ```
 # Expand the below to see the solution
 
@@ -238,13 +245,14 @@ if MPI.COMM_WORLD.size == 0:
 # Now that we have found the boundaries of interest, we can create the Dirichlet conditions
 # We start by considering what we have already seen:
 # In the previous sections, Dirichlet conditions have been applied as input to
-# `dolfinx.fem.dirichletbc` in the following way:
+# {py:func}`dolfinx.fem.dirichletbc` in the following way:
 # 1. A function $w_D\in W$ from the space that contains the Dirichlet condition values
 # 2. A list of the {term}`dofs` in the space $W$ that should be constrained
 #
 # However, what happens if we use this strategy on a mixed space?
 # As `w_D` is a mixed function, we have both pressure and velocity components in this space.
-# Thus, if we set all entries in the BC to a constant value, we would set **both** the pressure and velocity to the same value.
+# Thus, if we set all entries in the BC to a constant value, we would set **both**
+# the pressure and velocity to the same value.
 # We illustrate this below
 
 # +
@@ -302,7 +310,8 @@ visualize_mixed(wh)
 # -
 
 # What we want to do instead is to only apply the boundary condition to the velocity sub-space.
-# We do this by first getting a function in the sub-space of the velocity field:
+# We do this by first getting a function in the sub-space of the velocity field by calling
+# {py:meth}`W.sub(0)<dolfinx.fem.FunctionSpace.sub>`, and then collapsing this sub-space
 
 W0 = W.sub(0)
 V, V_to_W0 = W0.collapse()
@@ -313,8 +322,10 @@ V, V_to_W0 = W0.collapse()
 # i.e. you will get a dofmap that only contains the degrees of freedom that are in the sub-space.
 # However, the global dof numbering is still preserved, meaning that a dof in the sub-space will have
 # the same index as in the global space.
-# It also means that a function accessed through `u.sub(i)` will contain all the degrees of freedom in the global space.
-# We use `W0.collapse()` to get a self contained function space of only the degrees of freedom in the sub-space.
+# It also means that a function accessed through {py:meth}`u.sub(i)<dolfinx.fem.Function.sub>`
+# will contain all the degrees of freedom in the global space.
+# We use {py:meth}`W0.collapse()<dolfinx.fem.FunctionSpace.collapse>`
+# to get a self contained function space of only the degrees of freedom in the sub-space.
 # We also get back a map frome each degree of freedom in the sub space to the degree of freedom in the parent space.
 # This can be super-useful when we want to assign data from collapsed sub spaces to the parent space!
 # ```
@@ -366,8 +377,10 @@ visualize_mixed(new_wh)
 
 # ```{admonition} Sub-spaces of sub spaces
 # :class: note
-# As we in some cases only want to constrain one of the components of the vector space, say $\mathbf{u}=(u_x, u_y)$, $u_y=h(x,y)$, while $u_x$
-# is unconstrained. We can do this by repeating the strategy above, but with `W.sub(0).sub(1)` and its corresponding collapsed space.
+# As we in some cases only want to constrain one of the components of the vector space,
+# say $\mathbf{u}=(u_x, u_y)$, $u_y=h(x,y)$, while $u_x$
+# is unconstrained.
+# We can do this by repeating the strategy above, but with `W.sub(0).sub(1)` and its corresponding collapsed space.
 # ```
 # We can of course do the same for the pressure conditions, by collapsing the second sub-space.
 
@@ -380,7 +393,8 @@ sub_dofs = dolfinx.fem.locate_dofs_topological(W.sub(0).sub(1), mesh.topology.di
 bc_constant = dolfinx.fem.dirichletbc(uy_D, sub_dofs, W.sub(0).sub(1))
 
 # Note that this looks quite similar to how we sent in collapsed sub functions.
-# However, we do no longer require a map from the the collapsed space (reflected in the input to `locate_dofs_topological`).
+# However, we do no longer require a map from the the collapsed space
+# (reflected in the input to {py:func}`dolfinx.fem.locate_dofs_topological`).
 # ```{warning} Dirichlet boundary conditions on sub-spaces with a block size
 # In DOLFINx, we can not use the above syntax for a vector constant that is applied to W.sub(0).
 # One can either constrain each component with a constant individually, or use a function as shown previously.
@@ -418,7 +432,7 @@ bc_wall = dolfinx.fem.dirichletbc(u_wall, dofs_wall, W0)
 a_compiled = dolfinx.fem.form(a)
 L_compiled = dolfinx.fem.form(L)
 A = dolfinx.fem.create_matrix(a_compiled)
-b = dolfinx.fem.create_vector(L_compiled)
+b = dolfinx.fem.create_vector(L_compiled.function_spaces[0])
 A_scipy = A.to_scipy()
 bcs = [bc_inlet_x, bc_inlet_y, bc_wall]
 dolfinx.fem.assemble_matrix(A, a_compiled, bcs=bcs)

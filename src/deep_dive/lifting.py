@@ -164,9 +164,10 @@ bcs = [
     dolfinx.fem.dirichletbc(u_prescribed, displaced_dofs, V),
 ]
 
-# The lifting procedure from {ref}`lifting`` is used in both C++ and Python, and what it does under the hood is to compute the local
-# matrix-vector products of $A_{d, bc}$ and $g$ (no global matrix vector products are involved). However, we can use UFL
-# to do this in a simpler fashion in Python
+# The lifting procedure from {ref}`lifting` is used in both C++ and Python,
+# and what it does under the hood is to compute the local
+# matrix-vector products of $A_{d, bc}$ and $g$ (no global matrix vector products are involved).
+# However, we can use UFL to do this in a simpler fashion in Python
 
 g = dolfinx.fem.Function(V)
 g.x.array[:] = 0
@@ -176,7 +177,7 @@ L_lifted = L - ufl.action(a, g)
 
 # What happens here?
 #
-# `ufl.action` reduces the bi-linear form to a linear form (and would reduce a linear form to a scalar)
+# {py:func}`ufl.action` reduces the bi-linear form to a linear form (and would reduce a linear form to a scalar)
 #  by replacing the trial function with the function $g$, that is only non-zero at the Dirichlet condition
 
 # The new assembly of the linear and bi-linear form would be
@@ -192,16 +193,17 @@ b.ghostUpdate(addv=PETSc.InsertMode.INSERT_VALUES, mode=PETSc.ScatterMode.FORWAR
 
 # ```{admonition} New assembly commands!
 # :class: warning
-# In all previous sections we have used `dolfinx.fem.assemble_matrix` and
-# `dolfinx.fem.assemble_vector`, while we now use `dolfinx.fem.petsc.assemble_vector` and
-# `dolfinx.fem.petsc.assemble_matrix`.
+# In all previous sections we have used {py:func}`dolfinx.fem.assemble_matrix` and
+# {py:func}`dolfinx.fem.assemble_vector`,
+# while we now use {py:func}`dolfinx.fem.petsc.assemble_vector` and
+# {py:func}`dolfinx.fem.petsc.assemble_matrix`.
 # The difference here is that we assemble into PETSc Matrix and Vector objects, which can
 # be easily used with the PETSc solvers.
 # Even if the Native DOLFINx matrices supports MPI distributed vectors and matrices, scipy doesn't.
 # PETSc has a notion of MPI distributed matrices, which means that we can finally run our problems in parallel!
 # ```
 
-# Now that we have created our PETSc Matrix and PETSc Vector, we can create a PETSc Krylov subspace solver.
+# Now that we have created our PETSc Matrix and PETSc Vector, we can create a {py:class}`PETSc Krylov subspace solver<petsc4py.PETSc.KSP>`.
 
 ksp = PETSc.KSP().create(mesh.comm)
 
@@ -255,8 +257,16 @@ plotter.show()
 # Given `a` and `L` from above, we show this interface:
 
 u_new = dolfinx.fem.Function(V)
-options = {"ksp_type": "preonly", "pc_type": "lu", "pc_mat_factor_type": "mumps"}
-problem = dolfinx.fem.petsc.LinearProblem(a, L, bcs, u_new, petsc_options=options)
+options = {
+    "ksp_type": "preonly",
+    "pc_type": "lu",
+    "pc_factor_mat_solver_type": "mumps",
+    "ksp_error_if_not_converged": True,
+    "ksp_monitor": None,
+}
+problem = dolfinx.fem.petsc.LinearProblem(
+    a, L, bcs=bcs, u=u_new, petsc_options=options, petsc_options_prefix="elasticity_"
+)
 problem.solve()
 assert problem.solver.getConvergedReason() > 0, "Solver did not converge"
 
@@ -274,30 +284,20 @@ uh_new = dolfinx.fem.Function(V)
 F = a - L
 F = ufl.replace(F, {u: uh_new})
 
-# Next we define a wrapper for the non-linear problem
+# Next, we use the high-level wrapper of {py:class}`PETSc.SNES<petsc4py.PETSc.SNES>`
+# to solve the non-linear problem
 
 import dolfinx.fem.petsc
 
-problem = dolfinx.fem.petsc.NonlinearProblem(F, uh_new, bcs=bcs)
+options["snes_error_if_not_converged"] = True
+options["snes_monitor"] = None
+problem = dolfinx.fem.petsc.NonlinearProblem(
+    F, uh_new, bcs=bcs, petsc_options=options, petsc_options_prefix="elasticity_nonlinear_"
+)
+problem.solve()
 
-# and a Newton-solver
-
-import dolfinx.nls.petsc
-
-solver = dolfinx.nls.petsc.NewtonSolver(mesh.comm, problem)
-
-# We can access the underlying petsc krylov solver
-
-ksp = solver.krylov_solver
-ksp.setType("preonly")
-ksp.getPC().setType("lu")
-ksp.getPC().setFactorSolverType("mumps")
-
-# We then solve the problem
-
-dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
-num_iterations, converged = solver.solve(uh_new)
-assert converged, "Solver did not converge"
+converged = problem.solver.getConvergedReason()
+num_iterations = problem.solver.getIterationNumber()
 
 # Observe that since the problem is linear, we converge in one iteration
 

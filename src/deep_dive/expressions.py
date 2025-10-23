@@ -40,8 +40,10 @@ u = dolfinx.fem.Function(V)
 # $$
 
 # We start by locating the cells that satisfies this condition.
-# In {ref}`boundary_subset` we learnt how to use `dolfinx.mesh.locate_entities_boundary` to locate entites.
-# In this section we will use `dolfinx.mesh.locate_entities` which does the same, but for all entities in the mesh.
+# In {ref}`boundary_subset` we learnt how to use
+# {py:func}`dolfinx.mesh.locate_entities_boundary` to locate entities.
+# In this section we will use {py:func}`dolfinx.mesh.locate_entities`
+# which does the same, but for all entities in the mesh.
 
 tdim = mesh.topology.dim
 left_cells = dolfinx.mesh.locate_entities(mesh, tdim, lambda x: x[0] <= 1 + 1e-14)
@@ -80,7 +82,7 @@ def visualize_scalar(u: dolfinx.fem.Function, scale=1.0):
 visualize_scalar(u)
 # -
 
-# ## Evalation at a point
+# ## Evaluation at a point
 # We want to evaluate the function at a point in the mesh that does not align with the nodes of the mesh.
 # We do this through a sequence of steps:
 #
@@ -90,11 +92,12 @@ visualize_scalar(u)
 # combine them with the coefficients on the given cell and push them forward to the physical space.
 
 # ### Step 1: Determine which processes that has the cell
-# As looping through all the cells, and compute exact collisions is expensive, we accelerate the search by using an axis-aligned
-# bounding box tree. This is a tree that recursively divides the mesh into smaller and smaller boxes, such that we can quickly
+# As looping through all the cells, and compute exact collisions is expensive,
+# we accelerate the search by using an axis-aligned {py:class}`bounding box tree<dolfinx.geometry.BoundingBoxTree>`.
+# This is a tree that recursively divides the mesh into smaller and smaller boxes, such that we can quickly
 # search through the tree to find the cells that might contain the point of interest.
 
-bb_tree = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim)
+bb_tree = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim, padding=1e-10)
 
 # ```{note} Bounding boxes of other entities
 # As seen below, we send in the topological dimension of the entities that we are interested in.
@@ -103,16 +106,18 @@ bb_tree = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim)
 
 # ```{admonition} Bounding boxes of subsets of entities
 # :class: dropdown note
-# In many scenarios, we already have a notion about which entities we are interested in, we can create a bounding box tree
-# of only these entities by sending in the entities as a list.
+# In many scenarios, we already have a notion about which entities we are interested in,
+# we can create a bounding box tree of only these entities by sending in the entities as a list.
 # ```
 
-sub_bb_tree = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim, left_cells)
+sub_bb_tree = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim, entities=left_cells, padding=1e-10)
 
-# We can now send the points into `dolfinx.geometry.compute_collisions_point` to find the cells that contain the point.
+# We can now send the points into {py:func}`dolfinx.geometry.compute_collisions_points`
+# to find the cells that contain the point.
 # ```{admonition} Point collision in parallel
 # :class: dropdown note
-# Note that each bounding box tree is local to the given process, and thus we can send in the same point to all processs,
+# Note that each bounding box tree is local to the given process,
+# and thus we can send in the same point to all processes,
 # or unique points for each process.
 # ```
 
@@ -120,11 +125,12 @@ points = np.array([[0.51, 0.32, 0], [1.3, 0.834, 0]], dtype=mesh.geometry.x.dtyp
 potential_colliding_cells = dolfinx.geometry.compute_collisions_points(bb_tree, points)
 
 # + tags=["remove-input"]
-print(f"{potential_colliding_cells=}")
+print(f"{potential_colliding_cells._cpp_object=}")
 # -
 
 # ```{admonition} Output of compute point collisions
-# As we observe above, we get an `AdjacencyList` out of the function `compute_collisions_points`.
+# As we observe above, we get an {py:class}`AdjacencyList<dolfinx.graph.AdjacencyList>`
+# out of the function {py:func}`compute_collisions_points<dolfinx.geometry.compute_collisions_points>`.
 # This is a list of lists, where the $ith$ list contains the indices of the cells that has bounding
 # boxes that collide with the $i$th point.
 # ```
@@ -139,19 +145,20 @@ print(f"{potential_colliding_cells.links(0)=}")
 # To find the cells whose convex hull contains the point.
 # ```{admonition} Higher order meshes
 # :class: dropdown note
-# As the GJK algorithm work on convex hulls, it is not 100 % accurate for higher order geometries (i.e. coordinate element is higher order,
-# and the facets are curved). However, it is usually a sufficiently good enough approximation to be used in practice.
-# For a more accurate algorithm, one could take all the points that satisfies the boundary box collision, pull them back to the reference element,
-# and check that the resulting coordinate are inside the reference element. However, for non-affine grids this involves solving a non-linear problem
-# (with a Newton type method).
+# As the GJK algorithm work on convex hulls, it is not 100 % accurate for higher order geometries
+# (i.e. coordinate element is higher order, and the facets are curved).
+# However, it is usually a sufficiently good enough approximation to be used in practice.
+# For a more accurate algorithm, one could take all the points that satisfies the boundary box collision,
+# pull them back to the reference element, and check that the resulting coordinate are inside the reference element.
+# However, for non-affine grids this involves solving a non-linear problem (with a Newton type method).
 # ```
-# To do this efficiently, we use `dolfinx.geometry.compute_colliding_cells`
-# which takes in the output of `compute_collisions_points` and the `points`.
+# To do this efficiently, we use {py:func}`dolfinx.geometry.compute_colliding_cells`
+# which takes in the output of {py:func}`compute_collisions_points<dolfinx.geometry.compute_collisions_points>` and the `points`.
 
 colliding_cells = dolfinx.geometry.compute_colliding_cells(mesh, potential_colliding_cells, points)
 
 # + tags=["remove-input"]
-print(f"{colliding_cells=}")
+print(f"{colliding_cells._cpp_object=}")
 # -
 
 # If a point is on an interface between two cells, we can get multiple cells that contain the point.
@@ -168,7 +175,7 @@ for i, point in enumerate(points):
 # ### Step 3: Evaluate function at a point in the cell
 # We now have on step left, which is to evaluate the function at the point in the cell.
 # As we saw above, this step involves quite a few operations.
-# Thankfully, these are all encapsulated in the function `dolfinx.fem.Function.eval`.
+# Thankfully, these are all encapsulated in the function {py:meth}`dolfinx.fem.Function.eval`.
 
 points_on_proc = np.array(points_on_proc, dtype=np.float64).reshape(-1, 3)
 cells = np.array(cells, dtype=np.int32)
@@ -252,7 +259,7 @@ import ufl
 
 curl_u = ufl.curl(u)
 
-# We can use `dolfinx.fem.Expression` to compile the evaluation of this expression
+# We can use {py:class}`dolfinx.fem.Expression` to compile the evaluation of this expression
 # at a set of points in the reference element.
 # For instance, we can choose the point $(0.2, 0.3, 0.5)$ which is in the reference
 # hexahedron.
@@ -268,7 +275,7 @@ cells = np.random.randint(0, num_cells_local, 2, dtype=np.int32)
 values = expr.eval(mesh, cells)
 
 # We can inspect what the coordinates in the physical cell is by using the
-# same strategy of `ufl.SpatialCoordinate(mesh)`
+# same strategy of {py:class}`ufl.SpatialCoordinate(mesh)<ufl.SpatialCoordinate>`
 
 x_expr = dolfinx.fem.Expression(ufl.SpatialCoordinate(mesh), points)
 coords = x_expr.eval(mesh, cells)
@@ -309,7 +316,7 @@ grad_q = ufl.grad(q)
 P = dolfinx.fem.functionspace(mesh, ("N1curl", 2))
 p = dolfinx.fem.Function(P)
 
-grad_expr = dolfinx.fem.Expression(grad_q, P.element.interpolation_points())
+grad_expr = dolfinx.fem.Expression(grad_q, P.element.interpolation_points)
 
 p.interpolate(grad_expr)
 
@@ -333,8 +340,8 @@ assert np.isclose(global_error, 0.0, atol=5e-14)
 
 # ## Expression evaluation on facets
 # Another neat feature for coupling to other codes it that we can evaluate
-# expressions on facets. This could for instance involve the `ufl.FacetNormal`,
-# which represents the normal point out of any facet of the cell.
+# expressions on facets. This could for instance involve the
+# {py:class}`ufl.FacetNormal`, which represents the normal point out of any facet of the cell.
 # We can for instance consider the heat flux on the boundary of a domain.
 
 n = ufl.FacetNormal(mesh)
@@ -351,7 +358,8 @@ heat_flux = ufl.dot(ufl.grad(q), n)
 # :class: dropdown note
 # There are three distinct integration entities in FEniCS:
 # - For **cell integrals**: The cell index itself is the integration entity
-# - For **exterior facet integrals**: The cell index and the local facet index is the integration entity as a tuple ``(cell, local_facet)``
+# - For **exterior facet integrals**: The cell index and the local facet index
+#   is the integration entity as a tuple ``(cell, local_facet)``
 # - For **interior facet integrals**: A tuple consisting of the `(cell, local_facet)` for both cells
 # connected to the facet, i.e. `(cell_0, local_facet_0, cell_1, local_facet_1)`
 # ```
@@ -362,7 +370,7 @@ tdim = mesh.topology.dim
 set_of_facets = dolfinx.mesh.locate_entities_boundary(mesh, tdim - 1, lambda x: np.isclose(x[1], 1))
 # -
 
-# Next, we create the appropriate connectivities in the mesh to be able to find the local index
+# Next, we create the appropriate connectivity in the mesh to be able to find the local index
 
 # +
 mesh.topology.create_connectivity(tdim - 1, tdim)
@@ -388,22 +396,21 @@ for i, facet in enumerate(set_of_facets):
 print(f"{cell_facet_pairs=}")
 # -
 
-# We can pass these pairs to the `dolfinx.fem.Expression` to evaluate
+# We can pass these pairs to the {py:class}`dolfinx.fem.Expression` to evaluate
 # the heat flux on the boundary of the domain.
 # As before, we can get the coordinates of the points in the physical cell
-# with `ufl.SpatialCoordinate(mesh)`
+# with {py:class}`ufl.SpatialCoordinate`
 
 # +
 facet_midpoint = np.array([[0.5, 0.5]], dtype=np.float64)
 facet_x = dolfinx.fem.Expression(ufl.SpatialCoordinate(mesh), facet_midpoint)
 heat_flux_expr = dolfinx.fem.Expression(heat_flux, facet_midpoint)
 
-coordinates = facet_x.eval(mesh, cell_facet_pairs.flatten())
-flux_values = heat_flux_expr.eval(mesh, cell_facet_pairs.flatten())
+coordinates = facet_x.eval(mesh, cell_facet_pairs)
+flux_values = heat_flux_expr.eval(mesh, cell_facet_pairs)
 # -
-
 # + tags=["remove-input"]
 for coordinate, flux in zip(coordinates, flux_values):
-    print(f"{coordinate=}, {flux=} exact_flux={grad_f(coordinate)[1]}")
-    assert np.allclose(flux, grad_f(coordinate)[1])
+    print(f"{coordinate=}, {flux=} exact_flux={grad_f(coordinate.T)[1]}")
+    assert np.allclose(flux, grad_f(coordinate.T)[1])
 # -

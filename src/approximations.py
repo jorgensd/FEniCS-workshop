@@ -11,7 +11,7 @@
 # $$
 #
 # where $\alpha$ is a pre-defined constant.
-# We will use `ufl.conditional` as explained in the [the previous section](./form_compilation).
+# We will use {py:func}`ufl.conditional` as explained in the [the previous section](./form_compilation).
 
 # +
 
@@ -283,9 +283,11 @@ for N in [20, 40, 80]:
 
 # ## Interpolation of functions and UFL-expressions
 
-# Above we have defined a function that is dependent on the spatial coordinates of `ufl`, and it is a **purely symbolic expression**.
-# If we want to evaluate this expression, either at a given point or interpolate it into a function space, we need to compile code
-# similar to the code generated with `dolfinx.fem.form` or calling FFCx.
+# Above we have defined a function that is dependent on the spatial coordinates of {py:mod}`ufl`,
+# and it is a **purely symbolic expression**.
+# If we want to evaluate this expression, either at a given point or interpolate it into a function space,
+# we need to compile code similar to the code generated with {py:func}`dolfinx.fem.form`
+# or calling {py:mod}`ffcx`.
 # The main difference is that for an expression, there is **no summation over quadrature**.
 # To perform this compilation for a given point in the reference cell, we call
 
@@ -311,7 +313,7 @@ u = dolfinx.fem.Function(V)
 Q = dolfinx.fem.functionspace(mesh, ("DG", 1))
 
 dudx = ufl.grad(u)[0]
-compile_dudx = dolfinx.fem.Expression(dudx, Q.element.interpolation_points())
+compile_dudx = dolfinx.fem.Expression(dudx, Q.element.interpolation_points)
 # -
 
 # We populate `u` with some data on some part of the domain

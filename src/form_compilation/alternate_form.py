@@ -85,12 +85,12 @@ bcs = [bc]
 J = ufl.derivative(F, uh)
 
 # Now that we have associated the forms with the discrete problem already, we use
-# `dolfinx.fem.form`
+# {py:func}`dolfinx.fem.form`
 
 residual = dolfinx.fem.form(F)
 jacobian = dolfinx.fem.form(J)
 A = dolfinx.fem.create_matrix(jacobian)
-b = dolfinx.fem.create_vector(residual)
+b = dolfinx.fem.create_vector(residual.function_spaces[0])
 
 # We are now ready to use these forms to solve the variational problem.
 #
@@ -229,7 +229,8 @@ dolfinx.fem.apply_lifting(b.array, [jacobian], [bcs], x0=[uh.x.array], alpha=-1.
 b.scatter_reverse(dolfinx.la.InsertMode.add)
 
 # As for the last part of the application of Dirichlet condtitions, we want to set
-# $u_k - g$ for the constrained dofs. We can do this with `dolfinx.fem.set_bc`.
+# $u_k - g$ for the constrained dofs. We can do this with
+# {py:meth}`dolfinx.fem.DirichletBC.set`.
 # ```{admonition} What does DirichletBC.set do?
 # :class: dropdown note
 # We will replace the entries constrained by the Dirichlet bcs  with $\alpha * (g - x0)$
@@ -303,7 +304,7 @@ plotter.show()
 # ## Using scipy's Newton solver
 
 # Of course we don't want to write out this kind of loop for every problem.
-# We can for instance use the `newton_krylov` solver from scipy, but instead of
+# We can for instance use the {py:func}`newton_krylov<scipy.optimize.newton_krylov>` solver from scipy, but instead of
 # approximating the Jacobian, we will solve the non-linear problem directly.
 # We do this by overloading the "ksp" method in scipy with a method that only does pre-conditioning,
 # where the pre-conditioning is to solve the system for the exact Jacobian.
