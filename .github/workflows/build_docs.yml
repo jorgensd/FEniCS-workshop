@@ -22,7 +22,7 @@ jobs:
       PYVISTA_JUPYTER_BACKEND: "html"
 
     runs-on: ubuntu-24.04
-    container: ghcr.io/fenics/dolfinx/dolfinx:stable
+    container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
     steps:
       - uses: actions/checkout@v5
       - name: Install graphviz and pyvista deps
