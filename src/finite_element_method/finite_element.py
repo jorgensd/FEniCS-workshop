@@ -121,9 +121,9 @@
 # </center>
 
 #
-# To symbolically represent this element, we use `basix.ufl.element`,
-# that creates a representation of a finite element using {term}`Basix`,
-# which in turn can be used in the {term}`UFL`.
+# To symbolically represent this element, we use {py:func}`basix.ufl.element`,
+# that creates a representation of a finite element using {py:mod}`basix`,
+# which in turn can be used in the {term}`UFL` ({py:mod}`ufl`).
 
 # +
 import numpy as np
@@ -131,14 +131,14 @@ import numpy as np
 import basix.ufl
 
 element = basix.ufl.element("Lagrange", "triangle", 1)
-
 # -
+
 # The three arguments we provide to Basix are the name of the element family, the reference
 # cell we would like to use and the degree of the polynomial space.
 #
 
 # Next, we will evaluate the basis functions at a certain set of `points` in the reference triangle.
-# We call this {term}`tabulation` and we use the `tabulate` method of the element object.
+# We call this {term}`tabulation` and we use the {py:meth}`tabulate<basix.finite_element.FiniteElement.tabulate>`.
 # The two input arguments are:
 # 1) The number of spatial derivatives of the basis functions we want to compute.
 # 2) A set of input points to evaluate the basis functions at as
@@ -172,6 +172,7 @@ print(values)
 # Next, we create a short script for visualizing the basis functions on the reference element.
 # We will for simplicity only consider first order derivatives and triangular or quadrilateral cells.
 
+# +
 import matplotlib.pyplot as plt
 
 
@@ -214,6 +215,8 @@ def plot_basis_functions(element, M: int):
     return figs
 
 
+# -
+
 # ## Basis functions sampled at random points
 
 fig = plot_basis_functions(element, 15)
@@ -226,14 +229,14 @@ fig = plot_basis_functions(second_order_element, 12)
 # ## Lower precision tabulation
 #
 # In some cases, one might want to use a lower accuracy for tabulation of basis functions to speed up computations.
-# This can be changed in basix by adding `dtype=np.float32` to the element constructor.
+# This can be changed in basix by adding `dtype=`{py:attr}`numpy.float32` to the element constructor.
 
 low_precision_element = basix.ufl.element("Lagrange", "triangle", 1, dtype=np.float32)
 points_low_precision = points.astype(np.float32)
 basis_values = low_precision_element.tabulate(0, points_low_precision)
 print(f"{basis_values=}\n   {basis_values.dtype=}")
 
-# We observe that elements that are close to zero is now an order of magnitude larger than its `np.float64` counterpart.
+# We observe that elements that are close to zero is now an order of magnitude larger than its {py:attr}`numpy.float64` counterpart.
 
 # ## Exercises
 #

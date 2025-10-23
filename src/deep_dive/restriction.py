@@ -39,13 +39,13 @@ plotter.show()
 # -
 
 # Previously we have only worked directly with mesh indices.
-# Now we will wrap them in a `dolfinx.mesh.MeshTags` object.
+# Now we will wrap them in a {py:class}`dolfinx.mesh.MeshTags` object.
 # ```{admonition} The meshtags object
 # :class: dropdown note
 # A DOLFINx MeshTags object is a container for store integer values that one wants
 # to associate with a set of entities in the mesh.
-# The first input to the `meshtags` constructor is the `mesh` object associated with the
-# `entities` (the third input) of a given dimension `dim` (the second input).
+# The first input to the {py:func}`meshtags<dolfinx.mesh.meshtags>` constructor is the py:class`mesh<dolfinx.mesh.Mesh>`
+# object associated with the `entities` (the third input) of a given dimension `dim` (the second input).
 # The final input is a list of values where the `i`th entry in values is associated with the `i`th entity in `entities`.
 # Note that the input entities should be a list of **sorted** and **unique** indices.
 # The entities does not need to be contiguous, i.e. `entities = [0, 3, 5 9]` would be a valid input.
@@ -53,7 +53,9 @@ plotter.show()
 
 cell_tag = dolfinx.mesh.meshtags(mesh, tdim, np.arange(num_cells, dtype=np.int32), marker)
 
-# We can attach the `MeshTags` object to an integration measure, and use it in the assembly process.
+# We can attach the {py:class}`MeshTags<dolfinx.mesh.MeshTags>` object to an
+# {py:class}`integration measure<ufl.Measure>`,
+# and use it in the assembly process.
 
 # +
 import ufl
@@ -84,11 +86,11 @@ print(f"{local_volume=}")
 # ```{admonition} Integrate over a subset of the boundary
 # :class: tip
 # Choose a sub-set of the boundary, and create a meshtags object for only the tagged entities.
-# Create a `ufl.Measure` with subdomain data, and verify that the assembly over the whole domain and the domain
+# Create a {py:class}`ufl.Measure` with subdomain data, and verify that the assembly over the whole domain and the domain
 # restriction is correct.
 # ```
 
-# ## Custom integration entitites
+# ## Custom integration entities
 # Some times, one wants to do something custom when integrating.
 # For instance, one might want to do a one-sided integral over an internal surface.
 # We start by creating such a surface
@@ -125,14 +127,16 @@ for i, facet in enumerate(inner_facets):
 print(f"{integration_entities=}")
 # -
 
-# We can pass these integration entities into a `ufl.Measure` on a specific form:
+# We can pass these integration entities into a {py:class}`ufl.Measure` on a specific form:
 
 subdomain_data = [(7, integration_entities.flatten())]
 ds = ufl.Measure("ds", subdomain_data=subdomain_data, domain=mesh)
 
-# which states that for exterior facet integrals written in ufl as `ds(7)` we will only integrate over the specified facets.
+# which states that for exterior facet integrals written in ufl as `ds(7)`
+# we will only integrate over the specified facets.
 
-# We will verify that the integration entities are correct by integrating against the `ufl.FacetNormal` and check that it is correct.
+# We will verify that the integration entities are correct by integrating against the {py:class}`ufl.FacetNormal`
+# and check that it is correct.
 
 # +
 x = ufl.SpatialCoordinate(mesh)

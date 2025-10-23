@@ -52,22 +52,23 @@ V = ufl.FunctionSpace(domain, el)
 
 # Now we are ready to create the formulations above.
 # We can start with defining our unknown $u_h$.
-# A function in UFL is described as a `ufl.Coefficient`, this means that it can be written as
+# A function in UFL is described as a {py:class}`ufl.Coefficient`, this means that it can be written as
 # $u(x)=\sum_{i=0}^N u_i \phi_i(x)$.
 
 uh = ufl.Coefficient(V)
 
 # ## Spatial derivatives
-# If we want to compute the derivative in the $i$th spatial direction, we can call `ufl.Coefficient.dx`
+# If we want to compute the derivative in the $i$th spatial direction,
+# we can call {py:meth}`uh.dx<ufl.core.expr.Expr.dx>`
 
 duh_dx = uh.dx(0)
 duh_dy = uh.dx(1)
 
-# If we want the gradient, we can call `ufl.grad(operator)`
+# If we want the gradient, we can call {py:func}`ufl.grad(operator)<ufl.grad>`
 
 grad_uh = ufl.grad(uh)
 
-# We can also use `ufl.as_vector` to create our own vectors, for instance
+# We can also use {py:func}`ufl.as_vector` to create our own vectors, for instance
 
 alt_grad_uh = ufl.as_vector((duh_dx, duh_dy))
 
@@ -90,7 +91,7 @@ x = ufl.SpatialCoordinate(domain)
 # `x` is here a tuple of 2 components, representing the `x` and `y` coordinate in 2D, i.e. `x[0]`
 # represents the x-coordinate, while `x[1]` represent the y-coordinate.
 # The unified form language consist of [many](https://fenics.readthedocs.io/projects/ufl/en/latest/manual/form_language.html#basic-nonlinear-functions)
-# geometrical expressions, for instance `sin` `pi` and `cos`.
+# geometrical expressions, for instance {py:func}`sin<ufl.sin>` and {py:func}`cos<ufl.cos>`.
 
 g = ufl.sin(x[0]) + ufl.cos(ufl.pi * x[1])
 
@@ -109,7 +110,7 @@ G = (uh - g) ** 2 * ufl.dx
 
 # ```{admonition} The integration measure
 # :class: note
-# In the code above, we have used `ufl.dx` to indicate that we want to integrate over the cells in our domain.
+# In the code above, we have used {py:obj}`ufl.dx` to indicate that we want to integrate over the cells in our domain.
 # ```
 # An alternative definition is
 
@@ -119,8 +120,8 @@ dx = ufl.Measure("dx", domain=domain)
 
 
 # ## Symbolic differentiation
-# Now that we have our $G$, we can use `ufl.derivative` to compute the derivative of $G$ with respect to a coefficient.
-# As we want to differentiate with respect to all functions $\delta u \in V$, we define a `ufl.TestFunction`
+# Now that we have our $G$, we can use {py:func}`ufl.derivative` to compute the derivative of $G$ with respect to a coefficient.
+# As we want to differentiate with respect to all functions $\delta u \in V$, we define a {py:func}`ufl.TestFunction`
 
 du = ufl.TestFunction(V)
 F = ufl.derivative(G, uh, du)
@@ -157,7 +158,7 @@ forms = [G, J, F]
 # ## Further analysis of the variational form
 #
 # We next consider the steps we would have to implement if we wanted to solve this problem by hand.
-# For illustrative purposes, we choose $g=\frac{f}{h}$ where $f$ and $h$ are two known functions in respectve finite element
+# For illustrative purposes, we choose $g=\frac{f}{h}$ where $f$ and $h$ are two known functions in respective finite element
 # spaces $Q$, $T$, where both $Q$ and $T$ uses the scalar valued elements.
 #
 # We next use the map $F_K:K_{ref}\mapsto K$ to map the integrals over each cell in the domain back to the reference cell.
@@ -336,7 +337,7 @@ pulled_back_a = ufl.algorithms.compute_form_data(
 print(list(itg.metadata() for itg in pulled_back_a.integral_data[0].integrals))
 # -
 
-# We can fix the number of quadraure points by setting the `quadrature_degree` in the `Measure`
+# We can fix the number of quadraure points by setting the `quadrature_degree` in the {py:class}`ufl.Measure`
 
 dx = ufl.Measure("dx", domain=domain, metadata={"quadrature_degree": 4})
 

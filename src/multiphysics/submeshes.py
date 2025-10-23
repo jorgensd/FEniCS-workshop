@@ -37,7 +37,7 @@ from mpi4py import MPI
 
 import numpy as np
 
-import dolfinx
+import dolfinx.fem.petsc
 
 mesh = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 40, 40)
 
@@ -140,8 +140,9 @@ with dolfinx.io.XDMFFile(mesh.comm, "tags.xdmf", "w") as xdmf:
 
 # -
 
-# Next, we want to extract a sub-mesh containing only the the cellsthat will be used in the Stokes problem.
-# We do this with `dolfinx.mesh.create_submesh`
+# Next, we want to extract a sub-mesh containing only the the cells that
+# will be used in the Stokes problem.
+# We do this with {py:func}`dolfinx.mesh.create_submesh`
 
 stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh(
     mesh, cell_tags.dim, cell_tags.find(stokes_marker)
@@ -149,7 +150,7 @@ stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh
 
 # ```{admonition} Creating a submesh
 # :class: dropdown note
-# `dolfinx.mesh.create_submesh` takes in three inputs:
+# {py:func}`dolfinx.mesh.create_submesh` takes in three inputs:
 # 1. The mesh we want to extract a mesh from
 # 2. The dimension of the entities we want to make the mesh from. This can be any number $[0, tdim]$.
 # We define a submesh consisting of a subset of cells from the input mesh is a submesh of **co-dimension 0**,
@@ -157,7 +158,7 @@ stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh
 # 3. A list of integers defining the entities (index local to process, and including ghosted entities)
 #
 # The function returns four objects
-# 1. The submesh (as a `dolfinx.mesh.Mesh`)
+# 1. The submesh (as a {py:class}`dolfinx.mesh.Mesh`)
 # 2. A map from each entity cell in the submesh to the corresponding entity in the input mesh
 # 3. A map from each **vertex** in the submesh to the corresponding vertex in the input mesh topology
 # 4. A map from each **node** in the submesh to the corresponding node in the input mesh geometry
@@ -174,12 +175,28 @@ stokes_mesh, stokes_cell_map, stokes_vertex_map, _ = dolfinx.mesh.create_submesh
 import numpy.typing as npt
 
 
+def get_entity_map(entity_map: dolfinx.mesh.EntityMap, inverse: bool = False) -> npt.NDArray[np.int32]:
+    """Get an entity map from the sub-topology to the topology.
+
+    Args:
+        entity_map: An `EntityMap` object or a numpy array representing the mapping.
+        inverse: If `True`, return the inverse mapping.
+    Returns:
+        Mapped indices of entities.
+    """
+    sub_top = entity_map.sub_topology
+    assert isinstance(sub_top, dolfinx.mesh.Topology)
+    sub_map = sub_top.index_map(entity_map.dim)
+    indices = np.arange(sub_map.size_local + sub_map.num_ghosts, dtype=np.int32)
+    return entity_map.sub_topology_to_topology(indices, inverse=inverse)
+
+
 def transfer_meshtags_to_submesh(
     mesh: dolfinx.mesh.Mesh,
     entity_tag: dolfinx.mesh.MeshTags,
     submesh: dolfinx.mesh.Mesh,
-    sub_vertex_to_parent: npt.NDArray[np.int32],
-    sub_cell_to_parent: npt.NDArray[np.int32],
+    vertex_entity_map: dolfinx.mesh.EntityMap,
+    cell_entity_map: dolfinx.mesh.EntityMap,
 ) -> tuple[dolfinx.mesh.MeshTags, npt.NDArray[np.int32]]:
     """
     Transfer a meshtag from a parent mesh to a sub-mesh.
@@ -198,12 +215,14 @@ def transfer_meshtags_to_submesh(
 
     """
 
-    tdim = mesh.topology.dim
-    cell_imap = mesh.topology.index_map(tdim)
-    num_cells = cell_imap.size_local + cell_imap.num_ghosts
-    mesh_to_submesh = np.full(num_cells, -1)
+    sub_cell_to_parent = get_entity_map(cell_entity_map, inverse=False)
+    sub_vertex_to_parent = get_entity_map(vertex_entity_map, inverse=False)
+
+    num_cells = (
+        mesh.topology.index_map(mesh.topology.dim).size_local + mesh.topology.index_map(mesh.topology.dim).num_ghosts
+    )
+    mesh_to_submesh = np.full(num_cells, -1, dtype=np.int32)
     mesh_to_submesh[sub_cell_to_parent] = np.arange(len(sub_cell_to_parent), dtype=np.int32)
-    sub_vertex_to_parent = np.asarray(sub_vertex_to_parent)
 
     submesh.topology.create_connectivity(entity_tag.dim, 0)
 
@@ -308,7 +327,7 @@ bcs = [bc_wall, bc_inlet]
 a_compiled = dolfinx.fem.form(a)
 L_compiled = dolfinx.fem.form(L)
 A = dolfinx.fem.create_matrix(a_compiled)
-b = dolfinx.fem.create_vector(L_compiled)
+b = dolfinx.fem.create_vector(L_compiled.function_spaces[0])
 A_scipy = A.to_scipy()
 dolfinx.fem.assemble_matrix(A, a_compiled, bcs=bcs)
 dolfinx.fem.assemble_vector(b.array, L_compiled)
@@ -408,7 +427,10 @@ kappa_sub = dolfinx.fem.Function(K_sub)
 # `cells0`.
 # We can retrieve all this information from the `heat_cell_map`
 
-kappa_sub.interpolate(kappa, cells0=heat_cell_map, cells1=np.arange(len(heat_cell_map)))
+sub_cell_map = heat_mesh.topology.index_map(heat_mesh.topology.dim)
+num_sub_cells = sub_cell_map.size_local + sub_cell_map.num_ghosts
+parent_cells = heat_cell_map.sub_topology_to_topology(np.arange(num_sub_cells), inverse=False)
+kappa_sub.interpolate(kappa, cells0=parent_cells, cells1=np.arange(len(parent_cells), dtype=np.int32))
 
 # + tags=["hide-input"]
 plotter = pyvista.Plotter()
@@ -448,8 +470,9 @@ F_heat = ufl.inner(kappa * ufl.grad(t), ufl.grad(dt)) * dx_heat - ufl.inner(f, d
 # -
 
 # ```{warning}
-# As we choose `mesh` as the integration domain, all spatial quantities such as `ufl.SpatialCoordinate`
-# and `ufl.FacetNormal` should be defined wrt. this domain.
+# As we choose `mesh` as the integration domain, all spatial quantities such as
+# {py:class}`ufl.SpatialCoordinate`
+# and {py:class}`ufl.FacetNormal` should be defined wrt. this domain.
 # ```
 
 # We create the boundary condition as before
@@ -465,22 +488,15 @@ bcs_heat = [bc_heat]
 # However, now an important distinction is introduced, namely the *entity map*
 # ```{admonition} Entity maps
 # :class: dropdown note
-# Entity maps are an input to the `dolfinx.fem.form` function, and should be on the following form:
-# The maps is a dictionary, where each key is a `dolfinx.mesh.Mesh` that is part of the form, but is not
-# the chosen integration domain. For each key, we have a map that maps an entity from the integrating mesh
-# to an entity in the mesh that is the key. *Note* that in the case where we use the full mesh as integration domain,
-# this is the inverse map of the one returned by `dolfinx.mesh.create_submesh`.
+# {py:class}`Entity maps<dolfinx.mesh.EntityMap>` are an input to the {py:func}`dolfinx.fem.form`.
+# It is a bi-directional map between two topologies. This should be the map between the entities
+# (cells, facets, edges, vertices) of the integration domain and the entities of the function space domains.
 # ```
-# We therefore create this inverse map. As this map is a sparse map (not all cells in the full mesh is in the submesh),
-# we use `-1` to indicate that a cell is not part of the submesh.
 
-mesh_to_heat_entity = np.full(num_cells_local, -1, dtype=np.int32)
-mesh_to_heat_entity[heat_cell_map] = np.arange(len(heat_cell_map), dtype=np.int32)
-entity_maps = {heat_mesh: mesh_to_heat_entity}
 
 # We can now compile our forms
 
-a_heat, L_heat = dolfinx.fem.form(ufl.system(F_heat), entity_maps=entity_maps)
+a_heat, L_heat = dolfinx.fem.form(ufl.system(F_heat), entity_maps=[heat_cell_map])
 
 # Now we can solve assemble the system
 
@@ -499,7 +515,7 @@ b_heat.scatter_reverse(dolfinx.la.InsertMode.add)
 # and passing them to assemble. There are many good reasons for this if one calls
 # assemble multiple times in a program:
 # As the matrix is sparse, we want to pre-compute the sparsity pattern of the matrix before inserting
-# data into it. `dolfinx.fem.create_matrix` estimates the sparsity pattern based on the variational
+# data into it. {py:func}`dolfinx.fem.create_matrix` estimates the sparsity pattern based on the variational
 # form and creates the appropriate CSR matrix.
 # It is cheaper to zero out the initial contributions in the matrix than creating a new one.
 # ```
@@ -518,15 +534,17 @@ visualize_function(th)
 # -
 
 # ## Combined assembly
-# As we aim to solve multiphysics problems in a monolitic way, we will go through the basic steps of setting up such as system.
+# As we aim to solve multiphysics problems in a monolitic way,
+# we will go through the basic steps of setting up such as system.
 # We define the function spaces on the sub-meshes as done previously,
-# however, instead of creating a `basix.ufl.mixed_element, we will create individual function spaces for `u` and `p`.
+# however, instead of creating a {py:func}`basix.ufl.mixed_element`,
+# we will create individual function spaces for `u` and `p`.
 
 T = dolfinx.fem.functionspace(heat_mesh, ("Lagrange", 1))
 V = dolfinx.fem.functionspace(stokes_mesh, ("Lagrange", 2, (stokes_mesh.topology.dim,)))
 Q = dolfinx.fem.functionspace(stokes_mesh, ("Lagrange", 1))
 
-# Next, we use `ufl.MixedFunctionSpace` to create a representation of the monolitic problem.
+# Next, we use {py:class}`ufl.MixedFunctionSpace` to create a representation of the monolitic problem.
 
 W = ufl.MixedFunctionSpace(T, V, Q)
 
@@ -556,7 +574,7 @@ f_heat = 10 * ufl.sin(5 * ufl.pi * x[1]) + x[0] ** 3
 a += ufl.inner(kappa * ufl.grad(t), ufl.grad(dt)) * dx_heat
 L += ufl.inner(f, dt) * dx_thermal
 
-# We can extract the matrix block structure by calling `ufl.extract_blocks`
+# We can extract the matrix block structure by calling {py:func}`ufl.extract_blocks`
 
 a_blocked = ufl.extract_blocks(a)
 L_blocked = ufl.extract_blocks(L)
@@ -570,7 +588,7 @@ for i in range(3):
 # -
 
 # ```{admonition} Extract blocks
-# For a bi-linear form, the output of `extract_blocks` is an nested list
+# For a bi-linear form, the output of {py:func}`ufl.extract_blocks` is an nested list
 # of size M, where each sub-list is also of length M, representing the
 # MxM blocked matrix.
 # For extract blocks on a linear form, we need to supply an
@@ -580,15 +598,6 @@ for i in range(3):
 # to ensure that we get the right block structure.
 # ```
 
-# We create the appropriate inverse maps and compile the forms
-
-mesh_to_heat_entity = np.full(num_cells_local, -1, dtype=np.int32)
-mesh_to_heat_entity[heat_cell_map] = np.arange(len(heat_cell_map), dtype=np.int32)
-mesh_to_stokes_entity = np.full(num_cells_local, -1, dtype=np.int32)
-mesh_to_stokes_entity[stokes_cell_map] = np.arange(len(stokes_cell_map), dtype=np.int32)
-entity_maps = {heat_mesh: mesh_to_heat_entity, stokes_mesh: mesh_to_stokes_entity}
-a_blocked_compiled = dolfinx.fem.form(a_blocked, entity_maps=entity_maps)
-L_blocked_compiled = dolfinx.fem.form(L_blocked, entity_maps=entity_maps)
 
 # We create the boundary condition as before
 
@@ -612,36 +621,74 @@ bc_inlet = dolfinx.fem.dirichletbc(u_inlet, dofs_inlet)
 bcs = [bc_heat, bc_wall, bc_inlet]
 # -
 
-# We could now use [scipy.sparse.vstack](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.vstack.html)
-# and [scipy.sparse.hstack]https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.hstack.html to create the full matrix
+# We could now use {py:func}`scipy.sparse.vstack` and {py:func}`scipy.sparse.hstack` to create the full matrix
 # in a scipy compatible format, and solve as we have shown before.
-
 # However, DOLFINx provides wrapper to assemble this into PETSc blocked and PETSc nest matrices.
 # We will illustrate how to do this with PETSc blocked matrices.
+
+# ## High level PETSc Solver API
+
+# We can use {py:class}`dolfinx.fem.petsc.LinearProblem` with blocked systems.
+
+Th = dolfinx.fem.Function(T, name="Temperature")
+uh = dolfinx.fem.Function(V, name="Velocity")
+ph = dolfinx.fem.Function(Q, name="Pressure")
+problem = dolfinx.fem.petsc.LinearProblem(
+    a_blocked,
+    L_blocked,
+    u=[Th, uh, ph],
+    bcs=bcs,
+    entity_maps=[heat_cell_map, stokes_cell_map],
+    petsc_options={
+        "ksp_type": "preonly",
+        "pc_type": "lu",
+        "pc_factor_mat_solver_type": "mumps",
+        "ksp_error_if_not_converged": True,
+    },
+    petsc_options_prefix="monolithic_",
+)
+problem.solve()
+
+# + tags=["remove-input"]
+visualize_function(uh)
+visualize_function(ph)
+visualize_function(Th)
+# -
+
+
+# ## Low-level PETSc assembly
+# For more fine-grained control, we can manually assemble the block system and pass it to
+# the {py:class}`PETSc.KSP<petsc4py.PETSc.KSP>` solver.
 
 # +
 from petsc4py import PETSc
 
 import dolfinx.fem.petsc
 
-A = dolfinx.fem.petsc.create_matrix_block(a_blocked_compiled)
+entity_maps = [heat_cell_map, stokes_cell_map]
+a_blocked_compiled = dolfinx.fem.form(a_blocked, entity_maps=entity_maps)
+L_blocked_compiled = dolfinx.fem.form(L_blocked, entity_maps=entity_maps)
+
+A = dolfinx.fem.petsc.create_matrix(a_blocked_compiled)
 A.zeroEntries()
-dolfinx.fem.petsc.assemble_matrix_block(A, a_blocked_compiled, bcs=bcs)
+dolfinx.fem.petsc.assemble_matrix(A, a_blocked_compiled, bcs=bcs)
 A.assemble()
 
-b = dolfinx.fem.petsc.create_vector_block(L_blocked_compiled)
-dolfinx.fem.petsc.assemble_vector_block(b, L_blocked_compiled, a_blocked_compiled, bcs=bcs)
+b = dolfinx.fem.petsc.create_vector(dolfinx.fem.extract_function_spaces(L_blocked_compiled))
+dolfinx.fem.petsc.assemble_vector(b, L_blocked_compiled)
+bcs1 = dolfinx.fem.bcs_by_block(dolfinx.fem.extract_function_spaces(a_blocked_compiled, 1), bcs)
+dolfinx.fem.petsc.apply_lifting(b, a_blocked_compiled, bcs=bcs1)
+b.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
+bcs0 = dolfinx.fem.bcs_by_block(dolfinx.fem.extract_function_spaces(L_blocked_compiled), bcs)
+dolfinx.fem.petsc.set_bc(b, bcs0)
 b.ghostUpdate(PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD)
 # -
 
 # ```{admonition} Assembly of blocked matrices and vectors
 # :class: dropdown note
 # We observe that assembling blocked matrices looks like how we assemble native matrices.
-# However, we observe that the lifting procedure is embedded in `assemble_block_vector`,
-# as this code gets a bit compilcated for block systems.
+# However, we observe that the lifting procedure is a bit different, as we need to handle it per block.
 # ```
-#
-
 # We create the KSP object and solve the system
 
 # +
@@ -651,28 +698,25 @@ ksp.setType(PETSc.KSP.Type.PREONLY)
 ksp.getPC().setType(PETSc.PC.Type.LU)
 ksp.getPC().setFactorSolverType("mumps")
 
-w_blocked = dolfinx.fem.petsc.create_vector_block(L_blocked_compiled)
+w_blocked = b.duplicate()
 
 ksp.solve(b, w_blocked)
 assert ksp.getConvergedReason() > 0, "Solve failed"
+w_blocked.ghostUpdate(PETSc.InsertMode.INSERT_VALUES, PETSc.ScatterMode.FORWARD)
+ksp.destroy()
+b.destroy()
 # -
 
 # We extract the individual functions from the blocked solution vector and visualize them
 
 # +
-blocked_maps = [(space.dofmap.index_map, space.dofmap.index_map_bs) for space in W.ufl_sub_spaces()]
-local_values = dolfinx.cpp.la.petsc.get_local_vectors(w_blocked, blocked_maps)
 
-Th = dolfinx.fem.Function(T, name="Temperature")
-uh = dolfinx.fem.Function(V, name="Velocity")
-ph = dolfinx.fem.Function(Q, name="Pressure")
-Th.x.array[:] = local_values[0]
-uh.x.array[:] = local_values[1]
-ph.x.array[:] = local_values[2]
-# -
-
-# + tags=["remove-input"]
-visualize_function(uh)
-visualize_function(ph)
-visualize_function(Th)
+Th2 = dolfinx.fem.Function(T, name="Temperature")
+uh2 = dolfinx.fem.Function(V, name="Velocity")
+ph2 = dolfinx.fem.Function(Q, name="Pressure")
+dolfinx.fem.petsc.assign(w_blocked, [Th2, uh2, ph2])
+w_blocked.destroy()
+np.testing.assert_allclose(Th.x.array, Th2.x.array)
+np.testing.assert_allclose(uh.x.array, uh2.x.array)
+np.testing.assert_allclose(ph.x.array, ph2.x.array)
 # -

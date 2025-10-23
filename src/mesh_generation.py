@@ -9,7 +9,8 @@
 # In DOLFINx, the mesh creation requires 4 inputs:
 #
 # - **MPI communicator**: This is used to decide how the partitioning is performed.
-#   It is usually `MPI.COMM_WORLD` or `MPI.COMM_SELF`.
+#   It is usually {py:obj}`MPI.COMM_WORLD<mpi4py.MPI.COMM_WORLD>`
+#   or {py:obj}`MPI.COMM_SELF<mpi4py.MPI.COMM_SELF>`.
 # - **Nodes**: A set of coordinates in 1, 2 or 3D, that represents all the points in the mesh
 # - **Connectivity**: A nested list, where each row corresponds to the node indices of a single cell
 # - **Coordinate element**: A finite element used for pushing coordinates from the reference element
@@ -44,10 +45,10 @@ connectivity = np.array([[0, 1, 2], [0, 2, 3]], dtype=np.int64)
 
 c_el = ufl.Mesh(basix.ufl.element("Lagrange", "triangle", 1, shape=(nodes.shape[1],)))
 
-# Finally we create a mesh object by calling `dolfinx.mesh.create_mesh` with the
+# Finally we create a mesh object by calling {py:func}`dolfinx.mesh.create_mesh` with the
 # aforementioned inputs
 
-domain = dolfinx.mesh.create_mesh(MPI.COMM_SELF, connectivity, nodes, c_el)
+domain = dolfinx.mesh.create_mesh(MPI.COMM_SELF, cells=connectivity, x=nodes, e=c_el)
 
 # ### Visualizing the mesh
 # The mesh can be visualized with {term}`Paraview` or {term}`Pyvista`.
@@ -139,11 +140,12 @@ connectivity = np.array([[0, 1, 2, 3, 4, 5]], dtype=np.int64)
 # :class: dropdown
 # We follow the node ordering of [DefElement](https://defelement.org/) for the input order of the nodes.
 # If you are reading in data from another format (VTK or GMSH), you can use the functions
-# `dolfinx.cpp.io.perm_vtk` or `dolfinx.cpp.perm_gmsh` to get the map from the ordering of the nodes
+# {py:func}`dolfinx.io.utils.cell_perm_vtk` or {py:func}`dolfinx.io.utils.cell_perm_gmsh`
+# to get the map from the ordering of the nodes
 # from the aforementioned formats to DOLFINx. You would apply this as
 # ```python
-# connectivity_dolfinx = connectivity_vtk[perm_vtk(...)]
-# connectivity_dolfinx = connectivity_gmsh[perm_gmsh(...)]
+# connectivity_dolfinx = connectivity_vtk[cell_perm_vtk(...)]
+# connectivity_dolfinx = connectivity_gmsh[cell_perm_gmsh(...)]
 # ```
 # To convert from the DOLFINx ordering to either VTK or GMSH, you would use the inverse permutation
 # with `np.argsort(perm_vtk(...))`.
@@ -152,7 +154,7 @@ connectivity = np.array([[0, 1, 2, 3, 4, 5]], dtype=np.int64)
 # With this in mind, we can create the DOLFINx mesh
 
 c_el = ufl.Mesh(basix.ufl.element("Lagrange", "triangle", 2, shape=(nodes.shape[1],)))
-domain = dolfinx.mesh.create_mesh(MPI.COMM_SELF, connectivity, nodes, c_el)
+domain = dolfinx.mesh.create_mesh(MPI.COMM_SELF, cells=connectivity, x=nodes, e=c_el)
 
 # ### Questions/Exercises
 # 1. Where are the point evaluations $l_3, l_4, l_5$ located in the reference triangle?
