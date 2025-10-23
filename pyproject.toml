@@ -2,18 +2,20 @@
 requires = ["setuptools>=64.4.0", "wheel", "pip>=22.3"]
 
 [project]
-name = "FEniCS_Sorbonne"
-version = "0.8.0"
-description = "Tutorial for FENiCS at Sorbonne University"
+name = "FEniCS_Workshop"
+version = "0.9.0"
+description = "FEniCS Workshop"
 authors = [{ name = "Jørgen S. Dokken", email = "dokken@simula.no" }]
 license = { file = "LICENSE" }
 readme = "README.md"
 dependencies = [
-    "fenics-dolfinx>=0.8.0",
+    "fenics-dolfinx>=0.9.0",
     "pygraphviz",
-    "pyvista[all]>=0.43.0",
+    "pyvista[all]>=0.45.0",
     "ipyparallel",
-    "tqdm",
+    "scifem",
+    "scipy",
+    "vtk>=9.5.0",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +27,7 @@ dev = [
     "jupyter-book",
     "jupytext",
     "jupyterlab",
+    "ruff",
 ]
 
 [tool.mypy]

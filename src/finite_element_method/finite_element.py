@@ -30,10 +30,10 @@
 #
 # ```{sidebar}
 # <center>
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-dofs.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-dofs.png"
 # width="250" height="250" /><br>
 # Illustration of dof positioning on a quadrilateral
-# (from <a href=https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-dofs.html>DefElement</a>, CC BY 4.0).
+# (from <a href=https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-dofs.html>DefElement</a>, CC BY 4.0).
 # </center>
 # ```
 #
@@ -66,27 +66,27 @@
 #
 #
 # <center>
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-0.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-0.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-1.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-1.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-2.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-2.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-3.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-3.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-4.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-4.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-5.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-5.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-6.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-6.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-7.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-7.png"
 # width="202" height="115" />
-# <img src="https://defelement.com/img/element-Q-variant-equispaced-quadrilateral-2-8.png"
+# <img src="https://defelement.org/img/element-Q-variant-equispaced-quadrilateral-2-8.png"
 # width="202" height="115" />
 # <br>
 # The basis functions of a second order Lagrange space on a quadrilateral
-# (from <a href=https://defelement.com/elements/examples/quadrilateral-lagrange-equispaced-2.html>DefElement</a>, CC BY 4.0).
+# (from <a href=https://defelement.org/elements/examples/quadrilateral-lagrange-equispaced-2.html>DefElement</a>, CC BY 4.0).
 # <br>
 # </center>
 #
@@ -95,26 +95,27 @@
 # by choosing different dual basis functions $l_i$.
 #
 # An example of this is choosing different positioning of the dofs (non-equispaced) for Lagrange elements.
-# See [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
+# See [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.9.0/python/demos/demo_lagrange_variants.html)
 # for more information.
 #
 # An algorithmic approach for determining the basis functions based of the dual space is for instance given at
-# [Finite elements - analysis and implementation (Imperial College London)](https://finite-element.github.io/L2_fespaces.html#vandermonde-matrix-and-unisolvence).
+# [Finite elements - analysis and implementation
+# (Imperial College London)](https://finite-element.github.io/L2_fespaces.html#vandermonde-matrix-and-unisolvence).
 #
 # # Creating a finite element in FEniCSx
 #
-# There is a large variety of finite elements: [List of finite elements](https://defelement.com/elements/index.html).
+# There is a large variety of finite elements: [List of finite elements](https://defelement.org/elements/index.html).
 #
-# However, in today's lecture, we will focus on the [Lagrange elements](https://defelement.com/elements/lagrange.html).
+# However, in today's lecture, we will focus on the [Lagrange elements](https://defelement.org/elements/lagrange.html).
 #
 # We start by considering the basis functions of a first order Lagrange element on a triangle:
 #
 # <center>
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-0-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-0-large.png"
 # width="150" height="150" />
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-1-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-1-large.png"
 # width="150" height="150" />
-# <img src="https://defelement.com/img/element-Lagrange-variant-equispaced-triangle-1-2-large.png"
+# <img src="https://defelement.org/img/element-Lagrange-variant-equispaced-triangle-1-2-large.png"
 # width="150" height="150" /><br>
 # First order Lagrange basis functions<br><br>
 # </center>
@@ -124,7 +125,7 @@
 # that creates a representation of a finite element using {term}`Basix`,
 # which in turn can be used in the {term}`UFL`.
 
-# + 
+# +
 import numpy as np
 
 import basix.ufl
@@ -145,18 +146,26 @@ element = basix.ufl.element("Lagrange", "triangle", 1)
 #
 # In this case, we want to compute the basis functions themselves, so we set the first argument to 0.
 
-points = np.array([[0.,0.1], [0.3, 0.2]])
+# +
+points = np.array([[0.0, 0.1], [0.3, 0.2]])
 values = element.tabulate(0, points)
+# -
 
-print(values)
+# + tags = ["remove-input"]
+print(f"{values=}")
+# -
 
 # We can get the first order derivatives of the basis functions by setting the first argument to 1.
 # Observe that the output we get from this command also includes the 0th order derivatives.
 # Thus we note that the output has the shape `(num_spatial_derivatives+1, num_points, num_basis_functions)`
 
+# +
 values = element.tabulate(1, points)
+# -
 
+# + tags = ["remove-input"]
 print(values)
+# -
 
 # ## Visualizing the basis functions
 
@@ -175,7 +184,7 @@ def plot_basis_functions(element, M: int):
     :return: The matplotlib instances for a plot of the basis functions
     """
     # We use basix to sample points (uniformly) in the reference cell
-    points = basix.create_lattice(element.cell_type, M-1, basix.LatticeType.equispaced, exterior=True)
+    points = basix.create_lattice(element.cell_type, M - 1, basix.LatticeType.equispaced, exterior=True)
 
     # We evaluate the basis function and derivatives at the points
     values = element.tabulate(1, points)
@@ -185,20 +194,23 @@ def plot_basis_functions(element, M: int):
     num_columns = values.shape[0]
 
     derivative_dir = ["x", "y"]
-    figs = [plt.subplots(1, num_columns, layout='tight', subplot_kw={'projection': "3d"})
-            for i in range(num_basis_functions)]
+    figs = [
+        plt.subplots(1, num_columns, layout="tight", subplot_kw={"projection": "3d"})
+        for i in range(num_basis_functions)
+    ]
     colors = plt.rcParams["axes.prop_cycle"]()
     for i in range(num_basis_functions):
         _, axs = figs[i]
-        [(ax.set_xlabel("x"),ax.set_ylabel("y")) for ax in axs.flat]
+        [(ax.set_xlabel("x"), ax.set_ylabel("y")) for ax in axs.flat]
         for j in range(num_columns):
             ax = axs[j]
             ax.scatter(points[:, 0], points[:, 1], values[j, :, i], color=next(colors)["color"])
             if j > 0:
-                ax.set_title(r"$\partial\phi_{i}/\partial {x_j}$".format(i="{"+f"{i}"+"}",
-                                                                         x_j=derivative_dir[j-1]))
+                ax.set_title(
+                    r"$\partial\phi_{i}/\partial {x_j}$".format(i="{" + f"{i}" + "}", x_j=derivative_dir[j - 1])
+                )
             else:
-                ax.set_title(r"$\phi_{i}$".format(i="{"+f"{i}"+"}"))
+                ax.set_title(r"$\phi_{i}$".format(i="{" + f"{i}" + "}"))
     return figs
 
 
@@ -211,37 +223,6 @@ fig = plot_basis_functions(element, 15)
 second_order_element = basix.ufl.element("Lagrange", "quadrilateral", 2, basix.LagrangeVariant.gll_warped)
 fig = plot_basis_functions(second_order_element, 12)
 
-
-# ## Optional exercise
-#
-# Using the plotting script above, try to plot basis functions of a high order quadrilateral element with different Lagrange variants.
-# See: [FEniCS: Variants of Lagrange Elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
-# on how to add Lagrange variants to the element.
-# - Do you observe the same phenomenon on quadrilaterals as on intervals?
-# - What about triangles?
-#
-# **Hint**: Try to increase the plotting resolution to 40.
-
-# ## Other finite elements
-# Not every function we want to represent is scalar valued.
-# For instance, in fluid flow problems, the [Taylor-Hood](https://defelement.com/elements/taylor-hood.html)
-# finite element pair is often used to represent the fluid velocity and pressure.
-# For the velocity, each component (x, y, z) is represented with its own degrees of freedom in a Lagrange space..
-# We represent this by adding a `shape` argument to the `basix.ufl.element` constructor.
-
-vector_element = basix.ufl.element("Lagrange", "triangle", 2, shape=(2,))
-
-# Basix allows for a large variety of extra options to tweak your finite elements, see for instance
-# [Variants of Lagrange elements](https://docs.fenicsproject.org/dolfinx/v0.8.0/python/demos/demo_lagrange_variants.html)
-# for how to choose the node spacing in a Lagrange element.
-
-# To create the Taylor-Hood finite element pair, we use the `basix.ufl.mixed_element`
-
-m_el = basix.ufl.mixed_element([vector_element, element])
-
-# There is a wide range of finite elements that are supported by ufl and basix.
-# See for instance: [Supported elements in basix/ufl](https://defelement.com/lists/implementations/basix.ufl.html).
-
 # ## Lower precision tabulation
 #
 # In some cases, one might want to use a lower accuracy for tabulation of basis functions to speed up computations.
@@ -253,7 +234,22 @@ basis_values = low_precision_element.tabulate(0, points_low_precision)
 print(f"{basis_values=}\n   {basis_values.dtype=}")
 
 # We observe that elements that are close to zero is now an order of magnitude larger than its `np.float64` counterpart.
+
+# ## Exercises
 #
+# Basix allows for a large variety of extra options to tweak your finite elements, see for instance
+# [Variants of Lagrange elements](https://docs.fenicsproject.org/dolfinx/v0.9.0/python/demos/demo_lagrange_variants.html)
+# for how to choose the node spacing in a Lagrange element.
+# Using the plotting script above, try to plot basis functions of a high order quadrilateral element with different Lagrange variants.
+# - Do you observe the same phenomenon on quadrilaterals as on intervals?
+# - What about triangles?
+#
+# ```{admonition} Tip
+# :class: dropdown tip
+# Try to increase the plotting resolution to 40.
+# ```
+
+# ## References
 # ```{bibliography}
-#    :filter: cited and ({"src/introduction"} >= docnames)
+#    :filter: cited and ({"src/finite_element_method/finite_element"} >= docnames)
 # ```

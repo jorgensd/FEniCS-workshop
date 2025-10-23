@@ -1,13 +1,10 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Build documentation
+name: Build workshop notes
 
 on:
   pull_request:
-    # The CI is executed on every pull request to the main branch
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   workflow_call:
 
@@ -15,11 +12,9 @@ env:
   # Directory that will be published on github pages
   PUBLISH_DIR: ./_build/html
   DEB_PYTHON_INSTALL_LAYOUT: deb_system
-  PYVISTA_TRAME_SERVER_PROXY_PREFIX: "/proxy/"
-  PYVISTA_TRAME_SERVER_PROXY_ENABLED: "True"
   PYVISTA_OFF_SCREEN: false
   PYVISTA_JUPYTER_BACKEND: "html"
-
+  LIBGL_ALWAYS_SOFTWARE: 1
 jobs:
   build-docs:
     env:
@@ -29,12 +24,11 @@ jobs:
     runs-on: ubuntu-24.04
     container: ghcr.io/fenics/dolfinx/dolfinx:v0.8.0
     steps:
-      # This action sets the current path to the root of your github repo
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install graphviz and pyvista deps
         run: |
           apt-get update 
-          apt-get install -y graphviz-dev libgl1-mesa-glx xvfb
+          apt-get install -y graphviz-dev libgl1-mesa-dev mesa-utils
 
       - name: Update pip
         run: python3 -m pip install --upgrade pip setuptools
@@ -43,10 +37,11 @@ jobs:
         run: python3 -m pip install -e ".[dev]"
 
       - name: Build docs
-        run: jupyter book build -W .
+        run: jupyter book build .
 
       - name: Upload documentation as artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: documentation
           path: ${{ env.PUBLISH_DIR }}

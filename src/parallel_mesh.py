@@ -1,14 +1,18 @@
-# # Extra topic: Reading in meshes in parallel
+# # Reading in meshes in parallel
 # For more information about mesh-partitioning and mesh input, see: https://jsdokken.com/dolfinx_docs/meshes.html
 # ## Cell ownership
 #
 # For the remainder of this section we will consider a 3x3 unit square mesh:
 
+# +
 from mpi4py import MPI
-import dolfinx
+
 import ipyparallel as ipp
 
+import dolfinx
+
 domain = dolfinx.mesh.create_unit_square(MPI.COMM_WORLD, 3, 3)
+# -
 
 # The mesh consists of cells, edges and vertices.
 # A mesh is created by supplying the information regarding the connectivity between the cells and the mesh nodes.

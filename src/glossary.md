@@ -14,7 +14,7 @@ FEM
     The Finite Element Method
 
 FE
-    A finite element. A encyclopedia can be found at: https://defelement.com/
+    A finite element. A encyclopedia can be found at: https://defelement.org/
 
 Tabulation
     Filling a n-th order tensor with data. Term often used when computing basis values and derivatives at a set of points.
@@ -57,4 +57,17 @@ PARAVIEW
 
 PYVISTA
     Open source visualization software. See: https://pyvista.org/ for more information
+
+DOFs
+    Degrees of freedom. Singular {term}`DOF`
+
+DOF
+    Degree of freedom. Usually the unknown coefficient of a finite element function. Plural Degrees of freedom {term}`DOFs`
+
+GJK
+    Gilbert–Johnson–Keerthi distance algorithm. An algorithm for determining the minimum distance between two convex hulls.
+    For more information see: https://en.wikipedia.org/wiki/Gilbert%E2%80%93Johnson%E2%80%93Keerthi_distance_algorithm
+
+Piola Map
+    A map between Eulerian and Lagrangian coordinates.
 ```
