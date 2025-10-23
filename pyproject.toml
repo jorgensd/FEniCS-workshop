@@ -3,19 +3,20 @@ requires = ["setuptools>=64.4.0", "wheel", "pip>=22.3"]
 
 [project]
 name = "FEniCS_Workshop"
-version = "0.9.0"
+version = "0.10.0"
 description = "FEniCS Workshop"
 authors = [{ name = "Jørgen S. Dokken", email = "dokken@simula.no" }]
 license = { file = "LICENSE" }
 readme = "README.md"
 dependencies = [
-    "fenics-dolfinx>=0.9.0",
+    "fenics-dolfinx>=0.10.0,<0.11.0",
     "pygraphviz",
     "pyvista[all]>=0.45.0",
     "ipyparallel",
     "scifem",
     "scipy",
     "vtk>=9.5.0",
+    "ipykernel<7.0.0",
 ]
 
 [project.optional-dependencies]
@@ -28,6 +29,7 @@ dev = [
     "jupytext",
     "jupyterlab",
     "ruff",
+    "sphinx-codeautolink",
 ]
 
 [tool.mypy]

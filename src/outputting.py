@@ -6,17 +6,17 @@
 # beyond what is possible with the print function in Python.
 
 # As seen for the most basic interactions on an element level, or things such as line plots,
-# we can use the `matplotlib` library to create plots within our scripts.
+# we can use the {py:mod}`matplotlib` library to create plots within our scripts.
 #
 # However, we will often deal with unstructured grids, and sometimes with curved elements, which
-# is not easy to visualize with `matplotlib`.
+# is not easy to visualize with {py:mod}`matplotlib`.
 #
-# We therefore recommend using `pyvista` for visualization within your codes.
+# We therefore recommend using {py:mod}`pyvista` for visualization within your codes.
 # Pyvista can either be used for interactive plotting, or to create screen-shots/pngs.
 # In this tutorial the primary focus is interactive plotting.
 #
 
-# The easiest way to get going with pyvista is to use the following commands
+# The easiest way to get going with {py:mod}`pyvista` is to use the following commands
 
 # +
 import pyvista
@@ -43,7 +43,7 @@ plotter.screenshot("test.png")
 # DOLFINx supports a variety of output formats compatible formats, each with its own
 # benefits and drawbacks.
 
-# ### XDMFFile
+# ### {py:class}`dolfinx.io.XDMFFile`
 #
 # #### Pros
 #  - Preferred format for reading in meshes and mesh tags
@@ -57,7 +57,7 @@ plotter.screenshot("test.png")
 #   the same degree as the mesh coordinate element
 # - No longer maintained by Kitware
 
-# ### VTXWriter
+# ### {py:class}`dolfinx.io.VTXWriter`
 #
 # #### Pros
 # - Flexible format that can output arbitrary order continuous and discontinuous
@@ -68,17 +68,7 @@ plotter.screenshot("test.png")
 # - Some limited support for DG-0 functions (time-dependent functions currently not working)
 # - Storage of a single mesh
 
-# ### FidesWriter
-# #### Pros
-# - Flexible format that can output arbitrary order continuous and discontinuous
-#   Lagrange functions (similar to Pyvista)
-# - Uses a binary format (binary pack) from ADIOS2 as backend, which is easy to adapt to your own purposes.
-# - `bpls` can be used to inspect the files from terminal
-#
-# #### Cons
-# - Can only store linear (first order) meshes
-
-# ### VTKFile
+# ### {py:class}`dolfinx.io.VTKFile`
 #
 # #### Pros
 # - Flexible format that can output arbitrary order continuous and discontinuous

@@ -176,7 +176,7 @@ a, L = dolfinx.fem.form(ufl.system(F))
 
 # Define linear algebra structures
 A = dolfinx.fem.create_matrix(a)
-b = dolfinx.fem.create_vector(L)
+b = dolfinx.fem.create_vector(L.function_spaces[0])
 
 
 t = 0

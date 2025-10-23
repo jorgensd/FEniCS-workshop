@@ -1,6 +1,6 @@
 # (functionals)=
 # # PDE-constrained optimization problems
-# As seen in the previous section, we can use UFL to differentiate our variatonal forms.
+# As seen in the previous section, we can use UFL to differentiate our variational forms.
 # We can then also use UFL to represent PDE-constrained optimization problems.
 #
 # In this section, we will consider PDE-constrained optimization problems of the form
@@ -121,8 +121,8 @@ adj_lhs = ufl.adjoint(dFdu)
 fwd_lhs = dFdu
 fwd_rhs = F
 
-# For the derivative of the functional with respect to the control we use
-# the command `ufl.action` to replace the trial function with `lmbda` to create the matrix-vector product
+# For the derivative of the functional with respect to the control we use the function
+# {py:func}`ufl.action` to replace the trial function with `lmbda` to create the matrix-vector product
 # without forming the matrix
 
 lmbda = ufl.Coefficient(V)

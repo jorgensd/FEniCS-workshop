@@ -1,6 +1,7 @@
 # (external_mesh)=
 # # Meshes from external sources
-# As DOLFINx works on `numpy`-arrays it is quite straightforward to convert any mesh format into this structure.
+# As DOLFINx works on {py:func}`numpy-arrays<numpy.array>`
+# it is quite straightforward to convert any mesh format into this structure.
 # DOLFINx has a `gmsh`-interface, using the {term}`GMSH` Python-API to read `GMSH`-models or `.msh` files.
 # We will start with creating a simple circular geometry (similar to the one used in the
 # [Eshelby problem](https://github.com/msolides-2024/MU5MES01-2024/tree/main/02-Eshelby_inclusion)) using GMSH.
@@ -170,7 +171,7 @@ gmsh.model.mesh.setOrder(3)
 
 # The mesh is generated, but not yet saved to disk. We could save it to disk using `gmsh.write` command, or import it
 # directly into DOLFINx.
-# We choose the latter, and use `dolfinx.io.gmshio.model_to_mesh` to convert the GMSH model to a DOLFINx mesh.
+# We choose the latter, and use {py:func}`dolfinx.io.gmsh.model_to_mesh` to convert the GMSH model to a DOLFINx mesh.
 # For this function we need to send in a few objects:
 # 1. The `gmsh.model` instance
 # 2. The `MPI` communicator we want to distribute the mesh over
@@ -186,9 +187,13 @@ gmsh.model.mesh.setOrder(3)
 #    a higher dimensional space. The `gdim` argument is used to specify the dimension of the mesh when used in DOLFINx.
 #    ```
 #
-# With these inputs we can generate the mesh and the cell and facet markers.
+# The function returns a {py:class}`dolfinx.io.gmsh.MeshData` object, which contains the {py:class}`dolfinx.mesh.Mesh` object,
+# as well as markers any entities (of codimension 0, 1, ..., tdim) if they are contained in the GMSH model.
 
-circular_mesh, cell_marker, facet_marker = dolfinx.io.gmshio.model_to_mesh(gmsh.model, MPI.COMM_WORLD, 0, gdim=2)
+mesh_data = dolfinx.io.gmsh.model_to_mesh(gmsh.model, MPI.COMM_WORLD, 0, gdim=2)
+circular_mesh = mesh_data.mesh
+cell_marker = mesh_data.cell_tags
+facet_marker = mesh_data.facet_tags
 
 # We can now finalize GMSH (as we will not use it further in this section), and inspect the `cell_marker` and `facet_marker`.
 
@@ -196,12 +201,15 @@ gmsh.finalize()
 
 # (mesh_generation:tags)=
 # ## The DOLFINx Meshtags object
-# A `dolfinx.mesh.MeshTags` object is a collection of entities (vertices, edges, facets or cells) in
+# A {py:class}`dolfinx.mesh.MeshTags` object is a collection of entities (vertices, edges, facets or cells) in
 # a mesh that have been tagged with some markers.
-# The `MeshTags` object is used to store information about the mesh, such as boundary conditions or material markers.
-# We can access the dimension of the tag by calling `MeshTags.dim`.
-# To get a list of the entities that have been tagged, we can call `MeshTags.indices`.
-# To get the corresponding marker to each entity in `indices`, we can call `MeshTags.values`.
+# The {py:class}`MeshTags<dolfinx.mesh.MeshTags` object is used to store information about the mesh,
+# such as boundary conditions or material markers.
+# We can access the dimension of the tag by calling {py:attr}`MeshTags.dim<dolfinx.mesh.MeshTags.dim>`.
+# To get a list of the entities that have been tagged, we can call
+# {py:attr}`MeshTags.indices<dolfinx.mesh.MeshTags.indices>`.
+# To get the corresponding marker to each entity in `indices`, we can call
+# {py:attr}`MeshTags.values<dolfinx.mesh.MeshTags.values>`.
 
 # + tags=["remove-input"]
 print(f"{cell_marker.dim=}")
@@ -211,8 +219,8 @@ print(f"{facet_marker.indices=}")
 print(f"{facet_marker.values=}")
 # -
 
-# We can also call `MeshTags.find(value)` to get a list of all indices (local to process)
-# that is marked with the given `value`
+# We can also call {py:meth}`MeshTags.find(value)<dolfinx.mesh.MeshTags.find>`
+# to get a list of all indices (local to process) that is marked with the given `value`
 
 # + tags=["remove-input"]
 print(f"{cell_marker.find(3)=}")

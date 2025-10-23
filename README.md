@@ -1,7 +1,7 @@
 # FEniCS workshop
 
 The FEniCS project is a collection of scientific software for solving partial differential equations {term}`PDE`s with the Finite Element method {term}`FEM`.
-The tutorial is currently built for `v0.9.x` of DOLFINx{cite}`DOLFINx2023`.
+The tutorial is currently built for `v0.10.x` of DOLFINx{cite}`DOLFINx2023`.
 
 ## Installation
 
@@ -30,7 +30,8 @@ Note that on Windows one has to install [Microsoft Visual Studio](https://visual
 :class: important
 PETSc is not available through conda on native Windows.
 The first part of this tutorial does not require PETSc.
-However, for the second part of the tutorial we require PETSc, and thus IntegralType.interior_facet: need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
+However, for the second part of the tutorial we require PETSc,
+and thus need to install DOLFINx on Windows using either WSL (and using conda inside WSL) or Docker.
 ```
 
 ```{bibliography}

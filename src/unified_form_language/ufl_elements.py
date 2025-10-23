@@ -13,7 +13,7 @@
 # :class: note
 # In the following sections we will not be talking about a specific domain $\Omega$ or any boundary conditions.
 # This is due to the fact the UFL is a symbolic language to represent variational problems, and the problems are
-# domain inpdendent, as they are when you write the mathematics on paper.
+# domain independent, as they are when you write the mathematics on paper.
 # ```
 
 # We start by creating a symbolic representation of a computational domain $\Omega$.
@@ -30,25 +30,27 @@ coordinate_element = basix.ufl.element("Lagrange", "triangle", 1, shape=(2,))
 # -
 
 # To recap:
-# - The first input to `basix.ufl.element` is the name of the finite element family we want to use.
+# - The first input to {py:func}`basix.ufl.element` is the name of the finite element family we want to use.
 # - The second input is what cells the computational domain will consist of.
 # - The third input is the degree of the finite element space we want to use to describe the domain.
-# - The fourth argument is a tuple telling basix what the dimension of the points in the physical space are in.
+# - The fourth argument is a tuple telling {py:mod}`basix` what the dimension of the points in the physical space are in.
 #
 # For triangular elements, the last argument can either be `(2, )` or `(3, )`.
 # If the input is `(3, )` we are describing a 2D manifold embedded in 3D.
 
-# In the FEniCS project, we currently support the following cells:
-# - `"vertex"`
+# In the FEniCS project, we currently support the following {py:class}`cells<basix.CellType>`:
+# - `"point"`
 # - `"interval"`
 # - `"triangle"`
 # - `"tetrahedron"`
 # - `"hexahedron"`
 # - `"prism"` (wedges)
+# - `"pyramid"`
+# - `"quadrilateral"`
 
 # As discussed earlier, we could use higher order Lagrange elements to describe curved cells.
 
-# We represent the computational domain with the `ufl.Mesh` class
+# We represent the computational domain with the {py:class}`ufl.Mesh` class
 
 # +
 
@@ -80,8 +82,8 @@ vector_element = basix.ufl.element("Lagrange", cell, 3, shape=(7,))
 # ```{admonition} Vector-valued finite elements
 # :class: warning
 # In the previous section, we encountered the "N1curl" element, which has vector valued basis functions.
-# For these function spaces, it does not make sense to send in a `shape` variable. Instead, if we want multiple "N1curl spaces, we use
-# the `basix.ufl.mixed_element` function
+# For these function spaces, it does not make sense to send in a `shape` variable.
+# Instead, if we want multiple "N1curl spaces, we use the {py:func}`basix.ufl.mixed_element` function
 # ```
 
 curl_el = basix.ufl.element("N1curl", cell, 1)
@@ -121,7 +123,7 @@ import basix.ufl
 vector_element = basix.ufl.element("Lagrange", "triangle", 2, shape=(2,))
 scalar_element = basix.ufl.element("Lagrange", "triangle", 1)
 
-# To create the Taylor-Hood finite element pair, we use the `basix.ufl.mixed_element`
+# To create the Taylor-Hood finite element pair, we use the {py:func}`basix.ufl.mixed_element`
 
 m_el = basix.ufl.mixed_element([vector_element, scalar_element])
 
@@ -132,7 +134,8 @@ m_el = basix.ufl.mixed_element([vector_element, scalar_element])
 
 el_dg = basix.ufl.element("Lagrange", cell, 1, discontinuous=True)
 
-# This means that at any vertex shared between $M$ cells, there will be $M$ unique basis functions, that do not couple between the cells.
+# This means that at any vertex shared between $M$ cells, there will be $M$ unique basis functions,
+# that do not couple between the cells.
 # In a finite element formulation, one would have to add extra integrals to ensure that these degrees of freedom are coupled.
 
 # For the elements of the Lagrange family, we can use the family name "DG" to indicate that the space should be discontinous, i.e.

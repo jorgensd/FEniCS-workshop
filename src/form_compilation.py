@@ -38,11 +38,13 @@ V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
 # In this equation, there are several time dependent and spatially varying coefficients.
 # With a naive implementation of this code in DOLFINx, one would define the variational formulation **inside** the
 # temporal loop, and **re-compile** the variational form for each time step.
-# In DOLFINx, a form is compiled whenever one calls `dolfinx.fem.form`, or initialize a `dolfinx.fem.petsc.LinearProblem`.
+# In DOLFINx, a form is compiled whenever one calls
+# {py:func}`dolfinx.fem.form`, or initialize a
+# {py:class}`dolfinx.fem.petsc.LinearProblem`.
 
 # ## Time-dependent constants
-# To be able to use adaptive time stepping, we define `dt` as a `dolfinx.fem.Constant`, such that we can re-assign values to the
-# constant without having to re-compile the code.
+# To be able to use adaptive time stepping, we define `dt` as a {py:class}`dolfinx.fem.Constant`,
+# such that we can re-assign values to the constant without having to re-compile the code.
 
 dt = dolfinx.fem.Constant(mesh, 0.01)
 
@@ -71,7 +73,7 @@ t.value = 0
 # -
 
 # ## Conditional values
-# Next, we define the spatial and temporal source term using a `ufl.conditional`
+# Next, we define the spatial and temporal source term using a {py:func}`ufl.conditional`
 # We start by defining the spatially varying parameters of the mesh
 
 x, y = ufl.SpatialCoordinate(mesh)
@@ -109,7 +111,8 @@ F = dudt * v * dx + k * ufl.inner(ufl.grad(u), ufl.grad(v)) * dx - f * v * dx
 a, L = ufl.system(F)
 
 # ## Explicit code generation
-# We generate and compile the C code for these expressions using `dolfinx.fem.form`
+# We generate and compile the C code for these expressions using
+# {py:func}`dolfinx.fem.form`
 
 # +
 a_compiled = dolfinx.fem.form(a)
@@ -140,7 +143,7 @@ u_n.interpolate(u_init)
 # + [markdown]
 # ## Setting up the linear solver
 # As we have now defined `a` and `L`, we are ready to set up a solver for the arising linear system.
-# We use PETSc for this, and a direct solver.
+# We use the high level wrapper {py:class}`dolfinx.fem.petsc.LinearProblem` for this, and a direct solver.
 # -
 
 uh = dolfinx.fem.Function(V)
@@ -149,11 +152,15 @@ petsc_options = {
     "pc_type": "lu",
     "pc_factor_mat_solver_type": "mumps",
 }
-problem = dolfinx.fem.petsc.LinearProblem(a_compiled, L_compiled, u=uh, bcs=[], petsc_options=petsc_options)
+problem = dolfinx.fem.petsc.LinearProblem(
+    a_compiled, L_compiled, u=uh, bcs=[], petsc_options=petsc_options, petsc_options_prefix="form_compilation_"
+)
 
 # ## The temporal loop
 
-# For each temporal step, we update the time variable and call the `solve` command that re-assemble the system
+# For each temporal step, we update the time variable and call the
+# {py:meth}`solve<dolfinx.fem.petsc.LinearProblem.solve>`
+# command that re-assemble the system
 
 T = 1
 while t.value < T:
@@ -165,6 +172,7 @@ while t.value < T:
 
 
 # ```{note}
-# Note that there is no definitions of variables within the temporal loop. There is simply copying of data or accumulation of data
-# from the previous time step. This is a very efficient way of solving time-dependent problems in DOLFINx.
+# Note that there is no definitions of variables within the temporal loop.
+# There is simply copying of data or accumulation of data from the previous time step
+# This is a very efficient way of solving time-dependent problems in DOLFINx.
 # ```
