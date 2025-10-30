@@ -3,7 +3,7 @@ requires = ["setuptools>=64.4.0", "wheel", "pip>=22.3"]
 
 [project]
 name = "FEniCS_Workshop"
-version = "0.10.0"
+version = "0.10.1"
 description = "FEniCS Workshop"
 authors = [{ name = "Jørgen S. Dokken", email = "dokken@simula.no" }]
 license = { file = "LICENSE" }
