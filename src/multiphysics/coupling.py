@@ -201,8 +201,6 @@ W = ufl.MixedFunctionSpace(V, Q)
 # ```
 
 # As discussed in the previous chapter, we need to choose a mesh to integrate over.
-# As we would like to exploit the definition of the `n=ufl.FacetNormal(\Omega)` in our
-# variational problem, we choose the integration domain to be $\Omega$.
 
 dx = ufl.Measure("dx", domain=omega)
 ds = ufl.Measure("ds", domain=omega, subdomain_data=ft, subdomain_id=potential_contact_marker)
@@ -228,7 +226,6 @@ uD = 0.72
 
 # Similarly, we have that $\hat n = (0, -1)$
 
-n = ufl.FacetNormal(omega)
 n_g = dolfinx.fem.Constant(omega, np.zeros(gdim, dtype=dolfinx.default_scalar_type))
 n_g.value[-1] = -1
 f = dolfinx.fem.Constant(omega, np.zeros(gdim, dtype=dolfinx.default_scalar_type))
@@ -257,7 +254,7 @@ def sigma(w, mu, lmbda):
 
 F = alpha * ufl.inner(sigma(u, mu, lmbda), epsilon(v)) * dx
 F -= alpha * ufl.inner(f, v) * dx
-F += -ufl.inner(psi - psi_k, ufl.dot(v, n)) * ds
+F += -ufl.inner(psi - psi_k, ufl.dot(v, n_g)) * ds
 F += ufl.inner(ufl.dot(u, n_g), w) * ds
 F += ufl.inner(ufl.exp(psi), w) * ds - ufl.inner(g, w) * ds
 residual = ufl.extract_blocks(F)
@@ -293,6 +290,7 @@ u_bc.interpolate(disp_func)
 bc = dolfinx.fem.dirichletbc(u_bc, dolfinx.fem.locate_dofs_topological(V, fdim, ft.find(displacement_marker)))
 bcs = [bc]
 
+# -
 
 # We want to consider the Von-Mises stresses in post-processing, and
 # use DOLFINx Expression to interpolate the stresses into an appropriate
@@ -331,13 +329,34 @@ solver = dolfinx.fem.petsc.NonlinearProblem(
 # In this problem, we measure the norm of the change in the primal space,
 # rather than the for the mixed function.
 
+# +
+
 max_iterations = 25
 normed_diff = 0
-tol = 1e-5
+tol = 1e-10
 
-solver.solve()
-iterations = solver.solver.getIterationNumber()
-print(f"Converged in {iterations} iterations")
+u_prev = dolfinx.fem.Function(V)
+diff = dolfinx.fem.Function(V)
+for it in range(max_iterations):
+    print(f"{it=}/{max_iterations} {normed_diff:.2e}")
+    # Solve the first iterations inaccurately
+    solver_tol = 100 * tol if it < 3 else tol
+    solver.solver.setTolerances(rtol=solver_tol, atol=solver_tol, stol=solver_tol)
+    solver.solve()
+
+    diff.x.array[:] = u.x.array - u_prev.x.array
+    diff.x.petsc_vec.normBegin(2)
+    normed_diff = diff.x.petsc_vec.normEnd(2)
+    if normed_diff <= tol and it >= 3:
+        print(f"Converged at {it=} with increment norm {normed_diff:.2e}<{tol:.2e}")
+        break
+    u_prev.x.array[:] = u.x.array
+    psi_k.x.array[:] = psi.x.array
+
+if it == max_iterations - 1:
+    print(f"Did not converge within {max_iterations} iterations")
+
+# -
 
 # We compute the von-Mises stresses for the final solution
 
@@ -347,9 +366,6 @@ von_mises.interpolate(stress_expr)
 # for compatible visualization in Pyvista.
 
 u_dg.interpolate(u)
-
-
-# -
 
 # + tags=["hide-input"]
 
