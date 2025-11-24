@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
     container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install graphviz and pyvista deps
         run: |
           apt-get update 
